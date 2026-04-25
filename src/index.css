@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  /* Artistic Flair Palette */
+  --color-cream: #FDFBF7;
+  --color-choco: #2D1E17;
+  --color-gold: #A67C52;
+  --color-clay: #544136;
+
+  @keyframes slow-zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+}
+
+@utility writing-vertical-lr {
+  writing-mode: vertical-lr;
+}
+
+@utility animate-slow-zoom {
+  animation: slow-zoom 20s ease-in-out infinite alternate;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream text-choco font-serif selection:bg-gold/30;
+  }
+}
