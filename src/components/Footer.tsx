@@ -1,4 +1,5 @@
-import { Instagram, Facebook, Twitter, MapPin, Phone, Mail } from 'lucide-react';
+import { Instagram, Facebook, Twitter, MapPin, Phone, Mail, MessageCircle } from 'lucide-react';
+import { WHATSAPP_URL, WHATSAPP_DISPLAY, PHONE_DISPLAY, PHONE_TEL } from '../constants';
 
 export default function Footer() {
   return (
@@ -7,14 +8,14 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-16 mb-20">
           <div className="space-y-8">
             <div className="flex items-center gap-4">
-              <img 
-                src="https://storage.googleapis.com/static.6sd3zosursi3hp5e554img.asia-southeast1.run.app/logo_c8f85be0.png" 
-                alt="Logo" 
-                className="h-16 w-16 object-contain brightness-0 invert"
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="h-16 w-16 object-contain"
               />
               <div className="flex flex-col leading-tight">
                 <span className="text-2xl font-black tracking-tighter uppercase text-cream">
-                  Crafty<br/>Chocolates
+                  Crafty<br />Chocolates
                 </span>
               </div>
             </div>
@@ -49,20 +50,20 @@ export default function Footer() {
           <div>
             <h4 className="text-cream text-[10px] uppercase tracking-[0.3em] font-black mb-8">Studio Labs</h4>
             <ul className="space-y-4 text-[10px] uppercase tracking-widest font-bold">
-              <li className="hover:text-gold cursor-pointer transition-colors">The 3D Sculptory</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">Precision Pours</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">Single Origin Sourcing</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">Bespoke Inquiries</li>
+              <li><a href="#custom-molds" className="hover:text-gold transition-colors">The 3D Sculptory</a></li>
+              <li><a href="#custom-molds" className="hover:text-gold transition-colors">Precision Pours</a></li>
+              <li><a href="#our-story" className="hover:text-gold transition-colors">Single Origin Sourcing</a></li>
+              <li><a href="#custom-molds" className="hover:text-gold transition-colors">Bespoke Inquiries</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-cream text-[10px] uppercase tracking-[0.3em] font-black mb-8">Navigation</h4>
             <ul className="space-y-4 text-[10px] uppercase tracking-widest font-bold">
-              <li className="hover:text-gold cursor-pointer transition-colors">Current Collection</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">Client Archive</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">The Process</li>
-              <li className="hover:text-gold cursor-pointer transition-colors">Sustainability</li>
+              <li><a href="#collections" className="hover:text-gold transition-colors">Current Collection</a></li>
+              <li><a href="#testimonials" className="hover:text-gold transition-colors">Client Archive</a></li>
+              <li><a href="#custom-molds" className="hover:text-gold transition-colors">The Process</a></li>
+              <li><a href="#our-story" className="hover:text-gold transition-colors">Sustainability</a></li>
             </ul>
           </div>
 
@@ -70,15 +71,26 @@ export default function Footer() {
             <h4 className="text-cream text-[10px] uppercase tracking-[0.3em] font-black mb-8">The Foundry</h4>
             <ul className="space-y-6 text-[10px] uppercase tracking-widest font-bold">
               <li className="flex items-start gap-4">
-                <MapPin size={14} className="text-gold shrink-0" /> 
-                <span>123 Artisan Alley,<br/>Foundry District</span>
+                <MapPin size={14} className="text-gold shrink-0" />
+                <span>123 Artisan Alley,<br />Foundry District</span>
               </li>
               <li className="flex items-center gap-4">
-                <Phone size={14} className="text-gold shrink-0" /> 
-                <span>+1 (555) 012-CHOC</span>
+                <Phone size={14} className="text-gold shrink-0" />
+                <a href={`tel:${PHONE_TEL}`} className="hover:text-gold transition-colors">{PHONE_DISPLAY}</a>
               </li>
               <li className="flex items-center gap-4">
-                <Mail size={14} className="text-gold shrink-0" /> 
+                <MessageCircle size={14} className="text-gold shrink-0" />
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gold transition-colors"
+                >
+                  WhatsApp: {WHATSAPP_DISPLAY}
+                </a>
+              </li>
+              <li className="flex items-center gap-4">
+                <Mail size={14} className="text-gold shrink-0" />
                 <span>hello@craftychocolates.com</span>
               </li>
             </ul>

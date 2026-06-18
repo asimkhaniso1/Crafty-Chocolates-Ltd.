@@ -6,3 +6,14 @@ coverage/
 *.log
 .env*
 !.env.example
+.vercel
+
+# Drupal backup quarantine (never commit — contains old site data + potentially infected files)
+backup_old/
+_quarantine/
+*.sql
+*.sql.gz
+
+# Local scratch + agent config (never deploy)
+.tmp/
+.claude/

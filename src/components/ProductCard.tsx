@@ -1,20 +1,15 @@
 import { MouseEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShoppingCart, Share2 } from 'lucide-react';
 import { Product } from '../types';
+import { formatPrice } from '../constants';
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   key?: string;
 }
-
-const IMAGE_PLACEHOLDERS: Record<string, string> = {
-  'product_truffles': 'https://images.unsplash.com/photo-1549007994-cb92cfd7d4d8?auto=format&fit=crop&q=80&w=800',
-  'product_dark_bar': 'https://images.unsplash.com/photo-1623334234217-37c88e5066a9?auto=format&fit=crop&q=80&w=800',
-  'custom_mold_process': 'https://images.unsplash.com/photo-1623334234204-62921a8cd354?auto=format&fit=crop&q=80&w=800',
-  'seasonal_pumpkin': 'https://images.unsplash.com/photo-1579954115545-a95591f28be0?auto=format&fit=crop&q=80&w=800'
-};
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const handleShare = async (e: MouseEvent) => {
@@ -48,13 +43,13 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       transition={{ duration: 0.8 }}
       className="group"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-white mb-6 border border-choco/5 group-hover:border-gold/30 transition-colors duration-500">
+      <Link to={`/product/${encodeURIComponent(product.sku)}`} className="block relative aspect-[4/5] overflow-hidden bg-white mb-6 border border-choco/5 group-hover:border-gold/30 transition-colors duration-500">
         <motion.img
           layoutId={`img-${product.id}`}
-          src={IMAGE_PLACEHOLDERS[product.image] || `https://picsum.photos/seed/${product.id}/800/1000`}
+          src={product.image}
           alt={product.name}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-1"
-          referrerPolicy="no-referrer"
         />
         
         {/* Subtle Overlay Tint */}
@@ -71,15 +66,15 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
 
         <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out bg-gradient-to-t from-choco/80 via-choco/40 to-transparent">
           <button
-            onClick={() => onAddToCart(product)}
+            onClick={(e) => { e.preventDefault(); onAddToCart(product); }}
             className="w-full bg-white text-choco py-3 flex items-center justify-center gap-2 text-[10px] font-sans font-black uppercase tracking-[0.2em] hover:bg-gold hover:text-white transition-all transform active:scale-95"
           >
             <ShoppingCart size={14} /> Add to Bag
           </button>
         </div>
-      </div>
-      
-      <div className="space-y-2 transform transition-transform duration-500 group-hover:-translate-y-1">
+      </Link>
+
+      <Link to={`/product/${encodeURIComponent(product.sku)}`} className="block space-y-2 transform transition-transform duration-500 group-hover:-translate-y-1">
         <div className="flex justify-between items-start">
           <div>
             <span className="text-[10px] uppercase font-sans font-bold text-gold tracking-widest block mb-1 group-hover:tracking-[0.3em] transition-all duration-500">
@@ -89,12 +84,12 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
               {product.name}
             </h3>
           </div>
-          <span className="text-lg font-bold text-choco">${product.price.toFixed(2)}</span>
+          <span className="text-lg font-bold text-choco whitespace-nowrap">{formatPrice(product.price, product.currency)}</span>
         </div>
         <p className="text-clay text-sm leading-relaxed line-clamp-2 italic font-serif opacity-80 group-hover:opacity-100 transition-opacity">
           {product.description}
         </p>
-      </div>
+      </Link>
     </motion.div>
   );
 }

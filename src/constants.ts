@@ -1,36 +1,18 @@
-import { Product } from './types';
+// Re-export real product data extracted from the original Drupal site.
+export { PRODUCTS, CATEGORIES, FORMATS, EVENTS } from './data/products';
 
-export const PRODUCTS: Product[] = [
-  {
-    id: '1',
-    name: 'Signature Sea Salt Truffle',
-    price: 4.50,
-    description: 'Our award-winning 70% dark chocolate truffle topped with hand-harvested sea salt.',
-    image: 'product_truffles',
-    category: 'Classic'
-  },
-  {
-    id: '2',
-    name: 'Botanical Relief Bar',
-    price: 12.00,
-    description: 'A dark chocolate bar featuring intricate custom-molded floral motifs.',
-    image: 'product_dark_bar',
-    category: 'Bespoke'
-  },
-  {
-    id: '3',
-    name: 'Custom Corporate Mold',
-    price: 85.00,
-    description: 'A unique experience: we create a custom mold for your brand or event. Includes first 5 bars.',
-    image: 'custom_mold_process',
-    category: 'Bespoke'
-  },
-  {
-    id: '4',
-    name: 'Gilded Autumn Pumpkin',
-    price: 18.00,
-    description: 'A seasonal masterpiece: white chocolate pumpkin with a spiced pumpkin ganache center, finished with edible gold leaf.',
-    image: 'seasonal_pumpkin',
-    category: 'Seasonal'
-  }
-];
+// Contact details
+export const PHONE_DISPLAY = '021-34973151';
+export const PHONE_TEL = '+922134973151';
+// WhatsApp click-to-chat: international format, no '+' or dashes.
+export const WHATSAPP_NUMBER = '923332527370';
+// Local Pakistani format for showing in UI / footer / cards.
+export const WHATSAPP_DISPLAY = '0333-2527370';
+export const WHATSAPP_MESSAGE = "Hello Crafty Chocolates, I'd like to enquire about your products.";
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+
+export function formatPrice(amount: number, currency: string = 'PKR'): string {
+  if (currency === 'PKR') return `Rs. ${Math.round(amount).toLocaleString('en-PK')}`;
+  if (currency === 'USD') return `$${amount.toFixed(2)}`;
+  return `${currency} ${amount.toFixed(2)}`;
+}

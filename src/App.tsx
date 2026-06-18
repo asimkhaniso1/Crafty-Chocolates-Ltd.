@@ -4,25 +4,54 @@
  */
 
 import { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
+import ProductPage from './components/ProductPage';
 import CustomMoldSection from './components/CustomMoldSection';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
-import { PRODUCTS } from './constants';
+import WhatsAppFloat from './components/WhatsAppFloat';
 import { CartItem, Product } from './types';
 import { motion, AnimatePresence } from 'motion/react';
+import { useProducts, deriveFacets } from './lib/products';
+import AdminPage from './pages/AdminPage';
+import LoginPage from './pages/LoginPage';
 
 export default function App() {
+  const { products, loading } = useProducts();
+  const { formats, events } = deriveFacets(products);
+  const FORMAT_TABS_LOCAL = ['All', ...formats];
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<'All' | 'Classic' | 'Bespoke' | 'Seasonal'>('All');
+  const [selectedFormat, setSelectedFormat] = useState<string>('All');
+  const [selectedEvents, setSelectedEvents] = useState<Set<string>>(new Set());
 
-  const filteredProducts = selectedCategory === 'All' 
-    ? PRODUCTS 
-    : PRODUCTS.filter(p => p.category === selectedCategory);
+  const CATEGORY_ORDER: Record<string, number> = { 'Ready to Ship': 0, 'Custom': 1, 'Homeware': 2 };
+  const filteredProducts = products
+    .filter(p => {
+      if (selectedFormat !== 'All' && p.format !== selectedFormat) return false;
+      if (selectedEvents.size > 0 && !p.events.some(e => selectedEvents.has(e))) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const ca = CATEGORY_ORDER[a.category] ?? 99;
+      const cb = CATEGORY_ORDER[b.category] ?? 99;
+      if (ca !== cb) return ca - cb;
+      return a.name.localeCompare(b.name);
+    });
+
+  const toggleEvent = (ev: string) => {
+    setSelectedEvents(prev => {
+      const next = new Set(prev);
+      if (next.has(ev)) next.delete(ev); else next.add(ev);
+      return next;
+    });
+  };
+  const clearEvents = () => setSelectedEvents(new Set());
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
@@ -40,9 +69,9 @@ export default function App() {
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCart((prev) => 
-      prev.map((item) => 
-        item.product.id === productId 
+    setCart((prev) =>
+      prev.map((item) =>
+        item.product.id === productId
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
       )
@@ -58,12 +87,56 @@ export default function App() {
   return (
     <div className="min-h-screen bg-stone-50 font-sans selection:bg-amber-200 selection:text-amber-900">
       <Header cartCount={cartCount} onOpenCart={() => setIsCartOpen(true)} />
-      
+
+      <Routes>
+        <Route path="/admin/login" element={<LoginPage />} />
+        <Route path="/admin/*" element={<AdminPage />} />
+        <Route path="/product/:sku" element={<ProductPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/" element={
       <main>
-        <Hero />
-        
+        <div id="home">
+          <Hero />
+        </div>
+
+        {/* Our Story Section */}
+        <section id="our-story" className="py-24 bg-stone-50 overflow-hidden border-b border-choco/10">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="flex flex-col md:flex-row items-center gap-16">
+              <div className="flex-1 space-y-8">
+                <span className="text-gold text-xs uppercase tracking-[0.3em] font-bold block">Our Legacy</span>
+                <h2 className="text-[40px] md:text-[60px] font-black uppercase text-choco leading-[0.9] tracking-tighter">
+                  Crafting the <span className="text-gold italic font-serif lowercase font-normal">extraordinary.</span>
+                </h2>
+                <p className="text-clay text-lg leading-relaxed font-medium">
+                  Founded in 2020, Crafty Chocolates was born from a desire to merge the precision of modern engineering with the soul of artisanal confectionery. We believe that chocolate is not just a treat, but a medium for expression.
+                </p>
+                <div className="flex gap-12">
+                  <div>
+                    <h5 className="text-choco font-black text-2xl tracking-tighter">2020</h5>
+                    <p className="text-[10px] uppercase tracking-widest text-gold font-bold">Inception</p>
+                  </div>
+                  <div>
+                    <h5 className="text-choco font-black text-2xl tracking-tighter">500+</h5>
+                    <p className="text-[10px] uppercase tracking-widest text-gold font-bold">Custom Designs</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="relative aspect-video bg-choco overflow-hidden rounded-sm shadow-2xl">
+                  <img
+                    src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&q=80&w=1200"
+                    alt="Our studio"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Featured Products Selection */}
-        <section id="shop" className="py-24 bg-cream">
+        <section id="collections" className="py-24 bg-cream">
           <div className="container mx-auto px-6 md:px-12">
             <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
               <div className="max-w-xl">
@@ -73,13 +146,12 @@ export default function App() {
                 </h2>
               </div>
               <div className="flex flex-wrap gap-8 font-sans text-[10px] uppercase tracking-[0.2em] font-bold">
-                {['All', 'Classic', 'Bespoke', 'Seasonal'].map((tab) => (
-                  <button 
+                {FORMAT_TABS_LOCAL.map((tab) => (
+                  <button
                     key={tab}
-                    onClick={() => setSelectedCategory(tab as any)}
-                    className={`pb-2 border-b-2 transition-all cursor-pointer ${
-                      selectedCategory === tab ? 'border-choco text-choco' : 'border-transparent text-clay hover:text-gold'
-                    }`}
+                    onClick={() => setSelectedFormat(tab)}
+                    className={`pb-2 border-b-2 transition-all cursor-pointer ${selectedFormat === tab ? 'border-choco text-choco' : 'border-transparent text-clay hover:text-gold'
+                      }`}
                   >
                     {tab}
                   </button>
@@ -87,7 +159,40 @@ export default function App() {
               </div>
             </div>
 
-            <motion.div 
+            {/* Event / occasion chips */}
+            <div className="mb-12 flex flex-wrap items-center gap-2">
+              <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold mr-2">Occasion:</span>
+              {events.map(ev => {
+                const active = selectedEvents.has(ev);
+                return (
+                  <button
+                    key={ev}
+                    onClick={() => toggleEvent(ev)}
+                    className={`px-3 py-1.5 text-[11px] font-sans font-semibold uppercase tracking-wider border transition-all cursor-pointer ${
+                      active
+                        ? 'bg-choco text-cream border-choco'
+                        : 'bg-transparent text-choco border-choco/20 hover:border-gold hover:text-gold'
+                    }`}
+                  >
+                    {ev}
+                  </button>
+                );
+              })}
+              {selectedEvents.size > 0 && (
+                <button
+                  onClick={clearEvents}
+                  className="px-3 py-1.5 text-[11px] font-sans font-semibold uppercase tracking-wider text-clay hover:text-gold underline underline-offset-4 decoration-clay/30"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+
+            <div className="mb-8 text-[11px] uppercase tracking-[0.2em] text-clay font-bold">
+              {filteredProducts.length} {filteredProducts.length === 1 ? 'piece' : 'pieces'}
+            </div>
+
+            <motion.div
               layout
               className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24"
             >
@@ -101,9 +206,9 @@ export default function App() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <ProductCard 
-                      product={product} 
-                      onAddToCart={addToCart} 
+                    <ProductCard
+                      product={product}
+                      onAddToCart={addToCart}
                     />
                   </motion.div>
                 ))}
@@ -133,9 +238,9 @@ export default function App() {
                 Receive invitations to private tasting events and early access to our seasonal bespoke collections.
               </p>
               <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-                <input 
-                  type="email" 
-                  placeholder="DIGITAL ADDRESS" 
+                <input
+                  type="email"
+                  placeholder="DIGITAL ADDRESS"
                   className="flex-1 bg-white/5 border border-white/10 px-8 py-5 text-cream placeholder:text-cream/20 focus:outline-none focus:bg-white/10 transition-all font-sans text-xs tracking-widest"
                 />
                 <button className="bg-gold text-white px-10 py-5 uppercase font-sans text-xs tracking-widest font-black hover:bg-white hover:text-choco transition-all">
@@ -144,22 +249,26 @@ export default function App() {
               </form>
             </motion.div>
           </div>
-          
+
           {/* Decorative background circle */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/5 rounded-full" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] border border-white/5 rounded-full rotate-45" />
         </section>
       </main>
+        } />
+      </Routes>
 
       <Footer />
 
-      <CartDrawer 
+      <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         items={cart}
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}
       />
+
+      <WhatsAppFloat />
     </div>
   );
 }

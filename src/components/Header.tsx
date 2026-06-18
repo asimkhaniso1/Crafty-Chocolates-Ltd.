@@ -20,36 +20,40 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
   }, []);
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${
-        isScrolled 
-          ? 'bg-cream/95 backdrop-blur-md py-4 border-choco/10 shadow-sm' 
-          : 'bg-transparent py-8 border-transparent'
-      }`}
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${isScrolled
+        ? 'bg-cream/95 backdrop-blur-md py-4 border-choco/10 shadow-sm'
+        : 'bg-transparent py-8 border-transparent'
+        }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-12">
           <div className="flex items-center gap-4">
-            <img 
-              src="https://storage.googleapis.com/static.6sd3zosursi3hp5e554img.asia-southeast1.run.app/logo_c8f85be0.png" 
-              alt="Crafty Chocolates Logo" 
+            <img
+              src="/logo.png"
+              alt="Crafty Chocolates Logo"
               className="h-14 w-14 object-contain"
             />
             <div className="flex flex-col leading-none">
               <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-choco">
-                Crafty<br/>Chocolates
+                Crafty<br />Chocolates
               </span>
             </div>
           </div>
-          
+
           <nav className="hidden md:flex items-center gap-10">
-            {['Collections', 'Custom Molds', 'Our Story', 'Shop'].map((item) => (
-              <a 
-                key={item} 
-                href={`#${item.toLowerCase().replace(' ', '-')}`}
+            {[
+              { name: 'Collections', href: '#collections' },
+              { name: 'Custom Molds', href: '#custom-molds' },
+              { name: 'Our Story', href: '#our-story' },
+              { name: 'Shop', href: '#collections' }
+            ].map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
                 className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
               >
-                {item}
+                {item.name}
               </a>
             ))}
           </nav>
@@ -63,8 +67,8 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           <button className="text-choco hover:text-gold transition-colors">
             <User size={18} strokeWidth={2.5} />
           </button>
-          
-          <button 
+
+          <button
             onClick={onOpenCart}
             className="flex items-center gap-2 group"
           >
@@ -74,7 +78,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             <ShoppingBag size={18} className="text-choco" strokeWidth={2.5} />
           </button>
 
-          <button 
+          <button
             className="md:hidden p-2 text-choco"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -92,14 +96,19 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             className="bg-cream border-t border-choco/10 overflow-hidden md:hidden"
           >
             <nav className="flex flex-col p-8 gap-6 text-center">
-              {['Collections', 'Custom Molds', 'Our Story', 'Shop'].map((item) => (
-                <a 
-                  key={item} 
-                  href={`#${item.toLowerCase().replace(' ', '-')}`}
+              {[
+                { name: 'Collections', href: '#collections' },
+                { name: 'Custom Molds', href: '#custom-molds' },
+                { name: 'Our Story', href: '#our-story' },
+                { name: 'Shop', href: '#collections' }
+              ].map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="font-serif text-2xl text-choco hover:text-gold italic"
                 >
-                  {item}
+                  {item.name}
                 </a>
               ))}
             </nav>

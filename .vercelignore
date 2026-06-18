@@ -1,0 +1,7 @@
+backup_old/
+_quarantine/
+scripts/
+node_modules/
+*.sql
+*.sql.gz
+.git/

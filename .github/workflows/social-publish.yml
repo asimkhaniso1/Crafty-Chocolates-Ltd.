@@ -1,0 +1,64 @@
+name: Social Publish
+
+on:
+  schedule:
+    # 11:00 UTC = 16:00 Karachi (PKT, UTC+5). Mon-Sat. Sunday off.
+    - cron: '0 11 * * 1-6'
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Comma-separated override (e.g. facebook,instagram). Empty = dry-run.'
+        required: false
+        default: ''
+      no_jitter:
+        description: 'Skip the 0-30 min randomized delay'
+        type: boolean
+        default: true
+
+concurrency:
+  group: social-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      # Schedule-driven runs let lib/schedule.ts decide platforms.
+      # Manual runs use the input override.
+      PLATFORMS: ${{ github.event.inputs.platforms }}
+      NO_JITTER: ${{ github.event.inputs.no_jitter == 'true' && '1' || '' }}
+      CI: 'true'
+      GITHUB_REPOSITORY: ${{ github.repository }}
+
+      META_SYSTEM_USER_TOKEN: ${{ secrets.META_SYSTEM_USER_TOKEN }}
+      META_FB_PAGE_ID: ${{ secrets.META_FB_PAGE_ID }}
+      META_IG_BUSINESS_ID: ${{ secrets.META_IG_BUSINESS_ID }}
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      GH_PAT_FOR_SECRETS: ${{ secrets.GH_PAT_FOR_SECRETS }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SITE_URL: ${{ secrets.SITE_URL }}
+      WA_NUMBER: ${{ secrets.WA_NUMBER }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Confirm ffmpeg is available (preinstalled)
+        run: ffmpeg -version | head -n1
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Publish
+        run: npx tsx scripts/social/publish.ts

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
-import { CartItem, Product } from '../types';
+import { CartItem } from '../types';
+import { formatPrice } from '../constants';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -58,18 +59,18 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, o
                 items.map((item) => (
                   <div key={item.product.id} className="flex gap-6 group">
                     <div className="w-24 h-24 bg-white flex-shrink-0 border border-choco/5 overflow-hidden">
-                      <img 
-                        src={`https://picsum.photos/seed/${item.product.id}/200`} 
+                      <img
+                        src={item.product.image}
                         alt={item.product.name}
-                        className="w-full h-full object-cover grayscale-[0.3] transition-all group-hover:grayscale-0"
-                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-all"
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-start">
                           <h4 className="font-bold uppercase tracking-tight text-choco leading-none">{item.product.name}</h4>
-                          <span className="text-choco font-bold text-sm">${item.product.price.toFixed(2)}</span>
+                          <span className="text-choco font-bold text-sm whitespace-nowrap">{formatPrice(item.product.price, item.product.currency)}</span>
                         </div>
                         <p className="text-[10px] text-gold uppercase tracking-widest font-black mt-2">{item.product.category}</p>
                       </div>
@@ -106,16 +107,16 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, o
               <div className="p-8 bg-white border-t border-choco/10">
                 <div className="flex justify-between mb-6">
                   <span className="text-clay uppercase tracking-[0.2em] text-[10px] font-black">Archive Subtotal</span>
-                  <span className="text-2xl font-black tracking-tighter text-choco">${subtotal.toFixed(2)}</span>
+                  <span className="text-2xl font-black tracking-tighter text-choco">{formatPrice(subtotal, items[0]?.product.currency || 'PKR')}</span>
                 </div>
                 <button className="w-full bg-choco text-white py-5 font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-choco/10">
                   Begin Checkout
                 </button>
                 <div className="mt-6 flex justify-center">
-                   <img 
-                     src="https://storage.googleapis.com/static.6sd3zosursi3hp5e554img.asia-southeast1.run.app/logo_c8f85be0.png" 
-                     className="h-12 object-contain opacity-80" 
-                     alt="Brand Logo"
+                   <img
+                     src="/logo.png"
+                     className="h-12 object-contain opacity-80"
+                     alt="Crafty Chocolates"
                    />
                 </div>
               </div>
