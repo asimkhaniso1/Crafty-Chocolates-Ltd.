@@ -1,11 +1,13 @@
 import { motion } from 'motion/react';
-import { Building2, Gem, Heart, MessageCircle } from 'lucide-react';
+import { Building2, Gem, Heart, MessageCircle, Package } from 'lucide-react';
 import { WHATSAPP_NUMBER } from '../constants';
 
 const CORPORATE_MESSAGE = "Hello Crafty Chocolates, I'd like a quote for corporate logo chocolates. Company: ___  Quantity: ___  Occasion: ___";
 const WEDDING_MESSAGE = "Hello Crafty Chocolates, I'd like to order wedding favors. Event date: ___  Guest count: ___";
+const OEM_MESSAGE = "Hello Crafty Chocolates, I'm interested in wholesale / white-label supply. Business: ___  Monthly quantity: ___";
 const CORPORATE_WA_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(CORPORATE_MESSAGE)}`;
 const WEDDING_WA_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WEDDING_MESSAGE)}`;
+const OEM_WA_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(OEM_MESSAGE)}`;
 
 const TIERS = [
   {
@@ -79,6 +81,36 @@ export default function CorporateSection() {
             </motion.div>
           ))}
         </div>
+
+        {/* Wholesale / white-label strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-12 border border-choco/15 bg-choco text-cream p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-6"
+        >
+          <Package className="text-gold shrink-0" size={32} strokeWidth={1.5} />
+          <div className="flex-1">
+            <h3 className="font-black uppercase tracking-tight text-xl mb-1">
+              Wholesale &amp; White-Label
+            </h3>
+            <p className="text-cream/60 font-medium text-sm leading-relaxed max-w-2xl">
+              For gift studios, event planners, caterers and hotels: we craft and foil-wrap
+              custom-molded chocolates in bulk &mdash; you box and brand them your way.
+              Steady supply, consistent quality, your name on the box.
+            </p>
+          </div>
+          <a
+            href={OEM_WA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gold text-white px-6 py-4 uppercase font-sans text-xs tracking-widest font-bold hover:bg-cream hover:text-choco transition-all shrink-0"
+          >
+            <MessageCircle size={14} strokeWidth={2.5} />
+            Talk Supply
+          </a>
+        </motion.div>
       </div>
     </section>
   );
