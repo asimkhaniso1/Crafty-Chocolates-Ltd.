@@ -10,6 +10,7 @@ import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
 import ProductPage from './components/ProductPage';
 import CustomMoldSection from './components/CustomMoldSection';
+import CorporateSection from './components/CorporateSection';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
@@ -17,6 +18,7 @@ import WhatsAppFloat from './components/WhatsAppFloat';
 import { CartItem, Product } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts, deriveFacets } from './lib/products';
+import { WHATSAPP_NUMBER } from './constants';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 
@@ -219,6 +221,8 @@ export default function App() {
 
         <CustomMoldSection />
 
+        <CorporateSection />
+
         <Testimonials />
 
         {/* Newsletter / CTA Section */}
@@ -237,9 +241,19 @@ export default function App() {
               <p className="text-cream/50 mb-12 text-lg font-medium leading-relaxed italic">
                 Receive invitations to private tasting events and early access to our seasonal bespoke collections.
               </p>
-              <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+              <form
+                className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = new FormData(e.currentTarget).get('email');
+                  const msg = `Hello Crafty Chocolates, please add me to the Inner Circle for tasting events and seasonal collections. Email: ${email}`;
+                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+              >
                 <input
                   type="email"
+                  name="email"
+                  required
                   placeholder="DIGITAL ADDRESS"
                   className="flex-1 bg-white/5 border border-white/10 px-8 py-5 text-cream placeholder:text-cream/20 focus:outline-none focus:bg-white/10 transition-all font-sans text-xs tracking-widest"
                 />
