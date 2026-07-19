@@ -125,24 +125,13 @@ export default function Hero() {
               <p className="text-gold mt-6 font-sans text-xs uppercase tracking-widest font-bold">— ArchiStruct Global</p>
             </div>
 
-            {/* Featured product + brand mark */}
+            {/* Logo / Brand Mark */}
             <div className="mt-12 flex justify-center relative z-10">
-              <motion.div
-                animate={{ y: [-6, 6, -6] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                className="relative"
-              >
-                <img
-                  src="/products/ai_golden_4plus1.png"
-                  alt="Custom engraved chocolate gift box"
-                  className="w-56 md:w-72 rotate-3 shadow-2xl border border-white/10 object-cover"
-                />
-                <img
-                  src="/logo.png"
-                  alt="Crafty Chocolates Logo"
-                  className="absolute -bottom-8 -left-6 w-20 md:w-24 object-contain drop-shadow-2xl"
-                />
-              </motion.div>
+              <img
+                src="/logo.png"
+                alt="Crafty Chocolates Logo"
+                className="w-32 md:w-48 object-contain drop-shadow-2xl"
+              />
             </div>
 
             {/* Background: molded-chocolate reveal loop */}
