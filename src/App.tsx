@@ -51,6 +51,15 @@ export default function App() {
       return true;
     })
     .sort((a, b) => {
+      // Proven bestsellers surface first, in this order.
+      const POPULAR_ORDER = ['BAR50DARK', 'BDAY|5PBox', '1+4SWL', 'WED-5G', '3PC-LB-MW', '1+9Bday', '16+1 Birthday Box', '12PCS-CGold', 'RAMZ-6D', 'BDAYBITE|5W'];
+      const pa = POPULAR_ORDER.indexOf(a.sku);
+      const pb = POPULAR_ORDER.indexOf(b.sku);
+      if (pa !== -1 || pb !== -1) {
+        if (pa === -1) return 1;
+        if (pb === -1) return -1;
+        return pa - pb;
+      }
       const ca = CATEGORY_ORDER[a.category] ?? 99;
       const cb = CATEGORY_ORDER[b.category] ?? 99;
       if (ca !== cb) return ca - cb;
