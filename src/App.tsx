@@ -28,7 +28,7 @@ export default function App() {
   const { products: allProducts, loading } = useProducts();
   // Hidden storewide: leather homeware (spinning off to its own brand),
   // the nut-butter pantry line, and discontinued keto/cooking SKUs.
-  const DISCONTINUED_SKUS = new Set(['MilkBlock250g', 'BAR50DAIRYFREE', 'KETOP50', 'DatesSugar250g']);
+  const DISCONTINUED_SKUS = new Set(['MilkBlock250g', 'BAR50DAIRYFREE', 'KETOP50', 'DatesSugar250g', 'PANDA 16 INDP', '6BARBUNDLE-MIX', '1+8SWL']);
   const products = allProducts.filter(p =>
     p.category !== 'Homeware' &&
     !p.productType.includes('Dietary Butter') &&
