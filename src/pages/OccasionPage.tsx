@@ -29,8 +29,12 @@ const OCCASION_COPY: Record<string, { title: string; blurb: string }> = {
     blurb: 'Eid Mubarak boxes in Urdu and English, chocolate-coated dates, and golden gift boxes for family and corporate giving.',
   },
   'wedding-engagement': {
-    title: 'Wedding & Nikah Chocolate Favors',
-    blurb: 'Shadi Mubarak favor boxes with the couple’s names and date on every wrapper — Urdu or English calligraphy.',
+    title: 'Wedding, Engagement & Nikah Chocolate Favors',
+    blurb: 'Shadi Mubarak and Baat Pakki favor boxes with the couple’s names and date on every wrapper — Urdu or English calligraphy.',
+  },
+  'baby-announcement': {
+    title: 'Baby Announcement Chocolates',
+    blurb: 'Welcome your little one with personalized chocolate boxes — the baby’s name on every wrapper, in blue, pink, or gold.',
   },
 };
 

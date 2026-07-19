@@ -25,7 +25,9 @@ import OccasionPage, { occasionSlug } from './pages/OccasionPage';
 import { Link } from 'react-router-dom';
 
 export default function App() {
-  const { products, loading } = useProducts();
+  const { products: allProducts, loading } = useProducts();
+  // Leather homeware is being spun off to its own brand — hide it storewide.
+  const products = allProducts.filter(p => p.category !== 'Homeware');
   const { formats, events } = deriveFacets(products);
   const FORMAT_TABS_LOCAL = ['All', ...formats];
 
@@ -195,7 +197,7 @@ export default function App() {
 
             <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-bold">
               <span className="text-gold">Popular:</span>
-              {events.filter(e => ['Birthday', 'Anniversary', 'Eid', 'Wedding & Engagement'].includes(e)).map(e => (
+              {events.filter(e => ['Birthday', 'Anniversary', 'Eid', 'Wedding & Engagement', 'Baby Announcement'].includes(e)).map(e => (
                 <Link key={e} to={`/occasion/${occasionSlug(e)}`} className="text-choco hover:text-gold underline underline-offset-4 decoration-choco/20">
                   {e}
                 </Link>
