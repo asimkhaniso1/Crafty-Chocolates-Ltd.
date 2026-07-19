@@ -71,11 +71,10 @@ export default function CustomMoldSection() {
             className="relative"
           >
             <div className="aspect-[4/5] bg-choco p-2 rotate-2 shadow-2xl">
-              <img 
-                src="https://images.unsplash.com/photo-1623334234204-62921a8cd354?auto=format&fit=crop&q=80&w=1200" 
-                alt="Chocolate mold studio"
-                className="w-full h-full object-cover grayscale-[0.2]"
-                referrerPolicy="no-referrer"
+              <img
+                src="/products/ai_logobites_separator.png"
+                alt="Custom logo chocolate bites"
+                className="w-full h-full object-cover"
               />
             </div>
             {/* Absolute accent images */}
@@ -84,11 +83,10 @@ export default function CustomMoldSection() {
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="absolute -bottom-10 -left-10 w-64 h-64 bg-gold p-1 shadow-2xl hidden md:block"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1623334234217-37c88e5066a9?auto=format&fit=crop&q=80&w=600" 
-                alt="Detailed mold"
+              <img
+                src="/products/ai_golden_4plus1.png"
+                alt="Custom engraved chocolate box"
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
               />
             </motion.div>
           </motion.div>
