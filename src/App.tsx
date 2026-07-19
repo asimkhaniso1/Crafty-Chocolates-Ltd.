@@ -10,6 +10,7 @@ import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
 import ProductPage from './components/ProductPage';
 import CustomMoldSection from './components/CustomMoldSection';
+import CorporateSection from './components/CorporateSection';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
@@ -17,11 +18,16 @@ import WhatsAppFloat from './components/WhatsAppFloat';
 import { CartItem, Product } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts, deriveFacets } from './lib/products';
+import { WHATSAPP_NUMBER } from './constants';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import OccasionPage, { occasionSlug } from './pages/OccasionPage';
+import { Link } from 'react-router-dom';
 
 export default function App() {
-  const { products, loading } = useProducts();
+  const { products: allProducts, loading } = useProducts();
+  // Leather homeware is being spun off to its own brand — hide it storewide.
+  const products = allProducts.filter(p => p.category !== 'Homeware');
   const { formats, events } = deriveFacets(products);
   const FORMAT_TABS_LOCAL = ['All', ...formats];
 
@@ -92,6 +98,7 @@ export default function App() {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/product/:sku" element={<ProductPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/occasion/:slug" element={<OccasionPage products={products} onAddToCart={addToCart} />} />
         <Route path="/" element={
       <main>
         <div id="home">
@@ -188,6 +195,15 @@ export default function App() {
               )}
             </div>
 
+            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-bold">
+              <span className="text-gold">Popular:</span>
+              {events.filter(e => ['Birthday', 'Anniversary', 'Eid', 'Wedding & Engagement', 'Baby Announcement'].includes(e)).map(e => (
+                <Link key={e} to={`/occasion/${occasionSlug(e)}`} className="text-choco hover:text-gold underline underline-offset-4 decoration-choco/20">
+                  {e}
+                </Link>
+              ))}
+            </div>
+
             <div className="mb-8 text-[11px] uppercase tracking-[0.2em] text-clay font-bold">
               {filteredProducts.length} {filteredProducts.length === 1 ? 'piece' : 'pieces'}
             </div>
@@ -219,6 +235,8 @@ export default function App() {
 
         <CustomMoldSection />
 
+        <CorporateSection />
+
         <Testimonials />
 
         {/* Newsletter / CTA Section */}
@@ -237,9 +255,19 @@ export default function App() {
               <p className="text-cream/50 mb-12 text-lg font-medium leading-relaxed italic">
                 Receive invitations to private tasting events and early access to our seasonal bespoke collections.
               </p>
-              <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+              <form
+                className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = new FormData(e.currentTarget).get('email');
+                  const msg = `Hello Crafty Chocolates, please add me to the Inner Circle for tasting events and seasonal collections. Email: ${email}`;
+                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+              >
                 <input
                   type="email"
+                  name="email"
+                  required
                   placeholder="DIGITAL ADDRESS"
                   className="flex-1 bg-white/5 border border-white/10 px-8 py-5 text-cream placeholder:text-cream/20 focus:outline-none focus:bg-white/10 transition-all font-sans text-xs tracking-widest"
                 />

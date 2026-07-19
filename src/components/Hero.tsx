@@ -134,13 +134,16 @@ export default function Hero() {
               />
             </div>
 
-            {/* Background Texture/Image */}
-            <div className="absolute inset-0 z-0 overflow-hidden opacity-20 transition-opacity hover:opacity-30">
-              <img
-                src="https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=1200"
-                alt="Chocolate texture"
+            {/* Background: molded-chocolate reveal loop */}
+            <div className="absolute inset-0 z-0 overflow-hidden opacity-30 transition-opacity hover:opacity-40">
+              <video
+                src="/hero-mold.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
                 className="w-full h-full object-cover mix-blend-overlay"
-                referrerPolicy="no-referrer"
+                aria-hidden="true"
               />
             </div>
           </div>
