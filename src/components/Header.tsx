@@ -26,6 +26,9 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
         : 'bg-transparent py-8 border-transparent'
         }`}
     >
+      <div className={`overflow-hidden bg-choco text-cream text-center px-4 font-sans font-semibold uppercase tracking-[0.15em] text-[10px] transition-all duration-500 ${isScrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-10 py-1.5 opacity-100 -mt-8 mb-6'}`}>
+        Karachi delivery &amp; cash on delivery&nbsp;&nbsp;·&nbsp;&nbsp;Nationwide shipping&nbsp;&nbsp;·&nbsp;&nbsp;Custom orders ready in 6 days
+      </div>
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-12">
           <div className="flex items-center gap-4">

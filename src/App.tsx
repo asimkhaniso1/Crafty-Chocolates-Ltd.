@@ -21,6 +21,8 @@ import { useProducts, deriveFacets } from './lib/products';
 import { WHATSAPP_NUMBER } from './constants';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import OccasionPage, { occasionSlug } from './pages/OccasionPage';
+import { Link } from 'react-router-dom';
 
 export default function App() {
   const { products, loading } = useProducts();
@@ -94,6 +96,7 @@ export default function App() {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/product/:sku" element={<ProductPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/occasion/:slug" element={<OccasionPage products={products} onAddToCart={addToCart} />} />
         <Route path="/" element={
       <main>
         <div id="home">
@@ -188,6 +191,15 @@ export default function App() {
                   Clear
                 </button>
               )}
+            </div>
+
+            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-bold">
+              <span className="text-gold">Popular:</span>
+              {events.filter(e => ['Birthday', 'Anniversary', 'Eid', 'Wedding & Engagement'].includes(e)).map(e => (
+                <Link key={e} to={`/occasion/${occasionSlug(e)}`} className="text-choco hover:text-gold underline underline-offset-4 decoration-choco/20">
+                  {e}
+                </Link>
+              ))}
             </div>
 
             <div className="mb-8 text-[11px] uppercase tracking-[0.2em] text-clay font-bold">
