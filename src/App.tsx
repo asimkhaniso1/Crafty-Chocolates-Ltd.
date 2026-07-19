@@ -26,8 +26,14 @@ import { Link } from 'react-router-dom';
 
 export default function App() {
   const { products: allProducts, loading } = useProducts();
-  // Leather homeware is being spun off to its own brand — hide it storewide.
-  const products = allProducts.filter(p => p.category !== 'Homeware');
+  // Hidden storewide: leather homeware (spinning off to its own brand),
+  // the nut-butter pantry line, and discontinued keto/cooking SKUs.
+  const DISCONTINUED_SKUS = new Set(['MilkBlock250g', 'BAR50DAIRYFREE', 'KETOP50']);
+  const products = allProducts.filter(p =>
+    p.category !== 'Homeware' &&
+    !p.productType.includes('Dietary Butter') &&
+    !DISCONTINUED_SKUS.has(p.sku)
+  );
   const { formats, events } = deriveFacets(products);
   const FORMAT_TABS_LOCAL = ['All', ...formats];
 
