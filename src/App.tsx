@@ -11,6 +11,7 @@ import ProductCard from './components/ProductCard';
 import ProductPage from './components/ProductPage';
 import CustomMoldSection from './components/CustomMoldSection';
 import CorporateSection from './components/CorporateSection';
+import ProductMarquee from './components/ProductMarquee';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
@@ -110,6 +111,8 @@ export default function App() {
         <div id="home">
           <Hero />
         </div>
+
+        <ProductMarquee />
 
         {/* Our Story Section */}
         <section id="our-story" className="py-24 bg-stone-50 overflow-hidden border-b border-choco/10">
