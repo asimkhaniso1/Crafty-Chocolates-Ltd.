@@ -137,10 +137,9 @@ export default function App() {
               <div className="flex-1">
                 <div className="relative aspect-video bg-choco overflow-hidden rounded-sm shadow-2xl">
                   <img
-                    src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&q=80&w=1200"
-                    alt="Our studio"
+                    src="/products/choc.jpg"
+                    alt="Our handcrafted chocolate"
                     className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
               </div>
