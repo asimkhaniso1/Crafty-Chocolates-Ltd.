@@ -31,7 +31,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
       </div>
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-12">
-          <div className="flex items-center gap-4">
+          <a href="/" className="flex items-center gap-4">
             <img
               src="/logo.png"
               alt="Crafty Chocolates Logo"
@@ -42,15 +42,15 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 Crafty<br />Chocolates
               </span>
             </div>
-          </div>
+          </a>
 
           <nav className="hidden md:flex items-center gap-10">
             {[
-              { name: 'Collections', href: '#collections' },
-              { name: 'Custom Molds', href: '#custom-molds' },
-              { name: 'Corporate', href: '#corporate' },
-              { name: 'Our Story', href: '#our-story' },
-              { name: 'Shop', href: '#collections' }
+              { name: 'Collections', href: '/#collections' },
+              { name: 'Custom Molds', href: '/#custom-molds' },
+              { name: 'Corporate', href: '/#corporate' },
+              { name: 'Our Story', href: '/#our-story' },
+              { name: 'Shop', href: '/#collections' }
             ].map((item) => (
               <a
                 key={item.name}
@@ -101,11 +101,11 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           >
             <nav className="flex flex-col p-8 gap-6 text-center">
               {[
-                { name: 'Collections', href: '#collections' },
-                { name: 'Custom Molds', href: '#custom-molds' },
-                { name: 'Corporate', href: '#corporate' },
-                { name: 'Our Story', href: '#our-story' },
-                { name: 'Shop', href: '#collections' }
+                { name: 'Collections', href: '/#collections' },
+                { name: 'Custom Molds', href: '/#custom-molds' },
+                { name: 'Corporate', href: '/#corporate' },
+                { name: 'Our Story', href: '/#our-story' },
+                { name: 'Shop', href: '/#collections' }
               ].map((item) => (
                 <a
                   key={item.name}
