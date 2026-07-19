@@ -45,6 +45,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             {[
               { name: 'Collections', href: '#collections' },
               { name: 'Custom Molds', href: '#custom-molds' },
+              { name: 'Corporate', href: '#corporate' },
               { name: 'Our Story', href: '#our-story' },
               { name: 'Shop', href: '#collections' }
             ].map((item) => (
@@ -99,6 +100,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               {[
                 { name: 'Collections', href: '#collections' },
                 { name: 'Custom Molds', href: '#custom-molds' },
+                { name: 'Corporate', href: '#corporate' },
                 { name: 'Our Story', href: '#our-story' },
                 { name: 'Shop', href: '#collections' }
               ].map((item) => (
