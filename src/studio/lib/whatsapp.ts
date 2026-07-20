@@ -1,5 +1,12 @@
 import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
-import { CHOCOLATE_NAMES, EMBOSS_NAMES, centerBarSpec, packagingSummaryName, productSpecLine } from '../copy';
+import {
+  CHOCOLATE_NAMES,
+  EMBOSS_NAMES,
+  centerBarSpec,
+  packagingSummaryName,
+  productSpecLine,
+  formatEstimatedWeight,
+} from '../copy';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
 import type { Design, Quote } from '../types';
@@ -55,6 +62,10 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
   }
 
   lines.push(`Quantity: ${design.quantity}`, `Quoted total: ${formatPrice(quote.total)}`);
+
+  if (quote.estimatedWeightG !== undefined) {
+    lines.push(`Est. weight: ${formatEstimatedWeight(quote.estimatedWeightG)}`);
+  }
 
   if (shareUrl) {
     lines.push('', `View my design: ${shareUrl}`);

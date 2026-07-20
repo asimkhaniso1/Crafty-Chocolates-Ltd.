@@ -2,10 +2,11 @@
  * Pure pricing engine for the Chocolate Design Studio.
  * No I/O — takes a Design and a rule set, returns a Quote.
  */
-import type { Design, PricingRule, Quote, QuoteLine } from '../types';
+import type { Design, PackagingOption, PricingRule, Quote, QuoteLine } from '../types';
 import { MOQ_DEFAULTS } from '../constraints';
 import { getPackagingOption } from '../data/packagingOptions';
-import { QUOTE_LINE_LABELS } from '../copy';
+import { getStudioProduct } from '../data/studioProducts';
+import { QUOTE_LINE_LABELS, centerBarWeightG } from '../copy';
 
 function findRule(rules: PricingRule[], key: string): PricingRule | undefined {
   return rules.find(r => r.rule_key === key);
@@ -13,6 +14,41 @@ function findRule(rules: PricingRule[], key: string): PricingRule | undefined {
 
 function round(n: number): number {
   return Math.round(n);
+}
+
+/**
+ * Approximate total filled weight for the quote: piece weight (the
+ * customer's chosen product for standard boxes, or the assorted bite weight
+ * for X+1/wedding-favour ring pieces, since those are assorted rather than
+ * the customer's chosen canvas) + center bar weight (X+1/wedding formats
+ * only) + empty box/tin weight — each × however many boxes the quantity
+ * fills. Deliberately approximate; every box weight not confirmed by a real
+ * spec sheet is a placeholder estimate.
+ */
+export function computeEstimatedWeight(
+  design: Design,
+  option: PackagingOption | undefined,
+  quantity: number
+): number | undefined {
+  const product = design.product ? getStudioProduct(design.product) : undefined;
+
+  if (!option) {
+    return product?.weightG ? round(quantity * product.weightG) : undefined;
+  }
+
+  const perBoxCount = Math.max(1, option.count || 1);
+  const boxCount = Math.max(1, Math.ceil(quantity / perBoxCount));
+
+  const pieceUnitWeight = option.centerBar
+    ? getStudioProduct('bite')?.weightG ?? 10
+    : product?.weightG ?? 0;
+  const pieceWeight = quantity * pieceUnitWeight;
+
+  const barWeight = option.centerBar ? boxCount * centerBarWeightG(option.type) : 0;
+  const boxWeight = boxCount * (option.boxEmptyWeightG ?? 0);
+
+  const total = pieceWeight + barWeight + boxWeight;
+  return total > 0 ? round(total) : undefined;
 }
 
 /**
@@ -72,8 +108,10 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
   // --- Packaging ---
   let packagingCost = 0;
   let boxCount = 0;
+  let packagingOption: PackagingOption | undefined;
   if (design.packaging) {
     const option = getPackagingOption(design.packaging.type);
+    packagingOption = option;
     const perBoxCount = option?.count ?? design.packaging.count ?? 1;
     boxCount = Math.max(1, Math.ceil(quantity / Math.max(1, perBoxCount)));
 
@@ -168,6 +206,8 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     lines.push({ label: `Quoted at minimum order quantity (${moq})`, amount: 0 });
   }
 
+  const estimatedWeightG = computeEstimatedWeight(design, packagingOption, quantity);
+
   return {
     unit: round(unit),
     subtotal: round(subtotal),
@@ -177,5 +217,6 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     leadDays,
     deliveryDays,
     lines,
+    estimatedWeightG,
   };
 }

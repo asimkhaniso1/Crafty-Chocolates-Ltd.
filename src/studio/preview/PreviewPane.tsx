@@ -20,6 +20,14 @@ const EMBOSS_LABEL: Record<string, string> = {
 
 export interface PreviewPaneProps {
   compact?: boolean;
+  /**
+   * Attaches this instance's root node to StudioContext's shared
+   * `previewRef`, for Step7Quote's arrangement-snapshot capture. Only one
+   * mounted PreviewPane should set this — StudioPage's "primary" desktop/
+   * custom-brief instance, not the mobile preview strip (which is
+   * CSS-hidden on larger viewports and would otherwise capture blank).
+   */
+  registerRef?: boolean;
 }
 
 type ViewMode = 'piece' | 'box';
@@ -29,8 +37,8 @@ type ViewMode = 'piece' | 'box';
  * once a multi-piece packaging is selected and the shopper has reached the
  * arrangement step; otherwise shows a single piece close-up.
  */
-export default function PreviewPane({ compact = false }: PreviewPaneProps) {
-  const { design, step } = useStudio();
+export default function PreviewPane({ compact = false, registerRef = false }: PreviewPaneProps) {
+  const { design, step, previewRef } = useStudio();
   const product = design.product ? getStudioProduct(design.product) : undefined;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPiece = !!packagingOption?.grid && packagingOption.count > 1;
@@ -57,6 +65,7 @@ export default function PreviewPane({ compact = false }: PreviewPaneProps) {
 
   return (
     <div
+      ref={registerRef ? previewRef : undefined}
       className={`relative flex h-full w-full flex-col items-center justify-center bg-choco text-cream ${
         compact ? 'gap-2 p-3' : 'gap-6 p-8'
       }`}

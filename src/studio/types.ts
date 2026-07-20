@@ -99,6 +99,8 @@ export interface Quote {
   leadDays: number;
   deliveryDays: number;
   lines: QuoteLine[];
+  /** Approximate total filled weight (pieces + center bar + empty box/tin), in grams. Always a placeholder-grade estimate. */
+  estimatedWeightG?: number;
 }
 
 export interface StudioProduct {
@@ -147,4 +149,12 @@ export interface PackagingOption {
   layers?: number;
   /** Outer box dimensions, display-ready (e.g. "15 × 6.5 × 2.5 cm"). */
   boxDims?: string;
+  /**
+   * Products this packaging is sized for. Omitted = available for every
+   * product (used by the X+1/wedding-favour boxes, whose center bar has its
+   * own fixed spec independent of the chosen canvas).
+   */
+  compatibleProducts?: ProductKey[];
+  /** Approximate empty box/tin weight in grams, used for the quote's estimated filled weight. */
+  boxEmptyWeightG?: number;
 }

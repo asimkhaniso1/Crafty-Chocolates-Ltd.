@@ -157,6 +157,7 @@ export const QUOTE_COPY = {
   moqChipLabel: 'MOQ',
   leadChipLabel: 'Lead time',
   deliveryChipLabel: 'Est. delivery',
+  weightChipLabel: 'Est. weight',
   leadDaysValue: (days: number) => `${days} days`,
   deliveryDaysValue: (days: number) => `${days} days`,
   fallbackPricingNote:
@@ -167,6 +168,16 @@ export const QUOTE_COPY = {
   sendWhatsAppCta: 'Send via WhatsApp',
   discountAppliedNote: (pct: number) => `Volume discount applied: ${pct}% off unit price.`,
 };
+
+/**
+ * "≈ 4.2 kg" / "≈ 850 g" — the quote's estimated filled weight is always
+ * an approximation (box + piece weights are placeholders where not
+ * confirmed by a spec sheet), so it's always shown with the "≈" prefix.
+ */
+export function formatEstimatedWeight(grams: number): string {
+  if (grams >= 1000) return `≈ ${(grams / 1000).toFixed(1)} kg`;
+  return `≈ ${Math.round(grams)} g`;
+}
 
 export const QUOTE_LINE_LABELS = {
   unitPrice: 'Unit price',
@@ -225,26 +236,6 @@ export const STEP5_COPY = {
   bulkAllLogo: 'All logo',
   bulkAlternate: 'Alternate milk / dark',
   bulkFillFirst: 'Fill like first cell',
-  panelTitle: (index: number) => `Piece ${index + 1}`,
-  panelContentLabel: 'Content',
-  panelChocolateLabel: 'Chocolate',
-  panelTextLabel: 'Text',
-  panelMessagePlaceholder: 'Made with love',
-  panelInitialsPlaceholder: 'AB',
-  doneCta: 'Done',
-  hintLabel: 'Tap a piece to edit it',
-  layerTabLabel: (n: number) => `Layer ${n}`,
-  contentLabels: {
-    logo: 'Logo',
-    message: 'Message',
-    initials: 'Initials',
-    pattern: 'Pattern',
-  } as Record<string, string>,
-  chocolateLabels: {
-    milk: 'Milk',
-    dark: 'Dark',
-    semidark: 'Semi-Dark',
-  } as Record<string, string>,
 };
 
 /* ---------------------------------------------------------------------- */
@@ -279,6 +270,24 @@ const CENTER_BAR_SPECS: Record<string, string> = {
 export function centerBarSpec(packagingType: string | undefined): string | undefined {
   if (!packagingType) return undefined;
   return CENTER_BAR_SPECS[packagingType];
+}
+
+/**
+ * Approximate center/message bar weight in grams, by packaging type — used
+ * only for the quote's estimated filled weight (never shown on its own).
+ * Placeholder/estimate for 'wedding-favor', whose exact bar weight is
+ * unconfirmed.
+ */
+const CENTER_BAR_WEIGHTS_G: Record<string, number> = {
+  '4+1': 50,
+  '9+1': 60,
+  '16+1': 60,
+  'wedding-favor': 55,
+};
+
+export function centerBarWeightG(packagingType: string | undefined): number {
+  if (!packagingType) return 0;
+  return CENTER_BAR_WEIGHTS_G[packagingType] ?? 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -320,6 +329,8 @@ export const STEP6_COPY = {
   printedWrapperToggleLabel: 'Printed wrapper',
   printedWrapperToggleBody:
     'A printed paper wrapper around your chocolate — it can carry a full-colour image and its own message, separate from the embossed mark.',
+  printedWrapperFrontLabel: 'Front',
+  printedWrapperBackLabel: 'Back',
   printedWrapperImageLabel: 'Wrapper image (full colour, optional)',
   printedWrapperImageCta: 'Upload image',
   printedWrapperImageReplaceCta: 'Replace image',

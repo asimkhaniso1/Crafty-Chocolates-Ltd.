@@ -1,6 +1,14 @@
-import { useMemo, useState } from 'react';
-import { MessageCircle, Download, Save, Clock, Truck, Package, Check, Copy } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, QUOTE_COPY, SAVE_SHARE_COPY, productSpecLine } from '../copy';
+import { useEffect, useMemo, useState } from 'react';
+import { toPng } from 'html-to-image';
+import { MessageCircle, Download, Save, Clock, Truck, Package, Check, Copy, Scale } from 'lucide-react';
+import {
+  STEP_TITLES,
+  STEP_SUBTITLES,
+  QUOTE_COPY,
+  SAVE_SHARE_COPY,
+  productSpecLine,
+  formatEstimatedWeight,
+} from '../copy';
 import { formatPrice } from '../../constants';
 import { useStudio } from '../state/StudioContext';
 import { usePricingRules } from '../lib/usePricingRules';
@@ -25,11 +33,33 @@ interface SaveState {
 }
 
 export default function Step7Quote({ onSave }: Step7QuoteProps) {
-  const { design, dispatch } = useStudio();
+  const { design, dispatch, previewRef } = useStudio();
   const { rules, source } = usePricingRules();
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' });
+  const [arrangementImage, setArrangementImage] = useState<string | undefined>(undefined);
 
   const quote = useMemo(() => computeQuote(design, rules), [design, rules]);
+
+  // Capture a snapshot of the box/piece preview once, when the quote step is
+  // viewed — used as a small "Your arrangement" thumbnail on screen and in
+  // the printable quote. Not persisted to the Design; on-screen/PDF only.
+  useEffect(() => {
+    const node = previewRef.current;
+    if (!node || node.offsetWidth === 0 || node.offsetHeight === 0) return;
+    let cancelled = false;
+    toPng(node, { pixelRatio: 2 })
+      .then(dataUrl => {
+        if (!cancelled) setArrangementImage(dataUrl);
+      })
+      .catch(() => {
+        // Snapshot is a nice-to-have; silently skip if capture fails
+        // (e.g. an image asset can't be inlined).
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleQuantityChange = (value: number) => {
     const next = Math.max(1, Math.floor(value || 0));
@@ -125,6 +155,20 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
         </p>
       </div>
 
+      {/* Arrangement snapshot */}
+      {arrangementImage && (
+        <div className="mb-8 border border-choco/15 p-6">
+          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-clay mb-4">
+            Your arrangement
+          </h3>
+          <img
+            src={arrangementImage}
+            alt="Your arrangement"
+            className="max-w-[220px] rounded-sm border border-choco/10"
+          />
+        </div>
+      )}
+
       {/* Breakdown */}
       <div className="mb-8 border border-choco/15 p-6">
         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-clay mb-4">
@@ -153,7 +197,7 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
       </div>
 
       {/* Chips */}
-      <div className="mb-8 grid grid-cols-3 gap-3">
+      <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
           <Package size={18} className="text-gold" />
           <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
@@ -177,6 +221,17 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
             {QUOTE_COPY.deliveryDaysValue(quote.deliveryDays)}
           </span>
         </div>
+        {quote.estimatedWeightG !== undefined && (
+          <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
+            <Scale size={18} className="text-gold" />
+            <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
+              {QUOTE_COPY.weightChipLabel}
+            </span>
+            <span className="text-sm font-black text-choco">
+              {formatEstimatedWeight(quote.estimatedWeightG)}
+            </span>
+          </div>
+        )}
       </div>
 
       <p className="text-xs text-clay italic mb-8">
@@ -236,7 +291,7 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
         </div>
       )}
 
-      <QuotePrintSheet design={design} quote={quote} />
+      <QuotePrintSheet design={design} quote={quote} arrangementImage={arrangementImage} />
     </div>
   );
 }

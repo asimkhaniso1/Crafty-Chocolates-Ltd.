@@ -5,6 +5,7 @@ import {
   useReducer,
   useRef,
   type Dispatch,
+  type MutableRefObject,
   type ReactNode,
 } from 'react';
 import {
@@ -24,6 +25,12 @@ interface StudioContextValue {
   design: StudioState['design'];
   step: StudioState['step'];
   dispatch: Dispatch<StudioAction>;
+  /**
+   * DOM node of the "primary" (non-compact) PreviewPane instance, attached
+   * by PreviewPane itself. Used by Step7Quote to capture an arrangement
+   * snapshot image for the quote — nothing else should rely on this ref.
+   */
+  previewRef: MutableRefObject<HTMLDivElement | null>;
 }
 
 const StudioContext = createContext<StudioContextValue | null>(null);
@@ -46,6 +53,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(studioReducer, initialStudioState);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hydrated = useRef(false);
+  const previewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const design = loadPersistedDesign();
@@ -74,7 +82,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [state.design]);
 
   return (
-    <StudioContext.Provider value={{ design: state.design, step: state.step, dispatch }}>
+    <StudioContext.Provider value={{ design: state.design, step: state.step, dispatch, previewRef }}>
       {children}
     </StudioContext.Provider>
   );
