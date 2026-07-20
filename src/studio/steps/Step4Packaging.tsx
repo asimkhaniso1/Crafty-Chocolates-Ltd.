@@ -187,6 +187,15 @@ export default function Step4Packaging() {
                       ? STEP4_COPY.centerBarPiecesLabel(option.count)
                       : STEP4_COPY.piecesLabel(option.count)}
                   </p>
+                  {option.boxDims && (
+                    <p
+                      className={`text-[10px] uppercase tracking-[0.2em] font-bold mt-2 ${
+                        active ? 'text-gold' : 'text-gold'
+                      }`}
+                    >
+                      {option.boxDims}
+                    </p>
+                  )}
 
                   {option.centerBar && (
                     <p

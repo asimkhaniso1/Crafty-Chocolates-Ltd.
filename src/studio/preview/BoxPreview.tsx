@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { motion } from 'motion/react';
 import type { CellAssignment, ChocolateType, Design, PackagingOption } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
@@ -20,6 +20,78 @@ function ringCellFor(design: Design, index: number): CellAssignment {
     content: design.logo ? 'logo' : 'pattern',
     chocolate: ASSORTED_CYCLE[index % ASSORTED_CYCLE.length],
   };
+}
+
+/** Fallback used for standard (non-ring) grid cells with no assignment yet. */
+function gridCellFor(design: Design, index: number): CellAssignment {
+  const found = design.cells.find(c => c.index === index);
+  return (
+    found ?? {
+      index,
+      content: design.logo ? 'logo' : 'pattern',
+      chocolate: design.chocolate,
+    }
+  );
+}
+
+/**
+ * Real product photo for standard (non-centerBar) boxes: each grid cell's
+ * face is composited over its measured rect in the photo, same soft-light
+ * blend + drop shadow treatment as `PhotoBoxPreview`'s center bar so pieces
+ * sit naturally in the shot. Falls back to the drawn grid preview on load
+ * error (via `onError`) or when a cell has no measured overlay.
+ *
+ * Known simplification: the ribbon/wax-seal overlay only renders on the
+ * drawn preview — the photo already shows the real (unribboned) product, so
+ * a drawn ribbon isn't composited on top of it here.
+ */
+function PhotoGridBoxPreview({
+  design,
+  option,
+  onError,
+}: {
+  design: Design;
+  option: PackagingOption;
+  onError: () => void;
+}) {
+  const overlays = option.cellOverlays!;
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="relative flex h-full w-full items-center justify-center"
+    >
+      <div className="relative w-full overflow-hidden rounded-md shadow-[0_20px_46px_rgba(45,30,23,0.4)]">
+        <img src={option.photo} alt={option.name} className="block h-auto w-full" onError={onError} />
+        {overlays.map((rect, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${rect.x}%`,
+              top: `${rect.y}%`,
+              width: `${rect.w}%`,
+              height: `${rect.h}%`,
+              filter: 'drop-shadow(0 4px 10px rgba(31,15,8,0.5))',
+            }}
+          >
+            <ChocolatePreview design={design} cell={gridCellFor(design, i)} size={240} />
+            {/* Pick up the photo's lighting so the piece sits naturally */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                mixBlendMode: 'soft-light',
+                borderRadius: '12%',
+                background:
+                  'radial-gradient(120% 120% at 40% 25%, rgba(255,255,255,0.55), transparent 60%), linear-gradient(160deg, transparent 55%, rgba(31,15,8,0.5))',
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
 }
 
 /**
@@ -123,6 +195,7 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
   const rawUid = useId();
   const uid = rawUid.replace(/[^a-zA-Z0-9]/g, '');
   const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
+  const [gridPhotoFailed, setGridPhotoFailed] = useState(false);
 
   const boxColour = design.extras.boxColour || '#2D1E17';
   // No ribbon until the customer picks one in Finishing touches.
@@ -135,6 +208,12 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
       <PhotoBoxPreview design={design} option={option} />
     ) : (
       <DrawnCenterBarPreview design={design} option={option} />
+    );
+  }
+
+  if (option?.photo && option.cellOverlays && option.grid && option.count > 1 && !gridPhotoFailed) {
+    return (
+      <PhotoGridBoxPreview design={design} option={option} onError={() => setGridPhotoFailed(true)} />
     );
   }
 
@@ -166,16 +245,7 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
   // For layered options (e.g. a two-tier tin) `option.count` spans every
   // layer; the drawn preview only has room for one grid's worth of cells,
   // so it shows layer 1 (indices 0..rows*cols-1).
-  const cells = Array.from({ length: Math.min(option.count, rows * cols) }, (_, i) => {
-    const found = design.cells.find(c => c.index === i);
-    return (
-      found ?? {
-        index: i,
-        content: design.logo ? ('logo' as const) : ('pattern' as const),
-        chocolate: design.chocolate,
-      }
-    );
-  });
+  const cells = Array.from({ length: Math.min(option.count, rows * cols) }, (_, i) => gridCellFor(design, i));
 
   return (
     <motion.div

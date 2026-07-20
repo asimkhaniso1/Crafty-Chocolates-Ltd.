@@ -135,9 +135,16 @@ export interface PackagingOption {
   /** Where the customer's center bar sits within the photo. */
   overlay?: PhotoOverlayRect;
   /**
+   * Real product photo (non-centerBar boxes): where each grid cell's
+   * chocolate sits within the photo, indexed the same as `cells`/`grid`.
+   */
+  cellOverlays?: PhotoOverlayRect[];
+  /**
    * Number of stacked layers of `grid` cells (e.g. a two-tier tin). Total
    * cell count is still `count`; each layer holds `grid.rows * grid.cols`
    * cells, arranged and edited one layer at a time.
    */
   layers?: number;
+  /** Outer box dimensions, display-ready (e.g. "15 × 6.5 × 2.5 cm"). */
+  boxDims?: string;
 }
