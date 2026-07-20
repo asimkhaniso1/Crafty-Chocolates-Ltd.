@@ -10,7 +10,6 @@ import { STEP6_COPY } from '../copy';
 
 const CHOCOLATE_LABEL: Record<string, string> = {
   milk: 'Milk',
-  dark: 'Dark',
   semidark: 'Semi-Dark',
 };
 
@@ -38,11 +37,14 @@ type ViewMode = 'piece' | 'box';
  * arrangement step; otherwise shows a single piece close-up.
  */
 export default function PreviewPane({ compact = false, registerRef = false }: PreviewPaneProps) {
-  const { design, step, previewRef } = useStudio();
+  const { design, previewRef } = useStudio();
   const product = design.product ? getStudioProduct(design.product) : undefined;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPiece = !!packagingOption?.grid && packagingOption.count > 1;
-  const boxEligible = isMultiPiece && step >= 4;
+  // The catalog selection (step 1) sets product and packaging together, so
+  // the box view is eligible as soon as a multi-piece box is chosen — no
+  // step gate needed.
+  const boxEligible = isMultiPiece;
   const isBar = isBarProduct(design.product);
   const printedWrapperEnabled = Boolean(design.extras.printedWrapper?.enabled);
   const showFoilOnlyPreview =

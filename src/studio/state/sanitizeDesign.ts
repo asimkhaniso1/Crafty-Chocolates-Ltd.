@@ -6,7 +6,7 @@
  * Used both when loading a shared/saved design (LOAD_DESIGN) and when
  * hydrating from localStorage on first mount.
  */
-import type { CellAssignment, ChocolateType, Design, PrintedWrapper } from '../types';
+import type { BoxMix, CellAssignment, ChocolateType, Design, PrintedWrapper } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
 import {
   BAR_CAPTION_MAX,
@@ -17,15 +17,22 @@ import {
   WRAPPER_SCALE_MIN,
 } from '../constraints';
 
+// Plain 'dark' was removed from the chocolate range — every saved/shared
+// design carrying it (and any other legacy value) migrates to 'semidark'.
 const CHOCOLATE_MIGRATIONS: Record<string, ChocolateType> = {
   white: 'milk',
   mixed: 'semidark',
+  dark: 'semidark',
 };
 
 function sanitizeChocolate(value: unknown): ChocolateType {
   const key = typeof value === 'string' ? value : '';
-  if (key === 'milk' || key === 'dark' || key === 'semidark') return key;
+  if (key === 'milk' || key === 'semidark') return key;
   return CHOCOLATE_MIGRATIONS[key] ?? 'milk';
+}
+
+function sanitizeBoxMix(value: unknown): BoxMix {
+  return value === 'mixed' ? 'mixed' : 'single';
 }
 
 function sanitizeCell(cell: CellAssignment): CellAssignment {
@@ -40,6 +47,10 @@ function sanitizeBarCaption(value: unknown): string | undefined {
 function sanitizeCenterBarScale(value: unknown): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value)) return undefined;
   return Math.min(MARK_SCALE_MAX, Math.max(MARK_SCALE_MIN, value));
+}
+
+function sanitizePiecesWrapped(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined;
 }
 
 function sanitizePrintedWrapper(value: unknown): PrintedWrapper | undefined {
@@ -87,9 +98,11 @@ export function sanitizeDesign(design: Design): Design {
     packaging: packagingStillExists ? design.packaging : null,
     barCaption: sanitizeBarCaption(design.barCaption),
     centerBarScale: sanitizeCenterBarScale(design.centerBarScale),
+    boxMix: sanitizeBoxMix(design.boxMix),
     extras: {
       ...design.extras,
       printedWrapper: sanitizePrintedWrapper(design.extras?.printedWrapper),
+      piecesWrapped: sanitizePiecesWrapped(design.extras?.piecesWrapped),
     },
   };
 }

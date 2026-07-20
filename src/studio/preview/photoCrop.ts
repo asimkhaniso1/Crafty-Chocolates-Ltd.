@@ -80,20 +80,18 @@ export function cssCoverCrop(crop: PhotoCrop): CssCoverCrop {
   };
 }
 
-type ChocolateKey = 'milk' | 'dark' | 'semidark';
+type ChocolateKey = 'milk' | 'semidark';
 
 // Measured via edge-detection (sharp-gradient bounding box, which isolates
 // the object's true outline from its soft drop shadow — a plain colour-
 // distance threshold picks up the shadow too and skews the box off-centre).
 export const PIECE_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
   milk: { pw: 1024, ph: 1024, left: 150, top: 150, right: 872, bottom: 873 },
-  dark: { pw: 1024, ph: 1024, left: 172, top: 172, right: 852, bottom: 852 },
   semidark: { pw: 1024, ph: 1024, left: 171, top: 172, right: 852, bottom: 852 },
 };
 
 export const BAR_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
   milk: { pw: 1264, ph: 848, left: 140, top: 183, right: 1115, bottom: 683 },
-  dark: { pw: 1264, ph: 848, left: 137, top: 171, right: 1121, bottom: 675 },
   semidark: { pw: 1264, ph: 848, left: 291, top: 250, right: 972, bottom: 597 },
 };
 

@@ -18,7 +18,6 @@ import { BAR_PHOTO_CROP, PIECE_PHOTO_CROP, coverCropRect } from './photoCrop';
 const CHOCOLATE_GRADIENTS: Record<string, string> = {
   milk: 'linear-gradient(135deg, #9C6B3F 0%, #7B4A26 45%, #5C3317 100%)',
   semidark: 'linear-gradient(135deg, #6E4326 0%, #56331B 45%, #3A2010 100%)',
-  dark: 'linear-gradient(135deg, #4A2A1C 0%, #382114 45%, #1F0F08 100%)',
 };
 
 export interface CenterBarFaceProps {

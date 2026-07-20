@@ -1,12 +1,32 @@
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
 import { UploadCloud, X, AlertTriangle, Loader2 } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, STUDIO_COPY_STEP3, CENTER_BAR_COPY } from '../copy';
-import { BAR_CAPTION_MAX } from '../constraints';
+import {
+  STEP_TITLES,
+  STEP_SUBTITLES,
+  STUDIO_COPY_STEP3,
+  CENTER_BAR_COPY,
+  CHOCOLATE_NAMES,
+  CHOCOLATE_DESCRIPTIONS,
+  STEP4_COPY,
+  MIXED_CHOCOLATE_LABEL,
+} from '../copy';
+import { BAR_CAPTION_MAX, MARK_SCALE_MIN, MARK_SCALE_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { isBarProduct } from '../data/studioProducts';
+import { getPackagingOption } from '../data/packagingOptions';
 import { processLogoFile, initialsToMask } from '../lib/logoProcessor';
+import type { BoxMix, ChocolateType } from '../types';
 
-export default function Step3Mark() {
+const CHOCOLATE_SWATCHES: { key: ChocolateType; color: string }[] = [
+  { key: 'milk', color: '#7B4A26' },
+  { key: 'semidark', color: '#56331B' },
+];
+
+/**
+ * Mark upload/initials — carried over wholesale from the old "Add your mark"
+ * step, now the first section of the combined "Design it" step.
+ */
+function MarkSection() {
   const { design, dispatch } = useStudio();
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -83,12 +103,7 @@ export default function Step3Mark() {
   }, [dispatch, initials]);
 
   return (
-    <div>
-      <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[3]}
-      </h2>
-      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[3]}</p>
-
+    <section>
       {!logo && (
         <div
           onDragOver={e => {
@@ -179,24 +194,20 @@ export default function Step3Mark() {
                 <div className="mt-5">
                   <label
                     className="block text-[10px] uppercase tracking-[0.2em] font-bold text-cream/60 mb-2"
-                    htmlFor="studio-bar-caption-step3"
+                    htmlFor="studio-bar-caption-step2"
                   >
                     {CENTER_BAR_COPY.captionLabel}
                   </label>
                   <input
-                    id="studio-bar-caption-step3"
+                    id="studio-bar-caption-step2"
                     type="text"
                     maxLength={BAR_CAPTION_MAX}
                     value={design.barCaption ?? ''}
                     placeholder={CENTER_BAR_COPY.captionPlaceholder}
-                    onChange={e =>
-                      dispatch({ type: 'SET_BAR_CAPTION', barCaption: e.target.value })
-                    }
+                    onChange={e => dispatch({ type: 'SET_BAR_CAPTION', barCaption: e.target.value })}
                     className="w-full border border-cream/20 bg-cream/10 px-3 py-2 text-sm text-cream placeholder:text-cream/40 focus:border-gold outline-none"
                   />
-                  <p className="text-[10px] text-cream/50 mt-1 italic font-serif">
-                    {CENTER_BAR_COPY.captionHint}
-                  </p>
+                  <p className="text-[10px] text-cream/50 mt-1 italic font-serif">{CENTER_BAR_COPY.captionHint}</p>
                 </div>
               )}
             </div>
@@ -247,6 +258,174 @@ export default function Step3Mark() {
           </button>
         </div>
       </div>
+    </section>
+  );
+}
+
+/**
+ * "All one chocolate" vs "Mixed milk & semi-dark" — shown once a multi-piece
+ * box is selected. Carried over from the old box-size step; the reducer
+ * rebuilds `design.cells` to alternate milk/semi-dark for 'mixed', or to all
+ * match `design.chocolate` for 'single'.
+ */
+function BoxMixPicker({ boxMix }: { boxMix: BoxMix }) {
+  const { dispatch } = useStudio();
+
+  function choose(mix: BoxMix) {
+    dispatch({ type: 'SET_BOX_MIX', boxMix: mix });
+  }
+
+  const cards: { key: BoxMix; title: string; body: string }[] = [
+    { key: 'single', title: STEP4_COPY.boxMixSingleTitle, body: STEP4_COPY.boxMixSingleBody },
+    { key: 'mixed', title: STEP4_COPY.boxMixMixedTitle, body: STEP4_COPY.boxMixMixedBody },
+  ];
+
+  return (
+    <div className="mt-8">
+      <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-3">
+        {STEP4_COPY.boxMixTitle}
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {cards.map(card => {
+          const active = boxMix === card.key;
+          return (
+            <button
+              key={card.key}
+              onClick={() => choose(card.key)}
+              className={`relative text-left p-5 border transition-all ${
+                active ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
+              }`}
+            >
+              <h4 className="font-black uppercase tracking-tight text-sm">{card.title}</h4>
+              <p className={`text-xs mt-1 ${active ? 'text-cream/70' : 'text-clay'}`}>{card.body}</p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ChocolateSection() {
+  const { design, dispatch } = useStudio();
+  const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
+  const isMultiPieceBox = Boolean(packagingOption?.grid && packagingOption.count > 1);
+
+  return (
+    <section className="mt-12 pt-10 border-t border-choco/10">
+      <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-4">Chocolate</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+        {CHOCOLATE_SWATCHES.map(swatch => {
+          const active = design.chocolate === swatch.key && (!isMultiPieceBox || design.boxMix !== 'mixed');
+          return (
+            <button
+              key={swatch.key}
+              onClick={() => dispatch({ type: 'SET_CHOCOLATE', chocolate: swatch.key })}
+              className={`text-left border p-4 transition-all ${
+                active ? 'border-choco' : 'border-choco/15 hover:border-gold'
+              }`}
+            >
+              <div
+                className="w-full aspect-square rounded-full mb-4 border border-choco/10"
+                style={{ background: swatch.color }}
+              />
+              <h3 className="font-black uppercase tracking-tight text-sm text-choco">
+                {CHOCOLATE_NAMES[swatch.key]}
+              </h3>
+              <p className="text-xs text-clay mt-1">{CHOCOLATE_DESCRIPTIONS[swatch.key]}</p>
+            </button>
+          );
+        })}
+        {isMultiPieceBox && (
+          <button
+            onClick={() => dispatch({ type: 'SET_BOX_MIX', boxMix: 'mixed' })}
+            className={`text-left border p-4 transition-all ${
+              design.boxMix === 'mixed' ? 'border-choco' : 'border-choco/15 hover:border-gold'
+            }`}
+          >
+            <div
+              className="w-full aspect-square rounded-full mb-4 border border-choco/10"
+              style={{ background: 'linear-gradient(135deg, #7B4A26 50%, #56331B 50%)' }}
+            />
+            <h3 className="font-black uppercase tracking-tight text-sm text-choco">Mixed</h3>
+            <p className="text-xs text-clay mt-1">{MIXED_CHOCOLATE_LABEL}</p>
+          </button>
+        )}
+      </div>
+
+      {isMultiPieceBox && <BoxMixPicker boxMix={design.boxMix ?? 'single'} />}
+    </section>
+  );
+}
+
+/**
+ * Center-bar controls (mark size on bar + caption) for X+1/wedding-favour
+ * packaging — the customer's mark is applied to the large message bar
+ * separately from the ring pieces above.
+ */
+function CenterBarPanel() {
+  const { design, dispatch } = useStudio();
+  const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
+  if (!option?.centerBar) return null;
+
+  const hasRing = Boolean(option.grid && option.count > 1);
+  const scale = Math.min(MARK_SCALE_MAX, Math.max(MARK_SCALE_MIN, design.centerBarScale ?? 1));
+
+  return (
+    <section className="mt-12 pt-10 border-t border-choco/10">
+      <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+        {CENTER_BAR_COPY.panelTitle}
+      </h3>
+      <p className="text-xs text-clay/70 italic font-serif mb-6">
+        {hasRing ? CENTER_BAR_COPY.assortedNote : CENTER_BAR_COPY.singleBarNote}
+      </p>
+
+      <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-clay mb-2">
+        {CENTER_BAR_COPY.markSizeLabel}
+      </label>
+      <input
+        type="range"
+        min={MARK_SCALE_MIN}
+        max={MARK_SCALE_MAX}
+        step={0.01}
+        value={scale}
+        onChange={e => dispatch({ type: 'SET_CENTER_BAR_SCALE', scale: parseFloat(e.target.value) })}
+        className="w-full accent-gold"
+      />
+
+      <div className="mt-6">
+        <label
+          className="block text-[10px] uppercase tracking-[0.2em] font-bold text-clay mb-2"
+          htmlFor="studio-centerbar-caption"
+        >
+          {CENTER_BAR_COPY.captionLabel}
+        </label>
+        <input
+          id="studio-centerbar-caption"
+          type="text"
+          maxLength={BAR_CAPTION_MAX}
+          value={design.barCaption ?? ''}
+          placeholder={CENTER_BAR_COPY.captionPlaceholder}
+          onChange={e => dispatch({ type: 'SET_BAR_CAPTION', barCaption: e.target.value })}
+          className="w-full border border-choco/15 bg-cream px-3 py-2 text-sm text-choco focus:border-gold outline-none"
+        />
+        <p className="text-[10px] text-clay/60 mt-1 italic font-serif">{CENTER_BAR_COPY.captionHint}</p>
+      </div>
+    </section>
+  );
+}
+
+export default function Step2Design() {
+  return (
+    <div>
+      <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
+        {STEP_TITLES[2]}
+      </h2>
+      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[2]}</p>
+
+      <MarkSection />
+      <ChocolateSection />
+      <CenterBarPanel />
     </div>
   );
 }

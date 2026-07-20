@@ -47,13 +47,18 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
     const node = previewRef.current;
     if (!node || node.offsetWidth === 0 || node.offsetHeight === 0) return;
     let cancelled = false;
-    toPng(node, { pixelRatio: 2 })
+    // Race against a timeout: html-to-image can hang indefinitely in some
+    // environments (embedded/driven browsers), and the snapshot is a
+    // nice-to-have — never let it wedge state or leak work.
+    Promise.race([
+      toPng(node, { pixelRatio: 2 }),
+      new Promise<null>(resolve => setTimeout(() => resolve(null), 6000)),
+    ])
       .then(dataUrl => {
-        if (!cancelled) setArrangementImage(dataUrl);
+        if (!cancelled && dataUrl) setArrangementImage(dataUrl);
       })
       .catch(() => {
-        // Snapshot is a nice-to-have; silently skip if capture fails
-        // (e.g. an image asset can't be inlined).
+        // Silently skip — e.g. an image asset couldn't be inlined.
       });
     return () => {
       cancelled = true;
@@ -104,9 +109,9 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
   return (
     <div>
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[7]}
+        {STEP_TITLES[4]}
       </h2>
-      <p className="text-clay font-medium mb-3 max-w-lg">{STEP_SUBTITLES[7]}</p>
+      <p className="text-clay font-medium mb-3 max-w-lg">{STEP_SUBTITLES[4]}</p>
       {design.product && (
         <p className="text-xs uppercase tracking-[0.15em] font-bold text-gold mb-10">
           {productSpecLine(getStudioProduct(design.product))}

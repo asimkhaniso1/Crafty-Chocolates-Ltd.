@@ -1,21 +1,21 @@
 import { useRef, useState } from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, STEP6_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, STEP3_WRAPPED_COPY, STEP6_COPY } from '../copy';
 import { WRAPPER_MESSAGE_MAX, WRAPPER_SCALE_MIN, WRAPPER_SCALE_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { getPackagingOption } from '../data/packagingOptions';
 import { isBarProduct } from '../data/studioProducts';
 import { processWrapperImage } from '../lib/logoProcessor';
 
+const FOIL_SWATCHES: { key: 'silver' | 'gold'; hex: string }[] = [
+  { key: 'silver', hex: '#C0C0C4' },
+  { key: 'gold', hex: '#C9A24B' },
+];
+
 const RIBBON_SWATCHES: { key: 'black' | 'purple' | 'white'; hex: string }[] = [
   { key: 'black', hex: '#1A1A1A' },
   { key: 'purple', hex: '#5B2A86' },
   { key: 'white', hex: '#F5F1EA' },
-];
-
-const FOIL_SWATCHES: { key: 'silver' | 'gold'; hex: string }[] = [
-  { key: 'silver', hex: '#C0C0C4' },
-  { key: 'gold', hex: '#C9A24B' },
 ];
 
 const BOX_COLOUR_SWATCHES: { key: 'choco' | 'ivory' | 'gold'; hex: string }[] = [
@@ -60,6 +60,107 @@ function ToggleCard({
         />
       </span>
     </button>
+  );
+}
+
+/**
+ * Wrapped/unwrapped choice + foil colour — merged in from the old standalone
+ * "Wrapped or unwrapped" step. `isLoose` drives which extras field it writes
+ * to: `extras.foil` alone for a loose pack, `extras.piecesWrapped` (plus
+ * foil colour) for a boxed pack.
+ */
+function WrappedSection({ isLoose }: { isLoose: boolean }) {
+  const { design, dispatch } = useStudio();
+  const wrapped = isLoose ? Boolean(design.extras.foil) : design.extras.piecesWrapped === true;
+
+  function chooseWrapped() {
+    if (isLoose) {
+      dispatch({ type: 'SET_EXTRAS', extras: { foil: design.extras.foil ?? 'silver' } });
+    } else {
+      dispatch({ type: 'SET_EXTRAS', extras: { piecesWrapped: true, foil: design.extras.foil ?? 'silver' } });
+    }
+  }
+
+  function chooseUnwrapped() {
+    if (isLoose) {
+      dispatch({ type: 'SET_EXTRAS', extras: { foil: undefined } });
+    } else {
+      dispatch({ type: 'SET_EXTRAS', extras: { piecesWrapped: false, foil: undefined } });
+    }
+  }
+
+  const wrappedTitle = isLoose ? STEP3_WRAPPED_COPY.looseWrappedTitle : STEP3_WRAPPED_COPY.boxedWrappedTitle;
+  const wrappedBody = isLoose ? STEP3_WRAPPED_COPY.looseWrappedBody : STEP3_WRAPPED_COPY.boxedWrappedBody;
+  const unwrappedTitle = isLoose ? STEP3_WRAPPED_COPY.looseUnwrappedTitle : STEP3_WRAPPED_COPY.boxedUnwrappedTitle;
+  const unwrappedBody = isLoose ? STEP3_WRAPPED_COPY.looseUnwrappedBody : STEP3_WRAPPED_COPY.boxedUnwrappedBody;
+
+  return (
+    <section>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+        <button
+          onClick={chooseWrapped}
+          className={`relative text-left p-6 border transition-all ${
+            wrapped ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
+          }`}
+        >
+          <h3 className="font-black uppercase tracking-tight text-lg mb-1">{wrappedTitle}</h3>
+          <p className={`text-sm ${wrapped ? 'text-cream/70' : 'text-clay'}`}>{wrappedBody}</p>
+          <span
+            className={`inline-block mt-4 text-[10px] uppercase tracking-[0.2em] font-bold ${
+              wrapped ? 'text-gold' : 'text-choco/40'
+            }`}
+          >
+            {wrapped ? STEP3_WRAPPED_COPY.chosenCta : STEP3_WRAPPED_COPY.chooseCta}
+          </span>
+        </button>
+        <button
+          onClick={chooseUnwrapped}
+          className={`relative text-left p-6 border transition-all ${
+            !wrapped ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
+          }`}
+        >
+          <h3 className="font-black uppercase tracking-tight text-lg mb-1">{unwrappedTitle}</h3>
+          <p className={`text-sm ${!wrapped ? 'text-cream/70' : 'text-clay'}`}>{unwrappedBody}</p>
+          <span
+            className={`inline-block mt-4 text-[10px] uppercase tracking-[0.2em] font-bold ${
+              !wrapped ? 'text-gold' : 'text-choco/40'
+            }`}
+          >
+            {!wrapped ? STEP3_WRAPPED_COPY.chosenCta : STEP3_WRAPPED_COPY.chooseCta}
+          </span>
+        </button>
+      </div>
+
+      {wrapped && (
+        <div>
+          <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-3">
+            {STEP3_WRAPPED_COPY.foilPickerTitle}
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {FOIL_SWATCHES.map(swatch => {
+              const active = design.extras.foil === swatch.key;
+              return (
+                <button
+                  key={swatch.key}
+                  onClick={() => dispatch({ type: 'SET_EXTRAS', extras: { foil: swatch.key } })}
+                  className={`flex flex-col items-center gap-2 p-3 border transition-all ${
+                    active ? 'border-choco' : 'border-choco/15 hover:border-gold'
+                  }`}
+                >
+                  <span
+                    className="block w-9 h-9 rounded-full border border-choco/10"
+                    style={{ background: swatch.hex }}
+                  />
+                  <span className="text-[10px] uppercase tracking-wide font-bold text-choco">
+                    {STEP6_COPY.foilNames[swatch.key]}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -227,17 +328,17 @@ function PrintedWrapperSection() {
   );
 }
 
-export default function Step6Extras() {
+export default function Step3Finishing() {
   const { design, dispatch } = useStudio();
   const [qrError, setQrError] = useState(false);
 
   const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   // The individual wrapper is a "loose pack": no box, so none of the
   // box-only extras (ribbon, box colour, sleeve, greeting card, wax seal,
-  // inside message, QR) apply — only the foil colour choice does. Gated on
-  // the packaging *type*, not count === 1 — the wedding favour box is also
-  // a single-piece box (count 1) but is a real boxed presentation, not a
-  // loose pack.
+  // butter-paper message, QR) apply — only the wrap/foil choice does. Gated
+  // on the packaging *type*, not count === 1 — the wedding favour box is
+  // also a single-piece box (count 1) but is a real boxed presentation, not
+  // a loose pack.
   const isIndividual = option?.type === 'individual';
   const isWeddingFavor = option?.type === 'wedding-favor';
   // Printed wrapper applies to bar-shaped products, loose-pack pieces, and
@@ -245,6 +346,7 @@ export default function Step6Extras() {
   // your message on the chocolate bar wrapper").
   const wrapperEligible = isBarProduct(design.product) || isIndividual || Boolean(option?.centerBar);
 
+  const piecesWrapped = design.extras.piecesWrapped === true;
   const insideMessageLength = design.extras.insideMessage?.length ?? 0;
 
   function handleQrChange(value: string) {
@@ -255,47 +357,19 @@ export default function Step6Extras() {
   return (
     <div>
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[6]}
+        {STEP_TITLES[3]}
       </h2>
-      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[6]}</p>
+      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[3]}</p>
 
       {isIndividual ? (
-        <div className="space-y-6">
-          <p className="text-sm text-clay italic max-w-md">{STEP6_COPY.loosePackNote}</p>
-
-          <section>
-            <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-1">
-              {STEP6_COPY.foilTitle}
-            </h3>
-            <p className="text-xs text-clay/70 mb-3">{STEP6_COPY.foilNote}</p>
-            <div className="flex flex-wrap gap-3">
-              {FOIL_SWATCHES.map(swatch => {
-                const active = design.extras.foil === swatch.key;
-                return (
-                  <button
-                    key={swatch.key}
-                    onClick={() => dispatch({ type: 'SET_EXTRAS', extras: { foil: swatch.key } })}
-                    className={`flex flex-col items-center gap-2 p-3 border transition-all ${
-                      active ? 'border-choco' : 'border-choco/15 hover:border-gold'
-                    }`}
-                  >
-                    <span
-                      className="block w-9 h-9 rounded-full border border-choco/10"
-                      style={{ background: swatch.hex }}
-                    />
-                    <span className="text-[10px] uppercase tracking-wide font-bold text-choco">
-                      {STEP6_COPY.foilNames[swatch.key]}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
+        <div className="space-y-10">
+          <WrappedSection isLoose />
           {wrapperEligible && <PrintedWrapperSection />}
         </div>
       ) : (
         <div className="space-y-10">
+          <WrappedSection isLoose={false} />
+
           {/* Ribbon */}
           <section>
             <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-3">
@@ -392,16 +466,22 @@ export default function Step6Extras() {
             />
           </section>
 
-          {/* Inside message */}
+          {/* Inside message — butter paper is the medium for bare pieces; when
+              pieces are foil-wrapped, the message prints on the sleeve instead. */}
           <section>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-1">
               <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay">
                 {STEP6_COPY.insideMessageTitle}
               </h3>
-              <span className="text-[10px] text-clay/60 font-sans">
-                {STEP6_COPY.insideMessageCounter(insideMessageLength, INSIDE_MESSAGE_MAX)}
-              </span>
+              {!piecesWrapped && (
+                <span className="text-[10px] text-clay/60 font-sans">
+                  {STEP6_COPY.insideMessageCounter(insideMessageLength, INSIDE_MESSAGE_MAX)}
+                </span>
+              )}
             </div>
+            <p className="text-xs text-clay/70 italic font-serif mb-2">
+              {piecesWrapped ? STEP6_COPY.insideMessageWrappedNote : STEP6_COPY.insideMessageBareNote}
+            </p>
             <textarea
               value={design.extras.insideMessage ?? ''}
               maxLength={INSIDE_MESSAGE_MAX}

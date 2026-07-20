@@ -35,15 +35,13 @@ export function embossFilterId(type: ChocolateType, uid: string): string {
   return `studio-emboss-${type}-${uid}`;
 }
 
-/** Per-type tuning: interior tint (body colour, lightened) and edge strengths.
- *  Dark chocolate needs a stronger highlight to stay legible against itself. */
+/** Per-type tuning: interior tint (body colour, lightened) and edge strengths. */
 const EMBOSS_TUNING: Record<
   ChocolateType,
   { interior: string; highlightOpacity: number; shadowOpacity: number }
 > = {
   milk: { interior: '#8C5A32', highlightOpacity: 0.5, shadowOpacity: 0.45 },
   semidark: { interior: '#6B4022', highlightOpacity: 0.6, shadowOpacity: 0.48 },
-  dark: { interior: '#4E2C1D', highlightOpacity: 0.75, shadowOpacity: 0.5 },
 };
 
 /**
@@ -108,12 +106,6 @@ export default function StudioDefs({ uid }: StudioDefsProps) {
         <stop offset="45%" stopColor="#56331B" />
         <stop offset="100%" stopColor="#3A2010" />
       </linearGradient>
-      <linearGradient id={gradientId('dark', uid)} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#4A2A1C" />
-        <stop offset="45%" stopColor="#382114" />
-        <stop offset="100%" stopColor="#1F0F08" />
-      </linearGradient>
-
       {/* Soft top-light sheen, screened over the body for a glossy feel */}
       <radialGradient id={highlightId(uid)} cx="32%" cy="22%" r="70%">
         <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
@@ -124,7 +116,6 @@ export default function StudioDefs({ uid }: StudioDefsProps) {
       {/* --- Emboss: raised chocolate mark, one filter per chocolate type --- */}
       <EmbossFilter type="milk" uid={uid} />
       <EmbossFilter type="semidark" uid={uid} />
-      <EmbossFilter type="dark" uid={uid} />
     </defs>
   );
 }

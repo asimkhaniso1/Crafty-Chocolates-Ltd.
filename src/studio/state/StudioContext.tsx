@@ -82,7 +82,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [state.design]);
 
   return (
-    <StudioContext.Provider value={{ design: state.design, step: state.step, dispatch, previewRef }}>
+    <StudioContext.Provider
+      value={{ design: state.design, step: state.step, dispatch, previewRef }}
+    >
       {children}
     </StudioContext.Provider>
   );

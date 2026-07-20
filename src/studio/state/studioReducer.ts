@@ -1,4 +1,5 @@
 import type {
+  BoxMix,
   CellAssignment,
   ChocolateType,
   Design,
@@ -10,6 +11,9 @@ import type {
 } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
 import { sanitizeDesign } from './sanitizeDesign';
+
+export const MIN_STEP: StudioStep = 1;
+export const MAX_STEP: StudioStep = 4;
 
 export interface StudioState {
   design: Design;
@@ -26,6 +30,7 @@ export const initialDesign: Design = {
   cells: [],
   extras: {},
   quantity: 50,
+  boxMix: 'single',
 };
 
 export const initialStudioState: StudioState = {
@@ -34,11 +39,11 @@ export const initialStudioState: StudioState = {
 };
 
 export type StudioAction =
-  | { type: 'SET_PRODUCT'; product: ProductKey }
+  | { type: 'SELECT_CATALOG_ITEM'; product: ProductKey; packaging: PackagingSelection | null }
   | { type: 'SET_CHOCOLATE'; chocolate: ChocolateType }
   | { type: 'SET_LOGO'; logo: LogoState }
   | { type: 'CLEAR_LOGO' }
-  | { type: 'SET_PACKAGING'; packaging: PackagingSelection }
+  | { type: 'SET_BOX_MIX'; boxMix: BoxMix }
   | { type: 'SET_ALL_CELLS'; cells: CellAssignment[] }
   | { type: 'SET_EXTRAS'; extras: Partial<DesignExtras> }
   | { type: 'SET_BAR_CAPTION'; barCaption?: string }
@@ -51,12 +56,16 @@ export type StudioAction =
   | { type: 'NEXT_STEP' }
   | { type: 'PREV_STEP' };
 
-const MIN_STEP = 1;
-const MAX_STEP = 7;
-
+/**
+ * Builds a box's cell assignments from its grid. When `boxMix` is 'mixed'
+ * each cell alternates milk/semi-dark by index, independent of the design's
+ * chosen `chocolate`; otherwise every cell uses `chocolate` ('single', the
+ * default).
+ */
 function buildCellsFromGrid(
   packagingType: string,
-  chocolate: ChocolateType
+  chocolate: ChocolateType,
+  boxMix: BoxMix = 'single'
 ): CellAssignment[] {
   const option = getPackagingOption(packagingType);
   // X+1 boxes have N individually arrangeable ring cells (same as standard
@@ -68,17 +77,51 @@ function buildCellsFromGrid(
   return Array.from({ length: total }, (_, index) => ({
     index,
     content: 'logo',
-    chocolate,
+    chocolate: boxMix === 'mixed' ? (index % 2 === 0 ? 'milk' : 'semidark') : chocolate,
   }));
+}
+
+/**
+ * Extras that only make sense on a real box (ribbon, box colour, sleeve,
+ * greeting card, wax seal, butter-paper message, QR). Cleared whenever the
+ * catalog selection switches to a loose/individual pack or a custom shape,
+ * so a leftover box choice can't survive into an incompatible packaging.
+ */
+function clearBoxOnlyExtras(extras: DesignExtras): DesignExtras {
+  return {
+    foil: extras.foil,
+    printedWrapper: extras.printedWrapper,
+  };
 }
 
 export function studioReducer(state: StudioState, action: StudioAction): StudioState {
   switch (action.type) {
-    case 'SET_PRODUCT':
-      return { ...state, design: { ...state.design, product: action.product } };
+    case 'SELECT_CATALOG_ITEM': {
+      const cells = action.packaging
+        ? buildCellsFromGrid(action.packaging.type, state.design.chocolate, state.design.boxMix)
+        : [];
+      const isBoxed = Boolean(action.packaging) && action.packaging?.type !== 'individual';
+      const extras = isBoxed ? state.design.extras : clearBoxOnlyExtras(state.design.extras);
+      return {
+        ...state,
+        design: {
+          ...state.design,
+          product: action.product,
+          packaging: action.packaging,
+          cells,
+          extras,
+        },
+      };
+    }
 
-    case 'SET_CHOCOLATE':
-      return { ...state, design: { ...state.design, chocolate: action.chocolate } };
+    case 'SET_CHOCOLATE': {
+      // Rebuild cells so a mixed box keeps alternating milk/semi-dark, and a
+      // single-chocolate box picks up the newly chosen chocolate.
+      const cells = state.design.packaging
+        ? buildCellsFromGrid(state.design.packaging.type, action.chocolate, state.design.boxMix)
+        : state.design.cells;
+      return { ...state, design: { ...state.design, chocolate: action.chocolate, cells } };
+    }
 
     case 'SET_LOGO':
       return { ...state, design: { ...state.design, logo: action.logo } };
@@ -86,12 +129,11 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
     case 'CLEAR_LOGO':
       return { ...state, design: { ...state.design, logo: null } };
 
-    case 'SET_PACKAGING': {
-      const cells = buildCellsFromGrid(action.packaging.type, state.design.chocolate);
-      return {
-        ...state,
-        design: { ...state.design, packaging: action.packaging, cells },
-      };
+    case 'SET_BOX_MIX': {
+      const cells = state.design.packaging
+        ? buildCellsFromGrid(state.design.packaging.type, state.design.chocolate, action.boxMix)
+        : state.design.cells;
+      return { ...state, design: { ...state.design, boxMix: action.boxMix, cells } };
     }
 
     case 'SET_ALL_CELLS':
@@ -114,8 +156,10 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
     case 'SET_QUANTITY':
       return { ...state, design: { ...state.design, quantity: action.quantity } };
 
-    case 'LOAD_DESIGN':
-      return { ...state, design: sanitizeDesign(action.design) };
+    case 'LOAD_DESIGN': {
+      const design = sanitizeDesign(action.design);
+      return { ...state, design };
+    }
 
     case 'RESET':
       return { design: initialDesign, step: 1 };
