@@ -211,8 +211,10 @@ export default function Step6Extras() {
   // box-only extras (ribbon, box colour, sleeve, greeting card, wax seal,
   // inside message, QR) apply — only the foil colour choice does.
   const isIndividual = option?.count === 1;
-  // Printed wrapper applies to the Crafty Bar and to loose-pack pieces.
-  const wrapperEligible = design.product === 'bar' || isIndividual;
+  // Printed wrapper applies to the Crafty Bar, loose-pack pieces, and the
+  // center message bar of X+1 boxes (per catalog: "add your message on the
+  // chocolate bar wrapper").
+  const wrapperEligible = design.product === 'bar' || isIndividual || Boolean(option?.centerBar);
 
   const insideMessageLength = design.extras.insideMessage?.length ?? 0;
 

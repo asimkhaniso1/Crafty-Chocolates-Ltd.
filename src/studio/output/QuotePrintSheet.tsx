@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { CHOCOLATE_NAMES, EMBOSS_NAMES, PRINT_SHEET_COPY, packagingSummaryName } from '../copy';
 import { WHATSAPP_DISPLAY, PHONE_DISPLAY, formatPrice } from '../../constants';
 import { getPackagingOption } from '../data/packagingOptions';
@@ -10,9 +11,9 @@ interface QuotePrintSheetProps {
 }
 
 /**
- * Hidden on screen, rendered only for window.print(). Uses #studio-print-sheet
- * as the print target — see the <style> block below for the isolation rule.
- * The app root element id is `root` (see index.html).
+ * Hidden on screen, rendered only for window.print(). Portalled to
+ * document.body so the app's animated/clipped containers can never affect it;
+ * printing simply hides #root and shows the sheet (see the <style> block).
  */
 export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps) {
   const productName = design.product
@@ -38,16 +39,17 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
     day: 'numeric',
   });
 
-  return (
-    <div id="studio-print-sheet" className="hidden print:block">
+  return createPortal(
+    <div id="studio-print-sheet">
       <style>{`
+        #studio-print-sheet { display: none; }
         @media print {
-          body > #root * { visibility: hidden; }
-          #studio-print-sheet, #studio-print-sheet * { visibility: visible; }
+          #root { display: none !important; }
           #studio-print-sheet {
-            position: absolute;
-            inset: 0;
+            display: block !important;
             padding: 32px;
+            font-family: 'Inter', sans-serif;
+            color: #2D1E17;
           }
         }
       `}</style>
@@ -147,6 +149,7 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
         </p>
         <p className="mt-2">{PRINT_SHEET_COPY.footerNote}</p>
       </footer>
-    </div>
+    </div>,
+    document.body
   );
 }

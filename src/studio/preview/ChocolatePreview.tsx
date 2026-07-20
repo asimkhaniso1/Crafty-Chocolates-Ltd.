@@ -1,7 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { CellAssignment, ChocolateType, Design, EmbossStyle } from '../types';
-import StudioDefs, { filterId, gradientId, highlightId } from './embossFilters';
+import type { CellAssignment, ChocolateType, Design } from '../types';
+import StudioDefs, { embossFilterId, gradientId, highlightId } from './embossFilters';
 
 export interface ChocolatePreviewProps {
   design: Design;
@@ -71,22 +71,13 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   const h = isBar ? size * 0.5 : size;
   const r = Math.min(w, h) * RADIUS_RATIO;
   const type = bodyFor(design, cell);
-  const style: EmbossStyle = design.emboss;
-  const filter = filterId(style, uid);
+  const filter = embossFilterId(type, uid);
   const content = cell?.content ?? (design.logo ? 'logo' : 'pattern');
   const pad = Math.min(w, h) * 0.14;
 
   // Bar caption: an embossed serif line beneath the mark on the bar face.
   const caption = !cell && design.product === 'bar' ? design.barCaption?.trim() : undefined;
   const logoCenterY = caption ? h * 0.42 : h / 2;
-
-  // Printed wrapper band (bars and loose-pack pieces only, full colour).
-  const wrapper =
-    !cell && (design.product === 'bar' || design.packaging?.count === 1)
-      ? design.extras.printedWrapper
-      : undefined;
-  const bandH = h * (isBar ? 0.46 : 0.36);
-  const bandY = h - bandH - h * 0.08;
 
   return (
     <svg
@@ -186,56 +177,6 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
         )}
 
         {content === 'pattern' && <QuiltPattern w={w} h={h} uid={uid} filter={filter} />}
-
-        {/* Printed paper wrapper band — full colour, over the piece (and foil) */}
-        {wrapper?.enabled && (
-          <g>
-            <clipPath id={`studio-wrapper-clip-${uid}`}>
-              <rect x={0} y={bandY} width={w} height={bandH} rx={1.5} />
-            </clipPath>
-            <rect
-              x={0}
-              y={bandY}
-              width={w}
-              height={bandH}
-              fill="#FDFBF7"
-              opacity={0.97}
-            />
-            {wrapper.imageDataUrl && (
-              <image
-                href={wrapper.imageDataUrl}
-                x={0}
-                y={bandY}
-                width={w}
-                height={bandH}
-                preserveAspectRatio="xMidYMid slice"
-                clipPath={`url(#studio-wrapper-clip-${uid})`}
-              />
-            )}
-            {wrapper.message && (
-              <text
-                x={w / 2}
-                y={bandY + bandH / 2}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontFamily="'Cormorant Garamond', serif"
-                fontStyle="italic"
-                fontSize={Math.min(bandH * 0.4, ((w - pad) / Math.max(6, wrapper.message.length)) * 1.7)}
-                fill={wrapper.imageDataUrl ? '#FDFBF7' : '#2D1E17'}
-                style={
-                  wrapper.imageDataUrl
-                    ? { paintOrder: 'stroke', stroke: 'rgba(45,30,23,0.65)', strokeWidth: 1.4 }
-                    : undefined
-                }
-              >
-                {wrapper.message}
-              </text>
-            )}
-            {/* Paper edge shadows so the band reads as wrapped around */}
-            <rect x={0} y={bandY} width={w} height={1.2} fill="#000" opacity={0.18} />
-            <rect x={0} y={bandY + bandH - 1.2} width={w} height={1.2} fill="#000" opacity={0.18} />
-          </g>
-        )}
       </g>
     </svg>
   );

@@ -9,11 +9,17 @@ export interface BoxPreviewProps {
   design: Design;
 }
 
-/** Assorted molded shapes ring the X+1 center bar; cycle chocolates for variety. */
+/** Fallback cycle used only when a ring cell has no assignment yet. */
 const ASSORTED_CYCLE: ChocolateType[] = ['milk', 'dark', 'semidark', 'dark'];
 
-function assortedCell(index: number): CellAssignment {
-  return { index, content: 'pattern', chocolate: ASSORTED_CYCLE[index % ASSORTED_CYCLE.length] };
+function ringCellFor(design: Design, index: number): CellAssignment {
+  const found = design.cells.find(c => c.index === index);
+  if (found) return found;
+  return {
+    index,
+    content: design.logo ? 'logo' : 'pattern',
+    chocolate: ASSORTED_CYCLE[index % ASSORTED_CYCLE.length],
+  };
 }
 
 /**
@@ -63,7 +69,7 @@ function PhotoBoxPreview({ design, option }: { design: Design; option: Packaging
 function DrawnCenterBarPreview({ design, option }: { design: Design; option: PackagingOption }) {
   const boxColour = design.extras.boxColour || '#2D1E17';
   const { rows, cols } = option.grid ?? { rows: 2, cols: 2 };
-  const cells = Array.from({ length: option.count }, (_, i) => assortedCell(i));
+  const cells = Array.from({ length: option.count }, (_, i) => ringCellFor(design, i));
 
   return (
     <motion.div

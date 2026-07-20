@@ -51,20 +51,9 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   -- Add-on unit price per piece (chocolate type)
 --   ('chocolate.semidark', 'addon_unit', 15, '{"group":"chocolate"}'),
 --
---   -- Packaging: price per box/wrapper, keyed to packagingOptions `type`
---   -- X+1 signature boxes (assorted ring + center message bar), premium tins
---   ('pkg.4+1', 'packaging', 750, '{"type":"4+1"}'),
---   ('pkg.9+1', 'packaging', 900, '{"type":"9+1"}'),
---   ('pkg.16+1', 'packaging', 1100, '{"type":"16+1"}'),
---   ('pkg.individual', 'packaging', 25, '{"type":"individual"}'),
---   ('pkg.box-2', 'packaging', 180, '{"type":"box-2"}'),
---   ('pkg.box-4', 'packaging', 260, '{"type":"box-4"}'),
---   ('pkg.box-6', 'packaging', 340, '{"type":"box-6"}'),
---   ('pkg.box-9', 'packaging', 450, '{"type":"box-9"}'),
---   ('pkg.box-12', 'packaging', 560, '{"type":"box-12"}'),
---   ('pkg.box-16', 'packaging', 700, '{"type":"box-16"}'),
---   ('pkg.box-24', 'packaging', 950, '{"type":"box-24"}'),
---   ('pkg.box-36', 'packaging', 1300, '{"type":"box-36"}'),
+--   -- Packaging: one flat rule for every packaging type — Rs 1000 per
+--   -- started block of 50 pieces, regardless of box type
+--   ('pkg.flat', 'packaging', 1000, '{"per_pcs":50}'),
 --
 --   -- Center message bar (one per X+1 box)
 --   ('bar.center', 'addon_unit', 450, '{"group":"bar","per":"box"}'),
@@ -91,9 +80,9 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   ('tier.250', 'qty_tier', 0.85, '{"min_qty":250,"multiplier":0.85}'),
 --   ('tier.500', 'qty_tier', 0.8, '{"min_qty":500,"multiplier":0.8}'),
 --
---   -- One-time fees
---   ('mold.custom_logo', 'mold_fee', 15000, '{"waive_above":500}'),
---   ('artwork.setup', 'artwork_fee', 3000, '{"waive_above":250}'),
+--   -- One-time fees: single combined Design & mold fee, charged once per
+--   -- design at any quantity, no waivers
+--   ('fee.designMold', 'mold_fee', 18000, '{}'),
 --
 --   -- Lead time (days)
 --   ('lead.base', 'lead_time', 7, '{}'),

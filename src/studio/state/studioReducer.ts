@@ -60,9 +60,9 @@ function buildCellsFromGrid(
   chocolate: ChocolateType
 ): CellAssignment[] {
   const option = getPackagingOption(packagingType);
-  // X+1 boxes carry assorted (non-customizable) pieces around the center bar,
-  // so no per-cell assignments exist for them.
-  if (!option || !option.grid || option.centerBar) return [];
+  // X+1 boxes have N individually arrangeable ring cells (same as standard
+  // boxes) in addition to the separately-edited center bar.
+  if (!option || !option.grid) return [];
   const total = option.grid.rows * option.grid.cols;
   return Array.from({ length: total }, (_, index) => ({
     index,

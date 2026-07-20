@@ -77,12 +77,16 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     const perBoxCount = option?.count ?? design.packaging.count ?? 1;
     boxCount = Math.max(1, Math.ceil(quantity / Math.max(1, perBoxCount)));
 
-    const pkgRule = findRule(rules, `pkg.${design.packaging.type}`);
-    const pkgUnitPrice = pkgRule?.value ?? 0;
-    packagingCost = pkgUnitPrice * boxCount;
+    // Flat packaging rule: Rs `value` per started block of `meta.per_pcs` pieces,
+    // regardless of packaging type.
+    const pkgRule = findRule(rules, 'pkg.flat');
+    const perPcs = (pkgRule?.meta?.per_pcs as number | undefined) ?? 50;
+    const pkgBlockPrice = pkgRule?.value ?? 0;
+    const pkgBlocks = Math.max(1, Math.ceil(quantity / Math.max(1, perPcs)));
+    packagingCost = pkgBlockPrice * pkgBlocks;
 
     if (packagingCost > 0) {
-      lines.push({ label: QUOTE_LINE_LABELS.packaging, amount: round(packagingCost) });
+      lines.push({ label: QUOTE_LINE_LABELS.packaging(pkgBlocks, perPcs), amount: round(packagingCost) });
     }
 
     // X+1 boxes: one large embossed message bar per box, its own quote line.
@@ -134,20 +138,11 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
   // --- One-time fees ---
   const hasLogo = Boolean(design.logo);
 
-  const moldRule = findRule(rules, 'mold.custom_logo');
-  if (hasLogo && moldRule) {
-    const waiveAbove = (moldRule.meta?.waive_above as number | undefined) ?? Infinity;
-    if (quantity < waiveAbove) {
-      fees.push({ label: QUOTE_LINE_LABELS.moldFee, amount: round(moldRule.value) });
-    }
-  }
-
-  const artworkRule = findRule(rules, 'artwork.setup');
-  if (artworkRule) {
-    const waiveAbove = (artworkRule.meta?.waive_above as number | undefined) ?? Infinity;
-    if (quantity < waiveAbove) {
-      fees.push({ label: QUOTE_LINE_LABELS.artworkFee, amount: round(artworkRule.value) });
-    }
+  // Single combined Design & mold fee, charged once per design at any
+  // quantity — no waivers.
+  const designMoldRule = findRule(rules, 'fee.designMold');
+  if (designMoldRule) {
+    fees.push({ label: QUOTE_LINE_LABELS.designMoldFee, amount: round(designMoldRule.value) });
   }
 
   const feesTotal = fees.reduce((sum, f) => sum + f.amount, 0);
