@@ -1,7 +1,9 @@
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { CellAssignment, ChocolateType, Design } from '../types';
+import { isBarProduct } from '../data/studioProducts';
 import StudioDefs, { embossFilterId, gradientId, highlightId } from './embossFilters';
+import { BAR_PHOTO_CROP, PIECE_PHOTO_CROP, coverCropRect } from './photoCrop';
 
 export interface ChocolatePreviewProps {
   design: Design;
@@ -12,6 +14,58 @@ export interface ChocolatePreviewProps {
 }
 
 const RADIUS_RATIO = 0.12;
+
+/** Below this render size a photo base is wasted detail; use the SVG gradient body instead. */
+const PHOTO_MIN_SIZE = 48;
+
+/**
+ * The photo bases carry their own embossed border a short way in from the
+ * edge. Marks/patterns must stay inside it, so every mark's max extent is
+ * kept within this fraction of the face.
+ */
+const MARK_SAFE_RATIO = 0.78;
+
+function photoSrcFor(type: ChocolateType, isBar: boolean): string {
+  return isBar ? `/studio/bar-${type}.webp` : `/studio/piece-${type}.webp`;
+}
+
+/**
+ * Photoreal base: the matching product photograph (top-down bar/piece face
+ * with its own embossed border), cropped past the photo's cream margin so
+ * only the chocolate covers the body, clipped to the rounded-rect shape,
+ * and layered over the SVG gradient body so the gradient remains visible as
+ * an instant fallback while the photo loads, and stays visible if it fails.
+ */
+function PhotoBody({
+  w,
+  h,
+  type,
+  isBar,
+  uid,
+  onError,
+}: {
+  w: number;
+  h: number;
+  type: ChocolateType;
+  isBar: boolean;
+  uid: string;
+  onError: () => void;
+}) {
+  const crop = (isBar ? BAR_PHOTO_CROP : PIECE_PHOTO_CROP)[type];
+  const rect = coverCropRect(crop, w, h);
+  return (
+    <image
+      href={photoSrcFor(type, isBar)}
+      x={rect.x}
+      y={rect.y}
+      width={rect.width}
+      height={rect.height}
+      preserveAspectRatio="xMidYMid slice"
+      clipPath={`url(#studio-body-clip-${uid})`}
+      onError={onError}
+    />
+  );
+}
 
 function bodyFor(design: Design, cell?: CellAssignment): ChocolateType {
   return cell?.chocolate ?? design.chocolate;
@@ -48,10 +102,13 @@ function QuiltPattern({ w, h, uid, filter }: { w: number; h: number; uid: string
       <line key={`b-${x}`} x1={x} y1={h} x2={x + h} y2={0} stroke="#000" strokeWidth={1} />
     );
   }
+  // Keep the pattern inside the photo's embossed border.
+  const insetX = (w * (1 - MARK_SAFE_RATIO)) / 2;
+  const insetY = (h * (1 - MARK_SAFE_RATIO)) / 2;
   return (
     <g filter={`url(#${filter})`} opacity={0.9}>
       <clipPath id={`studio-quilt-clip-${uid}`}>
-        <rect x={0} y={0} width={w} height={h} />
+        <rect x={insetX} y={insetY} width={w - insetX * 2} height={h - insetY * 2} />
       </clipPath>
       <g clipPath={`url(#studio-quilt-clip-${uid})`}>{lines}</g>
     </g>
@@ -66,17 +123,29 @@ function QuiltPattern({ w, h, uid, filter }: { w: number; h: number; uid: string
 export default function ChocolatePreview({ design, cell, size = 220, shape }: ChocolatePreviewProps) {
   const rawUid = useId();
   const uid = rawUid.replace(/[^a-zA-Z0-9]/g, '');
-  const isBar = shape === 'rectangle' || (!shape && design.product === 'bar');
-  const w = isBar ? size : size;
-  const h = isBar ? size * 0.5 : size;
+  // Crafty Slim (90×30mm) is a much narrower rectangle than the Crafty Bar
+  // (120×60mm, 2:1) — a 3:1 face — and has no product photography yet, so
+  // it always renders via the SVG gradient body below, never a photo base.
+  const isSlim = !shape && design.product === 'slim';
+  const isBar = shape === 'rectangle' || (!shape && design.product === 'bar') || isSlim;
+  const w = size;
+  const h = isSlim ? size / 3 : isBar ? size * 0.5 : size;
   const r = Math.min(w, h) * RADIUS_RATIO;
   const type = bodyFor(design, cell);
   const filter = embossFilterId(type, uid);
   const content = cell?.content ?? (design.logo ? 'logo' : 'pattern');
   const pad = Math.min(w, h) * 0.14;
 
-  // Bar caption: an embossed serif line beneath the mark on the bar face.
-  const caption = !cell && design.product === 'bar' ? design.barCaption?.trim() : undefined;
+  // Photoreal base: use the matching product photo unless it fails to load,
+  // the render is too small for the detail to read, or (Crafty Slim) no
+  // photo asset exists yet — the gradient body underneath is then the whole
+  // render, not just an instant fallback.
+  const [failedPhotoSrc, setFailedPhotoSrc] = useState<string | null>(null);
+  const photoSrc = isSlim ? null : size >= PHOTO_MIN_SIZE ? photoSrcFor(type, isBar) : null;
+  const showPhoto = Boolean(photoSrc) && photoSrc !== failedPhotoSrc;
+
+  // Bar caption: an embossed serif line beneath the mark on the bar/slim face.
+  const caption = !cell && isBarProduct(design.product) ? design.barCaption?.trim() : undefined;
   const logoCenterY = caption ? h * 0.42 : h / 2;
 
   return (
@@ -90,6 +159,9 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
     >
       <defs>
         <StudioDefs uid={uid} />
+        <clipPath id={`studio-body-clip-${uid}`}>
+          <rect x={0} y={0} width={w} height={h} rx={r} ry={r} />
+        </clipPath>
         <filter id={`studio-dropshadow-${uid}`} x="-50%" y="-50%" width="200%" height="200%">
           <feDropShadow dx="0" dy={h * 0.05} stdDeviation={h * 0.05} floodColor="#2D1E17" floodOpacity="0.35" />
         </filter>
@@ -104,7 +176,18 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: 'easeInOut' }}
           >
+            {/* Gradient body: always rendered, doubling as the instant fallback while the photo loads/if it fails */}
             <ChocolateBody w={w} h={h} r={r} type={type} uid={uid} />
+            {showPhoto && (
+              <PhotoBody
+                w={w}
+                h={h}
+                type={type}
+                isBar={isBar}
+                uid={uid}
+                onError={() => setFailedPhotoSrc(photoSrc)}
+              />
+            )}
           </motion.g>
         </AnimatePresence>
 
@@ -141,6 +224,9 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
             height={h * 0.5 * design.logo.scale}
             preserveAspectRatio="xMidYMid meet"
             filter={`url(#${filter})`}
+            // The mask raster (up to 1024px) is always scaled DOWN into this
+            // small SVG element, never up — 'auto' (bilinear) is correct here.
+            style={{ imageRendering: 'auto' }}
           />
         )}
 

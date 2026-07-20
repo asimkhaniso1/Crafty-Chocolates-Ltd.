@@ -7,7 +7,12 @@
  * No React, no external dependencies — canvas + typed arrays only.
  */
 import type { LogoState } from '../types';
-import { MAX_UPLOAD_BYTES, MAX_MASK_PX } from '../constraints';
+import {
+  MAX_UPLOAD_BYTES,
+  MAX_MASK_PX,
+  MASK_DATA_URL_SOFT_LIMIT_BYTES,
+  MASK_FALLBACK_SIZES,
+} from '../constraints';
 import { WARNINGS, STUDIO_COPY_STEP3 } from '../copy';
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
@@ -270,10 +275,49 @@ function buildMaskFromCanvas(source: HTMLCanvasElement): PipelineResult<MaskBuil
     }
     detectFineDetail(analysisAlpha, canvasSize, warnings);
 
-    return { ok: true, value: { maskDataUrl: outCanvas.toDataURL('image/png'), warnings } };
+    // Threshold at full resolution for crisp edges, then only shrink the
+    // *encoded* asset (never re-threshold) if it's unexpectedly heavy —
+    // complex, high-detail marks compress worse as PNG.
+    const maskDataUrl = downscaleUntilUnderLimit(outCanvas, canvasSize);
+
+    return { ok: true, value: { maskDataUrl, warnings } };
   } catch {
     return { ok: false, error: STUDIO_COPY_STEP3.genericError };
   }
+}
+
+/** Rough byte size of a data URL's payload, without decoding it. */
+function estimateDataUrlBytes(dataUrl: string): number {
+  const commaIdx = dataUrl.indexOf(',');
+  const base64 = commaIdx >= 0 ? dataUrl.slice(commaIdx + 1) : dataUrl;
+  return Math.ceil((base64.length * 3) / 4);
+}
+
+/**
+ * Encode the mask at full size; if the resulting PNG is heavier than
+ * MASK_DATA_URL_SOFT_LIMIT_BYTES, re-encode at progressively smaller sizes
+ * (mask content unchanged, just resampled) until it fits or we hit the
+ * smallest fallback. Keeps the common case (simple logos/initials) at full
+ * MAX_MASK_PX sharpness while guarding MAX_DESIGN_JSON_BYTES for outliers.
+ */
+function downscaleUntilUnderLimit(source: HTMLCanvasElement, sourceSize: number): string {
+  let dataUrl = source.toDataURL('image/png');
+  if (estimateDataUrlBytes(dataUrl) <= MASK_DATA_URL_SOFT_LIMIT_BYTES) return dataUrl;
+
+  for (const fallbackSize of MASK_FALLBACK_SIZES) {
+    if (fallbackSize >= sourceSize) continue;
+    const smaller = document.createElement('canvas');
+    smaller.width = fallbackSize;
+    smaller.height = fallbackSize;
+    const ctx = smaller.getContext('2d');
+    if (!ctx) break;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, fallbackSize, fallbackSize);
+    dataUrl = smaller.toDataURL('image/png');
+    if (estimateDataUrlBytes(dataUrl) <= MASK_DATA_URL_SOFT_LIMIT_BYTES) break;
+  }
+  return dataUrl;
 }
 
 /** Sample the four corners; if they agree, flood-fill from every edge pixel removing near-matches. */

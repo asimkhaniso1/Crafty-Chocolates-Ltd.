@@ -15,6 +15,7 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'base.bite', kind: 'base_unit', value: 120, meta: { product: 'bite' } },
   { rule_key: 'base.signature', kind: 'base_unit', value: 260, meta: { product: 'signature' } },
   { rule_key: 'base.bar', kind: 'base_unit', value: 420, meta: { product: 'bar' } },
+  { rule_key: 'base.slim', kind: 'base_unit', value: 200, meta: { product: 'slim' } },
 
   // --- Add-on unit price per piece (chocolate type) ---
   { rule_key: 'chocolate.semidark', kind: 'addon_unit', value: 15, meta: { group: 'chocolate' } },
@@ -25,6 +26,9 @@ export const PRICING_FALLBACK: PricingRule[] = [
 
   // --- Center message bar (one per X+1 box) ---
   { rule_key: 'bar.center', kind: 'addon_unit', value: 450, meta: { group: 'bar', per: 'box' } },
+
+  // --- Wedding favour box bar (one 60×60mm bar per box) ---
+  { rule_key: 'bar.wedding', kind: 'addon_unit', value: 350, meta: { group: 'bar', per: 'box' } },
 
   // --- Printed wrapper (per wrapped piece) ---
   { rule_key: 'extra.printedWrapper', kind: 'addon_unit', value: 20, meta: { group: 'extra', per: 'unit' } },
@@ -38,9 +42,12 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'extra.insideMessage', kind: 'addon_unit', value: 0, meta: { group: 'extra', per: 'box' } },
 
   // --- Minimum order quantity, by product ---
+  // The studio is positioned for bulk custom orders: every line clamps at
+  // the same 50-piece floor.
   { rule_key: 'moq.bite', kind: 'moq', value: 50, meta: { product: 'bite' } },
-  { rule_key: 'moq.signature', kind: 'moq', value: 25, meta: { product: 'signature' } },
-  { rule_key: 'moq.bar', kind: 'moq', value: 25, meta: { product: 'bar' } },
+  { rule_key: 'moq.signature', kind: 'moq', value: 50, meta: { product: 'signature' } },
+  { rule_key: 'moq.bar', kind: 'moq', value: 50, meta: { product: 'bar' } },
+  { rule_key: 'moq.slim', kind: 'moq', value: 50, meta: { product: 'slim' } },
 
   // --- Quantity discount tiers (best applicable multiplier applies) ---
   { rule_key: 'tier.50', kind: 'qty_tier', value: 0.95, meta: { min_qty: 50, multiplier: 0.95 } },

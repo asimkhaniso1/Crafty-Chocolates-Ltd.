@@ -4,10 +4,12 @@
  * Confidentiality: never mention the mold fabrication method or material,
  * or sheet-size names, anywhere in public copy.
  */
+import type { StudioProduct } from './types';
 
 export const STUDIO_TITLE = 'The Design Studio';
 export const STUDIO_SUBTITLE =
   "Build a piece that's entirely yours, from the first swatch to the final ribbon.";
+export const STUDIO_BULK_BADGE = 'Bulk custom orders · from 50 pieces';
 
 export const STEP_TITLES: Record<number, string> = {
   1: 'Choose your canvas',
@@ -47,8 +49,33 @@ export const PRODUCT_CARD_COPY: Record<string, { blurb: string }> = {
   bite: { blurb: 'A single, elegant bite — the simplest way to carry a mark.' },
   signature: { blurb: 'Our most-loved silhouette, finished to a premium standard.' },
   bar: { blurb: 'A generous rectangle, ideal for bold logos and long messages.' },
+  slim: { blurb: 'A slender bar with room for a single elegant line.' },
   custom: { blurb: 'A fully bespoke shape, designed with our studio team.' },
 };
+
+/** Spec text only (no product name), e.g. "100 × 50 mm · 50g · 0.5 cm". */
+function productSizeSpec(product: StudioProduct): string {
+  if (product.key === 'custom') {
+    return 'Bespoke shape and size, designed with our studio team';
+  }
+  const parts: string[] = [product.dims];
+  if (product.weightG > 0) parts.push(`${product.weightG}g`);
+  if (product.thicknessMm) {
+    const cm = Number((product.thicknessMm / 10).toFixed(1));
+    parts.push(`${cm} cm`);
+  }
+  return parts.join(' · ');
+}
+
+/**
+ * Full "Name — spec" line used wherever a design summary needs to justify
+ * price with the piece's real-world size, e.g.
+ * "Crafty Bar — 100 × 50 mm · 50g · 0.5 cm".
+ */
+export function productSpecLine(product: StudioProduct | null | undefined): string {
+  if (!product) return '';
+  return `${product.name} — ${productSizeSpec(product)}`;
+}
 
 export const CHOCOLATE_NAMES: Record<string, string> = {
   milk: 'Milk',
@@ -123,6 +150,8 @@ export const QUOTE_COPY = {
   moqNote: (moq: number) => `Minimum order quantity for this piece is ${moq}.`,
   moqClampNote: (moq: number) =>
     `Your quantity is below the minimum order of ${moq}. Your quote reflects ${moq} pieces.`,
+  moqBulkNote:
+    'The studio is built for bulk custom orders — every piece is quoted from a minimum of 50.',
   breakdownTitle: 'Your breakdown',
   totalLabel: 'Total quote',
   moqChipLabel: 'MOQ',
@@ -150,6 +179,7 @@ export const QUOTE_LINE_LABELS = {
   extraQr: 'QR code',
   extraInsideMessage: 'Butter-paper message',
   messageBar: 'Message bar',
+  weddingBar: 'Wedding bar',
   printedWrapper: 'Printed wrapper',
   designMoldFee: 'Design & mold fee',
 };
@@ -159,9 +189,18 @@ export const QUOTE_LINE_LABELS = {
 /* ---------------------------------------------------------------------- */
 
 export const STEP4_COPY = {
+  presentationTitle: 'How would you like it presented?',
+  presentationBoxedTitle: 'Boxed collection',
+  presentationBoxedBody: 'A curated box, arranged piece by piece.',
+  presentationLooseTitle: 'Individually wrapped — loose',
+  presentationLooseBody: 'Foil-wrapped pieces, packed loose — ready to place your way.',
+  presentationChosenCta: 'Chosen',
+  presentationChooseCta: 'Choose',
+  looseConfirmedTitle: 'Individually wrapped, loose',
   filterAll: 'All',
   piecesLabel: (n: number) => (n === 1 ? '1 piece' : `${n} pieces`),
-  centerBarPiecesLabel: (n: number) => `${n} pieces + your message bar in the center`,
+  centerBarPiecesLabel: (n: number) =>
+    n === 1 ? `1 piece + your message bar in the center` : `${n} pieces + your message bar in the center`,
   centerBarNote: 'Our signature box — assorted chocolates around one large embossed message bar.',
   individualNote: "You'll choose a foil colour for the wrapper in a later step.",
   selectCta: 'Select',
@@ -194,6 +233,7 @@ export const STEP5_COPY = {
   panelInitialsPlaceholder: 'AB',
   doneCta: 'Done',
   hintLabel: 'Tap a piece to edit it',
+  layerTabLabel: (n: number) => `Layer ${n}`,
   contentLabels: {
     logo: 'Logo',
     message: 'Message',
@@ -215,11 +255,31 @@ export const CENTER_BAR_COPY = {
   panelTitle: 'Center bar',
   assortedNote:
     'Arrange each surrounding piece, and the center bar carries your featured mark.',
+  // Wedding favour box: a single bar, no surrounding ring pieces to arrange.
+  singleBarNote: 'Each favour box carries one embossed bar with your featured mark.',
   markSizeLabel: 'Mark size on the bar',
   captionLabel: 'Caption line (optional)',
   captionHint: 'Embossed beneath your mark',
   captionPlaceholder: 'e.g. Congratulations, Ayesha & Bilal',
 };
+
+/**
+ * Real-world spec of the center/message bar, by packaging type — used
+ * wherever a design summary needs to justify the "message bar" line with
+ * its physical size (WhatsApp summary, print sheet).
+ */
+const CENTER_BAR_SPECS: Record<string, string> = {
+  '4+1': '120 × 60 mm · 50g',
+  '9+1': '85 × 85 mm · 60g',
+  '16+1': '85 × 85 mm · 60g',
+  // Weight unconfirmed for the wedding favour bar — omitted rather than guessed.
+  'wedding-favor': '60 × 60 mm',
+};
+
+export function centerBarSpec(packagingType: string | undefined): string | undefined {
+  if (!packagingType) return undefined;
+  return CENTER_BAR_SPECS[packagingType];
+}
 
 /* ---------------------------------------------------------------------- */
 /* Step 6 (Finishing touches) — added by packaging/arrange/extras work */
@@ -241,6 +301,7 @@ export const STEP6_COPY = {
     silver: 'Silver',
     gold: 'Gold',
   } as Record<string, string>,
+  foilPreviewLabel: 'Foil wrap preview',
   boxColourTitle: 'Box colour',
   boxColourNames: {
     choco: 'Deep Chocolate',
@@ -263,6 +324,7 @@ export const STEP6_COPY = {
   printedWrapperImageCta: 'Upload image',
   printedWrapperImageReplaceCta: 'Replace image',
   printedWrapperImageRemoveCta: 'Remove image',
+  printedWrapperScaleLabel: 'Image size',
   printedWrapperMessageLabel: 'Wrapper message (optional)',
   printedWrapperMessagePlaceholder: 'e.g. Thank you for celebrating with us',
   qrTitle: 'QR code',

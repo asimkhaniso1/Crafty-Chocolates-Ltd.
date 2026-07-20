@@ -61,9 +61,11 @@ function buildCellsFromGrid(
 ): CellAssignment[] {
   const option = getPackagingOption(packagingType);
   // X+1 boxes have N individually arrangeable ring cells (same as standard
-  // boxes) in addition to the separately-edited center bar.
+  // boxes) in addition to the separately-edited center bar. `option.count`
+  // (not grid.rows*cols) is the source of truth for the total, since
+  // layered options (e.g. a two-tier tin) hold more cells than one grid.
   if (!option || !option.grid) return [];
-  const total = option.grid.rows * option.grid.cols;
+  const total = option.count;
   return Array.from({ length: total }, (_, index) => ({
     index,
     content: 'logo',

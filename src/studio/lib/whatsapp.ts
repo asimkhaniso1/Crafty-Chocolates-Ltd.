@@ -1,5 +1,5 @@
 import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
-import { CHOCOLATE_NAMES, EMBOSS_NAMES, packagingSummaryName } from '../copy';
+import { CHOCOLATE_NAMES, EMBOSS_NAMES, centerBarSpec, packagingSummaryName, productSpecLine } from '../copy';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
 import type { Design, Quote } from '../types';
@@ -9,7 +9,9 @@ import type { Design, Quote } from '../types';
  * Kept under ~900 characters once encoded.
  */
 export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: string): string {
-  const productName = design.product ? getStudioProduct(design.product)?.name ?? design.product : 'Custom piece';
+  const productName = design.product
+    ? productSpecLine(getStudioProduct(design.product)) || design.product
+    : 'Custom piece';
   const chocolateName = CHOCOLATE_NAMES[design.chocolate] ?? design.chocolate;
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
@@ -27,6 +29,11 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
     `Finish: ${embossName}`,
     `Packaging: ${packagingName}`,
   ];
+
+  if (packagingOption?.centerBar) {
+    const spec = centerBarSpec(design.packaging?.type);
+    if (spec) lines.push(`Message bar: ${spec}`);
+  }
 
   if (design.barCaption?.trim()) {
     lines.push(`Bar caption: "${design.barCaption.trim()}"`);

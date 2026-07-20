@@ -13,6 +13,8 @@ import {
   MARK_SCALE_MAX,
   MARK_SCALE_MIN,
   WRAPPER_MESSAGE_MAX,
+  WRAPPER_SCALE_MAX,
+  WRAPPER_SCALE_MIN,
 } from '../constraints';
 
 const CHOCOLATE_MIGRATIONS: Record<string, ChocolateType> = {
@@ -50,6 +52,9 @@ function sanitizePrintedWrapper(value: unknown): PrintedWrapper | undefined {
   }
   if (typeof raw.message === 'string' && raw.message.trim()) {
     wrapper.message = raw.message.slice(0, WRAPPER_MESSAGE_MAX);
+  }
+  if (typeof raw.scale === 'number' && Number.isFinite(raw.scale)) {
+    wrapper.scale = Math.min(WRAPPER_SCALE_MAX, Math.max(WRAPPER_SCALE_MIN, raw.scale));
   }
   return wrapper;
 }

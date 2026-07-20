@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Box, Gem } from 'lucide-react';
 import { useStudio } from '../state/StudioContext';
-import { getStudioProduct } from '../data/studioProducts';
+import { getStudioProduct, isBarProduct } from '../data/studioProducts';
 import { getPackagingOption } from '../data/packagingOptions';
 import { activeRenderer } from './DesignRenderer';
 import PrintedWrapperPreview from './PrintedWrapperPreview';
+import { STEP6_COPY } from '../copy';
 
 const CHOCOLATE_LABEL: Record<string, string> = {
   milk: 'Milk',
@@ -34,6 +35,10 @@ export default function PreviewPane({ compact = false }: PreviewPaneProps) {
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPiece = !!packagingOption?.grid && packagingOption.count > 1;
   const boxEligible = isMultiPiece && step >= 4;
+  const isBar = isBarProduct(design.product);
+  const printedWrapperEnabled = Boolean(design.extras.printedWrapper?.enabled);
+  const showFoilOnlyPreview =
+    !printedWrapperEnabled && Boolean(design.extras.foil) && design.packaging?.type === 'individual';
 
   const [manualMode, setManualMode] = useState<ViewMode | null>(null);
   const mode: ViewMode = manualMode ?? (boxEligible ? 'box' : 'piece');
@@ -113,8 +118,22 @@ export default function PreviewPane({ compact = false }: PreviewPaneProps) {
         <p className="font-serif text-sm italic tracking-normal text-gold not-italic">{caption}</p>
       </div>
 
-      {design.extras.printedWrapper?.enabled && (
-        <PrintedWrapperPreview wrapper={design.extras.printedWrapper} compact={compact} />
+      {printedWrapperEnabled && design.extras.printedWrapper && (
+        <PrintedWrapperPreview
+          wrapper={design.extras.printedWrapper}
+          foil={design.extras.foil}
+          isBar={isBar}
+          compact={compact}
+        />
+      )}
+
+      {showFoilOnlyPreview && (
+        <PrintedWrapperPreview
+          foil={design.extras.foil}
+          isBar={isBar}
+          compact={compact}
+          label={STEP6_COPY.foilPreviewLabel}
+        />
       )}
     </div>
   );

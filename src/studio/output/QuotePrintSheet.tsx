@@ -1,5 +1,12 @@
 import { createPortal } from 'react-dom';
-import { CHOCOLATE_NAMES, EMBOSS_NAMES, PRINT_SHEET_COPY, packagingSummaryName } from '../copy';
+import {
+  CHOCOLATE_NAMES,
+  EMBOSS_NAMES,
+  PRINT_SHEET_COPY,
+  centerBarSpec,
+  packagingSummaryName,
+  productSpecLine,
+} from '../copy';
 import { WHATSAPP_DISPLAY, PHONE_DISPLAY, formatPrice } from '../../constants';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
@@ -17,7 +24,7 @@ interface QuotePrintSheetProps {
  */
 export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps) {
   const productName = design.product
-    ? getStudioProduct(design.product)?.name ?? design.product
+    ? productSpecLine(getStudioProduct(design.product)) || design.product
     : 'Custom piece';
   const chocolateName = CHOCOLATE_NAMES[design.chocolate] ?? design.chocolate;
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
@@ -27,6 +34,7 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
       ? packagingSummaryName(packagingOption.name, packagingOption.count, packagingOption.centerBar)
       : design.packaging.type
     : 'Not selected';
+  const messageBarSpec = packagingOption?.centerBar ? centerBarSpec(design.packaging?.type) : undefined;
   const wrapper = design.extras.printedWrapper;
   const wrapperSummary = wrapper?.enabled
     ? ['Yes', wrapper.message?.trim() ? `"${wrapper.message.trim()}"` : '', wrapper.imageDataUrl ? 'with image' : '']
@@ -86,6 +94,12 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
               <td className="py-1 text-clay">Packaging</td>
               <td className="py-1 text-right font-semibold text-choco">{packagingName}</td>
             </tr>
+            {messageBarSpec && (
+              <tr>
+                <td className="py-1 text-clay">Message bar</td>
+                <td className="py-1 text-right font-semibold text-choco">{messageBarSpec}</td>
+              </tr>
+            )}
             {design.barCaption?.trim() && (
               <tr>
                 <td className="py-1 text-clay">Bar caption</td>

@@ -25,15 +25,21 @@ function ArrangeGrid({
   design,
   dispatch,
   option,
+  indexOffset = 0,
 }: {
   design: Design;
   dispatch: Dispatch<StudioAction>;
   option: PackagingOption;
+  /** First absolute cell index this grid edits — non-zero for one layer of a multi-layer option. */
+  indexOffset?: number;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
 
   const { rows, cols } = option.grid!;
-  const cells = Array.from({ length: option.count }, (_, i) => cellFor(design.cells, i));
+  // Per-layer cell count: for a single-layer option this is option.count;
+  // for a layered option (e.g. a two-tier tin) it's just this layer's grid.
+  const layerCount = rows * cols;
+  const cells = Array.from({ length: layerCount }, (_, i) => cellFor(design.cells, indexOffset + i));
   const selectedCell = selected !== null ? cellFor(design.cells, selected) : null;
 
   function updateSelected(patch: Partial<CellAssignment>) {
@@ -43,21 +49,25 @@ function ArrangeGrid({
   }
 
   function applyBulk(kind: 'logo' | 'alternate' | 'first') {
-    const first = cellFor(design.cells, 0);
-    const next: CellAssignment[] = Array.from({ length: option.count }, (_, i) => {
-      if (kind === 'logo') return { index: i, content: 'logo', chocolate: cellFor(design.cells, i).chocolate };
+    const first = cellFor(design.cells, indexOffset);
+    const layerCells: CellAssignment[] = Array.from({ length: layerCount }, (_, i) => {
+      const idx = indexOffset + i;
+      if (kind === 'logo') return { index: idx, content: 'logo', chocolate: cellFor(design.cells, idx).chocolate };
       if (kind === 'alternate')
-        return { ...cellFor(design.cells, i), chocolate: i % 2 === 0 ? 'milk' : 'dark' };
-      return { ...first, index: i };
+        return { ...cellFor(design.cells, idx), chocolate: i % 2 === 0 ? 'milk' : 'dark' };
+      return { ...first, index: idx };
     });
-    dispatch({ type: 'SET_ALL_CELLS', cells: next });
+    // Only this layer's cells are replaced; other layers' assignments (and
+    // any other cells outside this grid's range) are preserved as-is.
+    const otherCells = design.cells.filter(c => c.index < indexOffset || c.index >= indexOffset + layerCount);
+    dispatch({ type: 'SET_ALL_CELLS', cells: [...otherCells, ...layerCells] });
   }
 
   const panelContent = selectedCell && (
     <>
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-black uppercase tracking-tight text-sm text-choco">
-          {STEP5_COPY.panelTitle(selectedCell.index)}
+          {STEP5_COPY.panelTitle(selectedCell.index - indexOffset)}
         </h3>
         <button
           onClick={() => setSelected(null)}
@@ -211,6 +221,50 @@ function ArrangeGrid({
   );
 }
 
+/**
+ * A multi-layer packaging (e.g. a two-tier tin) arranges one layer's worth
+ * of cells at a time, behind a "Layer 1 / Layer 2" tab switch; each tab
+ * reuses the same ArrangeGrid, offset to that layer's slice of `cells`.
+ */
+function LayeredArrangeGrid({
+  design,
+  dispatch,
+  option,
+}: {
+  design: Design;
+  dispatch: Dispatch<StudioAction>;
+  option: PackagingOption;
+}) {
+  const layers = option.layers ?? 1;
+  const perLayer = option.grid!.rows * option.grid!.cols;
+  const [activeLayer, setActiveLayer] = useState(0);
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-6 font-sans">
+        {Array.from({ length: layers }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveLayer(i)}
+            className={`px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold border transition-all ${
+              activeLayer === i
+                ? 'bg-choco text-cream border-choco'
+                : 'border-choco/20 text-choco hover:border-gold'
+            }`}
+          >
+            {STEP5_COPY.layerTabLabel(i + 1)}
+          </button>
+        ))}
+      </div>
+      {/* Keyed wrapper (rather than a key on ArrangeGrid itself) remounts on
+          layer switch, resetting the grid's internal "selected cell" state. */}
+      <div key={activeLayer}>
+        <ArrangeGrid design={design} dispatch={dispatch} option={option} indexOffset={activeLayer * perLayer} />
+      </div>
+    </div>
+  );
+}
+
 export default function Step5Arrange() {
   const { design, dispatch } = useStudio();
 
@@ -297,7 +351,7 @@ export default function Step5Arrange() {
             </p>
 
             <p className="text-xs text-clay mt-5 pt-4 border-t border-choco/10">
-              {CENTER_BAR_COPY.assortedNote}
+              {option.grid ? CENTER_BAR_COPY.assortedNote : CENTER_BAR_COPY.singleBarNote}
             </p>
           </div>
         </div>
@@ -323,6 +377,17 @@ export default function Step5Arrange() {
             <p className="text-sm text-clay">{STEP5_COPY.singleBody}</p>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Multi-layer packaging (e.g. a two-tier tin): arrange one layer at a
+  // time behind a tab switch, reusing the same per-cell grid.
+  if ((option.layers ?? 1) > 1) {
+    return (
+      <div>
+        {headline}
+        <LayeredArrangeGrid design={design} dispatch={dispatch} option={option} />
       </div>
     );
   }

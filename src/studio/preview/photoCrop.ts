@@ -1,0 +1,107 @@
+/**
+ * Measured crop geometry for the studio's product photography.
+ *
+ * Every photo in /public/studio is a top-down shot centred on a cream
+ * background, with the chocolate/foil subject occupying only part of the
+ * canvas. To composite these as SVG/CSS "cover" bases without the cream
+ * margin showing, each photo's subject bounding box (in source pixels) was
+ * measured once (pixel-scanning for non-cream pixels) and is recorded here.
+ * `coverCropRect` then places the photo so that bounding box — not the
+ * whole canvas — fills the target box, the same way `object-fit: cover`
+ * would if the "image" were just the cropped subject.
+ */
+
+export interface PhotoCrop {
+  /** Natural pixel size of the source photo. */
+  pw: number;
+  ph: number;
+  /** Subject bounding box in source pixels, excluding the cream margin. */
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+export interface ImageRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * Uniform-scale "cover" rect: the image's x/y/width/height (in target-box
+ * units) so that, once scaled, the measured subject bounding box fully
+ * covers a w×h target box, centred on the box's centre. Any excess (the
+ * bounding box is rarely exactly the target's aspect ratio) overflows
+ * evenly on the constrained axis — callers clip to the target shape.
+ */
+export function coverCropRect(crop: PhotoCrop, w: number, h: number): ImageRect {
+  const cropW = crop.right - crop.left;
+  const cropH = crop.bottom - crop.top;
+  const scale = Math.max(w / cropW, h / cropH);
+  const width = crop.pw * scale;
+  const height = crop.ph * scale;
+  const cx = (crop.left + crop.right) / 2;
+  const cy = (crop.top + crop.bottom) / 2;
+  return {
+    x: w / 2 - cx * scale,
+    y: h / 2 - cy * scale,
+    width,
+    height,
+  };
+}
+
+/**
+ * Percentage-based crop for a plain HTML/CSS `<img>`: sizes the image
+ * (absolutely positioned inside an `overflow: hidden` container) so the
+ * subject bounding box exactly fills the container, with a matching
+ * `aspectRatio` for the container itself. Equivalent to `coverCropRect`
+ * but expressed for CSS instead of an SVG viewBox.
+ */
+export interface CssCoverCrop {
+  /** Apply to the container: `aspectRatio: crop.aspectRatio`. */
+  aspectRatio: string;
+  /** Apply to an absolutely-positioned <img> filling the container. */
+  imgStyle: { left: string; top: string; width: string; height: string };
+}
+
+export function cssCoverCrop(crop: PhotoCrop): CssCoverCrop {
+  const cropW = crop.right - crop.left;
+  const cropH = crop.bottom - crop.top;
+  return {
+    aspectRatio: `${cropW} / ${cropH}`,
+    imgStyle: {
+      left: `${(-crop.left / cropW) * 100}%`,
+      top: `${(-crop.top / cropH) * 100}%`,
+      width: `${(crop.pw / cropW) * 100}%`,
+      height: `${(crop.ph / cropH) * 100}%`,
+    },
+  };
+}
+
+type ChocolateKey = 'milk' | 'dark' | 'semidark';
+
+export const PIECE_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
+  milk: { pw: 1024, ph: 1024, left: 151, top: 151, right: 924, bottom: 941 },
+  dark: { pw: 1024, ph: 1024, left: 173, top: 173, right: 885, bottom: 885 },
+  semidark: { pw: 1024, ph: 1024, left: 172, top: 173, right: 899, bottom: 905 },
+};
+
+export const BAR_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
+  milk: { pw: 1264, ph: 848, left: 140, top: 184, right: 1136, bottom: 708 },
+  dark: { pw: 1264, ph: 848, left: 138, top: 172, right: 1148, bottom: 701 },
+  semidark: { pw: 1264, ph: 848, left: 292, top: 250, right: 999, bottom: 625 },
+};
+
+type FoilColour = 'silver' | 'gold';
+
+export const FOIL_BAR_PHOTO_CROP: Record<FoilColour, PhotoCrop> = {
+  silver: { pw: 1264, ph: 848, left: 203, top: 216, right: 1108, bottom: 693 },
+  gold: { pw: 1264, ph: 848, left: 200, top: 249, right: 1106, bottom: 657 },
+};
+
+export const FOIL_BITE_PHOTO_CROP: Record<FoilColour, PhotoCrop> = {
+  silver: { pw: 1024, ph: 1024, left: 302, top: 306, right: 809, bottom: 839 },
+  gold: { pw: 1024, ph: 1024, left: 204, top: 203, right: 883, bottom: 885 },
+};
