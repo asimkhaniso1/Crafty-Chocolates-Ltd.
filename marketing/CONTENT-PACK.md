@@ -16,10 +16,10 @@ Lals, The Candy Box Shop, and Bostani (July 2026).
 | `ad-corporate-logo-1x1.png` | 1:1 image | LinkedIn ads/posts, FB corporate |
 | `ad-wedding-favor-9x16.png` | 9:16 image | IG story/Reel cover, wedding push |
 | `ad-sugarfree-1x1.png` | 1:1 image | FB/IG health-line posts |
-| `ad-independence-day-9x16.png` | 9:16 image | Aug 14 campaign (run Aug 1–13) |
-| `reel-logo-mold-reveal-9x16.mp4` | 9:16 video 5s | Corporate Reel / LinkedIn video / DM attachment |
-| `reel-wedding-box-reveal-9x16.mp4` | 9:16 video 5s | Wedding Reel / planner DMs |
-| `reel-artisan-wrapping-9x16.mp4` | 9:16 video 5s | Brand/craft Reel (pending download) |
+| ~~`ad-independence-day-9x16.png`~~ | — | **SUPERSEDED** (moved to `assets/_superseded/`): Aug 14 is not a Crafty sales occasion |
+| ~~`reel-logo-mold-reveal-9x16.mp4`~~ | — | **SUPERSEDED**: pre-dates product-spec corrections; redo from real studio photos |
+| ~~`reel-wedding-box-reveal-9x16.mp4`~~ | — | **SUPERSEDED**: generic box, not the real filigree favour box |
+| ~~`reel-artisan-wrapping-9x16.mp4`~~ | — | **SUPERSEDED**: shows gold ribbon (ribbons are black/purple/white) and a full-paper wrap |
 
 ## 2. Instagram / Facebook captions
 
@@ -65,7 +65,7 @@ Lals, The Candy Box Shop, and Bostani (July 2026).
 
 **Script A — "The mold reveal" (corporate):**
 1. (0–5s) Hook, face to camera: "This company's logo isn't printed on this chocolate. It IS the chocolate."
-2. (5–15s) B-roll: mold + pour (use reel-logo-mold-reveal). VO: "We engineer a custom silicone mold for every client."
+2. (5–15s) B-roll: mold + pour (needs new footage from real studio photos). VO: "We craft a custom mold in-house for every client." (Never name the mold method or material in public copy.)
 3. (15–25s) Hold finished piece to lens. "Rs 770 a box, minimum 50 — cheaper than a branded diary nobody keeps."
 4. (25–35s) CTA: "DM LOGO for a sample box. Karachi delivery this week."
 
@@ -76,7 +76,7 @@ Lals, The Candy Box Shop, and Bostani (July 2026).
 
 **Script C — "Wedding favor unboxing":**
 1. Hook: "Your wedding favors, but guests actually keep talking about them."
-2. Open gold box, show wrapper with couple's names (use reel-wedding-box-reveal as B-roll).
+2. Open gold box, show wrapper with couple's names (needs new B-roll from the real filigree favour-box photo; old reel superseded).
 3. CTA: "DM SHADI — wrappers take 6 days, book before your date fills."
 
 ## 5. Drip sequences (from the strategy report)
@@ -87,7 +87,29 @@ Lals, The Candy Box Shop, and Bostani (July 2026).
 
 **Occasion calendar:** Aug 14 Azadi → Sept–Oct wedding pre-booking → Nov–Jan weddings + NY + corporate year-end → Feb 14 Valentine's → Ramadan ~Feb 18 → Eid al-Fitr ~Mar 20 (biggest window; corporate lock-in 3 weeks prior).
 
-## 6. Next asset batch (when credits are topped up)
+## 6. Higgsfield reference library (ALWAYS attach the matching reference)
+
+Rule: **every generated image/video must use a real product photo as reference**
+and must state the real configuration in the prompt. Registered media IDs
+(Higgsfield account, July 2026):
+
+| Real product | Media ID | Config to state in prompt |
+|---|---|---|
+| Golden window box 4+1 (IMG_8265aa) | `e173a9e3-7b1a-4ae8-a846-17c4cdb4d026` | flat 20×16×3 cm; 1× 50g embossed bar 13×5 cm + 4× 10g squares 3×3 cm |
+| Golden window box 12-pc (MCB12-01) | `879ebf14-f5f3-4914-91d6-3beac13b758b` | same box; 12× 10g squares |
+| Purple metal box 9+1 (IMG_8129) | `f7e2fed0-594b-4687-959d-979bbc26bf6b` | 11×11×5 cm deep metal box; 1 bar + 9 squares (also 18-pc config) |
+| 16+1 box (shadi-01) | `f80f05dc-d8c0-4650-915c-7f247ea18210` | 19.5×19.5×5.5 cm; 60g square bar 8.5×8.5 + 16 squares; 550g |
+| Logo bites 3-pc (IMG_4517) | `942b1f82-0a24-4239-aa2a-cc2664b724d6` | transparent card box 14×6×2.5 cm; 3× 10g logo bites in a row |
+| Birthday box (IMG_6599) | `0dc06993-3bbd-4cd2-98ec-6f721ba0282d` | golden box, birthday bar + squares |
+| Wedding gold box (IMG_4723) | `f6476303-92c5-4b0b-a009-b35624db4fd1` | wedding favor config |
+
+Brand avatars (use in every UGC video): **Crafty Ayesha** `d79e6e94-9fa0-4fe4-864d-dcccacbae900` (female) · **Crafty Bilal** `4973fb1c-9f81-48cd-a790-a92cca57aed2` (male).
+
+Product truths for prompts: orange chocolate is **solid orange-flavoured dark
+chocolate, never filled**; minis are thumb-sized 3×3×1 cm; golden box is flat
+and shallow; purple metal box is deep and double-layered.
+
+## 7. Next asset batch (when credits are topped up)
 
 Priority order, prompts in the strategy report:
 1. UGC talking-head unboxing (Marketing Studio UGC preset, ~75 cr)
