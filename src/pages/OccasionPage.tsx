@@ -25,12 +25,12 @@ const OCCASION_COPY: Record<string, { title: string; blurb: string }> = {
     blurb: 'Celebrate another year with handcrafted chocolates and custom messages on every wrapper.',
   },
   'eid': {
-    title: 'Eid Chocolate Gift Boxes',
-    blurb: 'Eid Mubarak boxes in Urdu and English, chocolate-coated dates, and golden gift boxes for family and corporate giving.',
+    title: 'Eid & Ramadan Chocolate Gift Boxes',
+    blurb: 'Eid Mubarak boxes in Urdu and English, chocolate-coated dates, and golden gift boxes for family giving and Ramadan corporate gifts — delivered across Pakistan.',
   },
   'wedding-engagement': {
-    title: 'Wedding, Engagement & Nikah Chocolate Favors',
-    blurb: 'Shadi Mubarak and Baat Pakki favor boxes with the couple’s names and date on every wrapper — Urdu or English calligraphy.',
+    title: 'Wedding Chocolate Favors & Nikkah Bid Boxes',
+    blurb: 'Nikkah bid boxes, Shadi Mubarak and Baat Pakki chocolate favors with the couple’s names and date on every wrapper — Urdu or English calligraphy. Perfect giveaways for mehndi, baraat and walima guests.',
   },
   'baby-announcement': {
     title: 'Baby Announcement Chocolates',

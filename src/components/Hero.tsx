@@ -47,7 +47,7 @@ export default function Hero() {
               transition={{ duration: 1, delay: 1.2 }}
               className="max-w-md text-lg leading-relaxed mb-12 text-clay font-medium"
             >
-              We don't just melt chocolate; we engineer it. From logo-engraved pralines to architectural sculptures, our in-house 3D mold studio brings your vision to life in single-origin dark chocolate.
+              Customized chocolates, handcrafted in Karachi and delivered across Pakistan. From branded logo chocolates for corporate gifts to nikkah bid boxes and chocolate gift boxes, our in-house mold studio brings your vision to life in real chocolate.
             </motion.p>
 
             <motion.div

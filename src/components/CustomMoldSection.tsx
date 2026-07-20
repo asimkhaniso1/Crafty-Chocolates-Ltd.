@@ -40,7 +40,7 @@ export default function CustomMoldSection() {
               A Studio Where Design Meets <span className="text-gold italic font-serif lowercase font-normal">decoherence.</span>
             </h2>
             <p className="text-clay text-lg mb-16 leading-relaxed font-medium">
-              We aren't just chocolatiers; we are designers. Unlike traditional shops, we house a fully-equipped manufacturing studio. From corporate logos to architectural miniatures, we cast your wildest ideas into velvet chocolate.
+              We aren't just chocolatiers; we are designers. Unlike traditional shops, we house a fully-equipped manufacturing studio where every custom chocolate mold is designed in-house. From corporate logos embossed in chocolate to architectural miniatures, we cast your wildest ideas into velvet chocolate.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-10">

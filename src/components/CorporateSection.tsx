@@ -49,8 +49,9 @@ export default function CorporateSection() {
             Your logo, <span className="text-gold italic font-serif lowercase font-normal">in the chocolate.</span>
           </h2>
           <p className="text-clay text-lg leading-relaxed font-medium mt-6">
-            Not printed on a wrapper &mdash; molded into the chocolate itself, by Pakistan&rsquo;s only in-house
-            custom mold studio. Free mold design mock-up within 48 hours; delivery in 5&ndash;6 days.
+            Custom molded chocolates with your company logo embossed into the chocolate itself &mdash; not printed
+            on a wrapper &mdash; by Pakistan&rsquo;s only in-house custom chocolate mold studio. Free mold design
+            mock-up within 48 hours; delivery in 5&ndash;6 days.
           </p>
         </div>
 
