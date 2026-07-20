@@ -3,6 +3,7 @@ import { UploadCloud, X, AlertTriangle, Loader2 } from 'lucide-react';
 import { STEP_TITLES, STEP_SUBTITLES, STUDIO_COPY_STEP3, CENTER_BAR_COPY } from '../copy';
 import { BAR_CAPTION_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
+import { isBarProduct } from '../data/studioProducts';
 import { processLogoFile, initialsToMask } from '../lib/logoProcessor';
 
 export default function Step3Mark() {
@@ -174,7 +175,7 @@ export default function Step3Mark() {
                 className="w-full accent-gold"
               />
 
-              {design.product === 'bar' && (
+              {isBarProduct(design.product) && (
                 <div className="mt-5">
                   <label
                     className="block text-[10px] uppercase tracking-[0.2em] font-bold text-cream/60 mb-2"

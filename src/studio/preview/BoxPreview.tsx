@@ -48,7 +48,7 @@ function PhotoBoxPreview({ design, option }: { design: Design; option: Packaging
             filter: 'drop-shadow(0 4px 10px rgba(31,15,8,0.5))',
           }}
         >
-          <CenterBarFace design={design} />
+          <CenterBarFace design={design} shape={option.centerBarShape} />
           {/* Pick up the photo's lighting so the bar sits naturally */}
           <div
             className="pointer-events-none absolute inset-0"
@@ -70,6 +70,7 @@ function DrawnCenterBarPreview({ design, option }: { design: Design; option: Pac
   const boxColour = design.extras.boxColour || '#2D1E17';
   const { rows, cols } = option.grid ?? { rows: 2, cols: 2 };
   const cells = Array.from({ length: option.count }, (_, i) => ringCellFor(design, i));
+  const shape = option.centerBarShape ?? 'square';
 
   return (
     <motion.div
@@ -98,10 +99,14 @@ function DrawnCenterBarPreview({ design, option }: { design: Design; option: Pac
         </div>
         {/* The message bar rides on top of the assorted layer, centred */}
         <div
-          className="absolute left-1/2 top-1/2 z-10 aspect-square w-[54%] -translate-x-1/2 -translate-y-1/2"
-          style={{ filter: 'drop-shadow(0 8px 18px rgba(31,15,8,0.55))' }}
+          className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: shape === 'rectangle' ? '72%' : '54%',
+            aspectRatio: shape === 'rectangle' ? '2 / 1' : '1 / 1',
+            filter: 'drop-shadow(0 8px 18px rgba(31,15,8,0.55))',
+          }}
         >
-          <CenterBarFace design={design} />
+          <CenterBarFace design={design} shape={shape} />
         </div>
       </div>
     </motion.div>
@@ -120,7 +125,8 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
   const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
 
   const boxColour = design.extras.boxColour || '#2D1E17';
-  const ribbonColour = design.extras.ribbon || '#1A1A1A';
+  // No ribbon until the customer picks one in Finishing touches.
+  const ribbonColour = design.extras.ribbon;
   const foilColour =
     design.extras.foil === 'gold' ? '#C9A24B' : design.extras.foil === 'silver' ? '#C0C0C4' : undefined;
 
@@ -157,7 +163,10 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
   }
 
   const { rows, cols } = option.grid;
-  const cells = Array.from({ length: option.count }, (_, i) => {
+  // For layered options (e.g. a two-tier tin) `option.count` spans every
+  // layer; the drawn preview only has room for one grid's worth of cells,
+  // so it shows layer 1 (indices 0..rows*cols-1).
+  const cells = Array.from({ length: Math.min(option.count, rows * cols) }, (_, i) => {
     const found = design.cells.find(c => c.index === i);
     return (
       found ?? {
@@ -195,38 +204,44 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
           ))}
         </div>
 
-        {/* Ribbon cross */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="pointer-events-none absolute inset-0 h-full w-full"
-        >
-          <defs>
-            <linearGradient id={`studio-ribbon-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={ribbonColour} stopOpacity="0.95" />
-              <stop offset="50%" stopColor={ribbonColour} stopOpacity="0.75" />
-              <stop offset="100%" stopColor={ribbonColour} stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
-          <rect x="46" y="0" width="8" height="100" fill={`url(#studio-ribbon-${uid})`} opacity={0.85} />
-          <rect x="0" y="46" width="100" height="8" fill={`url(#studio-ribbon-${uid})`} opacity={0.85} />
-          {/* Bow hint at the crossing */}
-          <g transform="translate(50,50)">
-            <ellipse cx="-9" cy="-4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(-25)" />
-            <ellipse cx="9" cy="-4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(25)" />
-            <ellipse cx="-9" cy="4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(25)" />
-            <ellipse cx="9" cy="4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(-25)" />
-            <circle r="4.5" fill={ribbonColour} />
-            <circle r="2" fill="#FDFBF7" opacity={0.5} />
-          </g>
-          {design.extras.waxSeal && (
-            <g transform="translate(50,18)">
-              <circle r="6" fill="#8B1E24" />
-              <circle r="6" fill="none" stroke="#5c1216" strokeWidth="0.6" />
-              <circle r="2.4" fill="#A6323A" />
-            </g>
-          )}
-        </svg>
+        {/* Ribbon cross — only once a ribbon colour has been chosen */}
+        {(ribbonColour || design.extras.waxSeal) && (
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+          >
+            {ribbonColour && (
+              <>
+                <defs>
+                  <linearGradient id={`studio-ribbon-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={ribbonColour} stopOpacity="0.95" />
+                    <stop offset="50%" stopColor={ribbonColour} stopOpacity="0.75" />
+                    <stop offset="100%" stopColor={ribbonColour} stopOpacity="0.95" />
+                  </linearGradient>
+                </defs>
+                <rect x="46" y="0" width="8" height="100" fill={`url(#studio-ribbon-${uid})`} opacity={0.85} />
+                <rect x="0" y="46" width="100" height="8" fill={`url(#studio-ribbon-${uid})`} opacity={0.85} />
+                {/* Bow hint at the crossing */}
+                <g transform="translate(50,50)">
+                  <ellipse cx="-9" cy="-4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(-25)" />
+                  <ellipse cx="9" cy="-4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(25)" />
+                  <ellipse cx="-9" cy="4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(25)" />
+                  <ellipse cx="9" cy="4" rx="9" ry="6" fill={ribbonColour} opacity={0.9} transform="rotate(-25)" />
+                  <circle r="4.5" fill={ribbonColour} />
+                  <circle r="2" fill="#FDFBF7" opacity={0.5} />
+                </g>
+              </>
+            )}
+            {design.extras.waxSeal && (
+              <g transform="translate(50,18)">
+                <circle r="6" fill="#8B1E24" />
+                <circle r="6" fill="none" stroke="#5c1216" strokeWidth="0.6" />
+                <circle r="2.4" fill="#A6323A" />
+              </g>
+            )}
+          </svg>
+        )}
       </div>
     </motion.div>
   );

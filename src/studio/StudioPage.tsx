@@ -1,6 +1,13 @@
 import { useEffect, useState, type ComponentType } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
-import { STUDIO_TITLE, STUDIO_SUBTITLE, STEP_TITLES, NAV_LABELS, SAVE_SHARE_COPY } from './copy';
+import {
+  STUDIO_TITLE,
+  STUDIO_SUBTITLE,
+  STUDIO_BULK_BADGE,
+  STEP_TITLES,
+  NAV_LABELS,
+  SAVE_SHARE_COPY,
+} from './copy';
 import type { StudioStep } from './types';
 import { StudioProvider, useStudio } from './state/StudioContext';
 import { loadDesign } from './lib/designStore';
@@ -54,6 +61,9 @@ function StudioShell() {
             </span>
           </h1>
           <p className="text-clay text-lg leading-relaxed font-medium">{STUDIO_SUBTITLE}</p>
+          <span className="mt-4 inline-block text-[10px] uppercase tracking-[0.3em] font-bold text-gold border border-gold/30 px-3 py-1.5">
+            {STUDIO_BULK_BADGE}
+          </span>
         </div>
 
         {/* Stepper */}

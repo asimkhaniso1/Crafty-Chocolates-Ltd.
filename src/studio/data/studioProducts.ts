@@ -1,4 +1,4 @@
-import type { StudioProduct } from '../types';
+import type { ProductKey, StudioProduct } from '../types';
 import { PRODUCT_CARD_COPY } from '../copy';
 
 export const STUDIO_PRODUCTS: StudioProduct[] = [
@@ -24,7 +24,16 @@ export const STUDIO_PRODUCTS: StudioProduct[] = [
     name: 'Crafty Bar',
     tagline: PRODUCT_CARD_COPY.bar.blurb,
     weightG: 50,
-    dims: '100 × 50 mm',
+    dims: '120 × 60 mm',
+    shape: 'rectangle',
+    thicknessMm: 5,
+  },
+  {
+    key: 'slim',
+    name: 'Crafty Slim',
+    tagline: PRODUCT_CARD_COPY.slim.blurb,
+    weightG: 25,
+    dims: '90 × 30 mm',
     shape: 'rectangle',
     thicknessMm: 5,
   },
@@ -40,4 +49,14 @@ export const STUDIO_PRODUCTS: StudioProduct[] = [
 
 export function getStudioProduct(key: string): StudioProduct | undefined {
   return STUDIO_PRODUCTS.find(p => p.key === key);
+}
+
+/**
+ * True for products that are rectangular "bar" pieces — eligible for the
+ * bar caption input, the printed-wrapper section, and the rectangular
+ * chocolate-preview aspect. `bar` (120×60mm) and `slim` (90×30mm) both
+ * qualify; the exact aspect/photo handling still differs between them.
+ */
+export function isBarProduct(product: ProductKey | null | undefined): boolean {
+  return product === 'bar' || product === 'slim';
 }

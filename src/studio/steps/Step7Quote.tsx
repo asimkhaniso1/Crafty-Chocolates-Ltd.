@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { MessageCircle, Download, Save, Clock, Truck, Package, Check, Copy } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, QUOTE_COPY, SAVE_SHARE_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, QUOTE_COPY, SAVE_SHARE_COPY, productSpecLine } from '../copy';
 import { formatPrice } from '../../constants';
 import { useStudio } from '../state/StudioContext';
 import { usePricingRules } from '../lib/usePricingRules';
 import { computeQuote } from '../lib/pricing';
 import { buildStudioWaLink } from '../lib/whatsapp';
 import { saveDesign } from '../lib/designStore';
+import { getStudioProduct } from '../data/studioProducts';
 import QuotePrintSheet from '../output/QuotePrintSheet';
 
 const QUANTITY_PRESETS = [50, 100, 250, 500];
@@ -75,7 +76,12 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
         {STEP_TITLES[7]}
       </h2>
-      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[7]}</p>
+      <p className="text-clay font-medium mb-3 max-w-lg">{STEP_SUBTITLES[7]}</p>
+      {design.product && (
+        <p className="text-xs uppercase tracking-[0.15em] font-bold text-gold mb-10">
+          {productSpecLine(getStudioProduct(design.product))}
+        </p>
+      )}
 
       {/* Quantity selector */}
       <div className="mb-8 border border-choco/15 p-6">
@@ -114,6 +120,9 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
             ))}
           </div>
         </div>
+        <p className="text-[11px] text-clay/70 italic font-serif mt-4 pt-4 border-t border-choco/10">
+          {QUOTE_COPY.moqBulkNote}
+        </p>
       </div>
 
       {/* Breakdown */}

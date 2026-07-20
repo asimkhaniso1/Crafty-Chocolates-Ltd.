@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { STEP_TITLES, STEP_SUBTITLES, STEP6_COPY } from '../copy';
-import { WRAPPER_MESSAGE_MAX } from '../constraints';
+import { WRAPPER_MESSAGE_MAX, WRAPPER_SCALE_MIN, WRAPPER_SCALE_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { getPackagingOption } from '../data/packagingOptions';
+import { isBarProduct } from '../data/studioProducts';
 import { processWrapperImage } from '../lib/logoProcessor';
 
 const RIBBON_SWATCHES: { key: 'black' | 'purple' | 'white'; hex: string }[] = [
@@ -172,6 +173,30 @@ function PrintedWrapperSection() {
             )}
           </div>
 
+          {wrapper?.imageDataUrl && (
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+                {STEP6_COPY.printedWrapperScaleLabel}
+              </p>
+              <input
+                type="range"
+                min={WRAPPER_SCALE_MIN}
+                max={WRAPPER_SCALE_MAX}
+                step={0.01}
+                value={wrapper?.scale ?? 1}
+                onChange={e =>
+                  dispatch({
+                    type: 'SET_EXTRAS',
+                    extras: {
+                      printedWrapper: { enabled: true, ...wrapper, scale: parseFloat(e.target.value) },
+                    },
+                  })
+                }
+                className="w-full accent-gold"
+              />
+            </div>
+          )}
+
           <div>
             <p className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
               {STEP6_COPY.printedWrapperMessageLabel}
@@ -209,12 +234,16 @@ export default function Step6Extras() {
   const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   // The individual wrapper is a "loose pack": no box, so none of the
   // box-only extras (ribbon, box colour, sleeve, greeting card, wax seal,
-  // inside message, QR) apply — only the foil colour choice does.
-  const isIndividual = option?.count === 1;
-  // Printed wrapper applies to the Crafty Bar, loose-pack pieces, and the
-  // center message bar of X+1 boxes (per catalog: "add your message on the
-  // chocolate bar wrapper").
-  const wrapperEligible = design.product === 'bar' || isIndividual || Boolean(option?.centerBar);
+  // inside message, QR) apply — only the foil colour choice does. Gated on
+  // the packaging *type*, not count === 1 — the wedding favour box is also
+  // a single-piece box (count 1) but is a real boxed presentation, not a
+  // loose pack.
+  const isIndividual = option?.type === 'individual';
+  const isWeddingFavor = option?.type === 'wedding-favor';
+  // Printed wrapper applies to bar-shaped products, loose-pack pieces, and
+  // the center message bar of X+1/wedding-favour boxes (per catalog: "add
+  // your message on the chocolate bar wrapper").
+  const wrapperEligible = isBarProduct(design.product) || isIndividual || Boolean(option?.centerBar);
 
   const insideMessageLength = design.extras.insideMessage?.length ?? 0;
 
@@ -335,16 +364,18 @@ export default function Step6Extras() {
             </div>
           </section>
 
-          {/* Toggles */}
-          <section className="grid sm:grid-cols-3 gap-3">
-            <ToggleCard
-              label={STEP6_COPY.sleeveToggleLabel}
-              body={STEP6_COPY.sleeveToggleBody}
-              active={!!design.extras.sleevePrint}
-              onToggle={() =>
-                dispatch({ type: 'SET_EXTRAS', extras: { sleevePrint: !design.extras.sleevePrint } })
-              }
-            />
+          {/* Toggles — the wedding favour box has no printed sleeve */}
+          <section className={`grid gap-3 ${isWeddingFavor ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
+            {!isWeddingFavor && (
+              <ToggleCard
+                label={STEP6_COPY.sleeveToggleLabel}
+                body={STEP6_COPY.sleeveToggleBody}
+                active={!!design.extras.sleevePrint}
+                onToggle={() =>
+                  dispatch({ type: 'SET_EXTRAS', extras: { sleevePrint: !design.extras.sleevePrint } })
+                }
+              />
+            )}
             <ToggleCard
               label={STEP6_COPY.greetingCardToggleLabel}
               body={STEP6_COPY.greetingCardToggleBody}
@@ -381,23 +412,25 @@ export default function Step6Extras() {
             />
           </section>
 
-          {/* QR code */}
-          <section>
-            <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-1">
-              {STEP6_COPY.qrTitle}
-            </h3>
-            <p className="text-xs text-clay/70 mb-2">{STEP6_COPY.qrNote}</p>
-            <input
-              type="url"
-              value={design.extras.qrUrl ?? ''}
-              placeholder={STEP6_COPY.qrPlaceholder}
-              onChange={e => handleQrChange(e.target.value)}
-              className={`w-full border bg-cream px-4 py-3 text-sm text-choco outline-none ${
-                qrError ? 'border-red-400' : 'border-choco/15 focus:border-gold'
-              }`}
-            />
-            {qrError && <p className="text-xs text-red-500 mt-1">{STEP6_COPY.qrInvalid}</p>}
-          </section>
+          {/* QR code — not offered on the wedding favour box (no sleeve to print it on) */}
+          {!isWeddingFavor && (
+            <section>
+              <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-1">
+                {STEP6_COPY.qrTitle}
+              </h3>
+              <p className="text-xs text-clay/70 mb-2">{STEP6_COPY.qrNote}</p>
+              <input
+                type="url"
+                value={design.extras.qrUrl ?? ''}
+                placeholder={STEP6_COPY.qrPlaceholder}
+                onChange={e => handleQrChange(e.target.value)}
+                className={`w-full border bg-cream px-4 py-3 text-sm text-choco outline-none ${
+                  qrError ? 'border-red-400' : 'border-choco/15 focus:border-gold'
+                }`}
+              />
+              {qrError && <p className="text-xs text-red-500 mt-1">{STEP6_COPY.qrInvalid}</p>}
+            </section>
+          )}
 
           {/* Printed wrapper (Crafty Bar in a box still qualifies) */}
           {wrapperEligible && <PrintedWrapperSection />}

@@ -3,7 +3,7 @@
  * Downstream agents (steps, preview, pricing) build on these types.
  */
 
-export type ProductKey = 'bite' | 'signature' | 'bar' | 'custom';
+export type ProductKey = 'bite' | 'signature' | 'bar' | 'custom' | 'slim';
 export type ChocolateType = 'milk' | 'dark' | 'semidark';
 /** The studio only ever produces an emboss finish; kept as a literal union for forward-compat. */
 export type EmbossStyle = 'emboss';
@@ -33,6 +33,8 @@ export interface PrintedWrapper {
   /** Full-colour artwork, downscaled to a compact data URL. */
   imageDataUrl?: string;
   message?: string;
+  /** Image size within the wrapper band (0.5–1.5, default 1). */
+  scale?: number;
 }
 
 export interface DesignExtras {
@@ -126,8 +128,16 @@ export interface PackagingOption {
   occasions: string[];
   /** X+1 signature boxes: N individually arrangeable ring pieces around one large message bar. */
   centerBar?: true;
+  /** Shape of the center bar's face; 'square' (85×85mm, 60g) unless noted. */
+  centerBarShape?: 'square' | 'rectangle';
   /** Real product photo used as the box preview, when available. */
   photo?: string;
   /** Where the customer's center bar sits within the photo. */
   overlay?: PhotoOverlayRect;
+  /**
+   * Number of stacked layers of `grid` cells (e.g. a two-tier tin). Total
+   * cell count is still `count`; each layer holds `grid.rows * grid.cols`
+   * cells, arranged and edited one layer at a time.
+   */
+  layers?: number;
 }

@@ -89,13 +89,19 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
       lines.push({ label: QUOTE_LINE_LABELS.packaging(pkgBlocks, perPcs), amount: round(packagingCost) });
     }
 
-    // X+1 boxes: one large embossed message bar per box, its own quote line.
+    // X+1 / wedding-favour boxes: one large embossed bar per box, its own
+    // quote line. The wedding favour bar is priced and labelled separately
+    // from the X+1 "message bar" (different size, different addon rule).
     if (option?.centerBar) {
-      const barRule = findRule(rules, 'bar.center');
+      const isWeddingBar = design.packaging.type === 'wedding-favor';
+      const barRule = findRule(rules, isWeddingBar ? 'bar.wedding' : 'bar.center');
       const barCost = (barRule?.value ?? 0) * boxCount;
       if (barCost > 0) {
         packagingCost += barCost;
-        lines.push({ label: QUOTE_LINE_LABELS.messageBar, amount: round(barCost) });
+        lines.push({
+          label: isWeddingBar ? QUOTE_LINE_LABELS.weddingBar : QUOTE_LINE_LABELS.messageBar,
+          amount: round(barCost),
+        });
       }
     }
   }

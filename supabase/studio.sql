@@ -47,6 +47,7 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   ('base.bite', 'base_unit', 120, '{"product":"bite"}'),
 --   ('base.signature', 'base_unit', 260, '{"product":"signature"}'),
 --   ('base.bar', 'base_unit', 420, '{"product":"bar"}'),
+--   ('base.slim', 'base_unit', 200, '{"product":"slim"}'),
 --
 --   -- Add-on unit price per piece (chocolate type)
 --   ('chocolate.semidark', 'addon_unit', 15, '{"group":"chocolate"}'),
@@ -57,6 +58,9 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --
 --   -- Center message bar (one per X+1 box)
 --   ('bar.center', 'addon_unit', 450, '{"group":"bar","per":"box"}'),
+--
+--   -- Wedding favour box bar (one 60x60mm bar per box)
+--   ('bar.wedding', 'addon_unit', 350, '{"group":"bar","per":"box"}'),
 --
 --   -- Printed wrapper (per wrapped piece)
 --   ('extra.printedWrapper', 'addon_unit', 20, '{"group":"extra","per":"unit"}'),
@@ -69,10 +73,12 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   ('extra.qr', 'addon_unit', 0, '{"group":"extra","per":"box"}'),
 --   ('extra.insideMessage', 'addon_unit', 0, '{"group":"extra","per":"box"}'),
 --
---   -- Minimum order quantity, by product
+--   -- Minimum order quantity, by product — the studio is positioned for
+--   -- bulk custom orders, so every line clamps at the same 50-piece floor
 --   ('moq.bite', 'moq', 50, '{"product":"bite"}'),
---   ('moq.signature', 'moq', 25, '{"product":"signature"}'),
---   ('moq.bar', 'moq', 25, '{"product":"bar"}'),
+--   ('moq.signature', 'moq', 50, '{"product":"signature"}'),
+--   ('moq.bar', 'moq', 50, '{"product":"bar"}'),
+--   ('moq.slim', 'moq', 50, '{"product":"slim"}'),
 --
 --   -- Quantity discount tiers (best applicable multiplier applies)
 --   ('tier.50', 'qty_tier', 0.95, '{"min_qty":50,"multiplier":0.95}'),
