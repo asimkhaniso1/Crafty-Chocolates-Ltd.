@@ -13,6 +13,7 @@ backup_old/
 _quarantine/
 *.sql
 *.sql.gz
+!supabase/*.sql
 
 # Local scratch + agent config (never deploy)
 .tmp/

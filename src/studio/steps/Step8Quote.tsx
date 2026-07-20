@@ -1,0 +1,233 @@
+import { useMemo, useState } from 'react';
+import { MessageCircle, Download, Save, Clock, Truck, Package, Check, Copy } from 'lucide-react';
+import { STEP_TITLES, STEP_SUBTITLES, QUOTE_COPY, SAVE_SHARE_COPY } from '../copy';
+import { formatPrice } from '../../constants';
+import { useStudio } from '../state/StudioContext';
+import { usePricingRules } from '../lib/usePricingRules';
+import { computeQuote } from '../lib/pricing';
+import { buildStudioWaLink } from '../lib/whatsapp';
+import { saveDesign } from '../lib/designStore';
+import QuotePrintSheet from '../output/QuotePrintSheet';
+
+const QUANTITY_PRESETS = [50, 100, 250, 500];
+
+interface Step8QuoteProps {
+  onSave?: () => void;
+}
+
+interface SaveState {
+  status: 'idle' | 'saving' | 'saved' | 'error';
+  shareUrl?: string;
+  isLocal?: boolean;
+  error?: string;
+  copied?: boolean;
+}
+
+export default function Step8Quote({ onSave }: Step8QuoteProps) {
+  const { design, dispatch } = useStudio();
+  const { rules, source } = usePricingRules();
+  const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' });
+
+  const quote = useMemo(() => computeQuote(design, rules), [design, rules]);
+
+  const handleQuantityChange = (value: number) => {
+    const next = Math.max(1, Math.floor(value || 0));
+    dispatch({ type: 'SET_QUANTITY', quantity: next });
+  };
+
+  const handleWhatsApp = () => {
+    const link = buildStudioWaLink(design, quote, saveState.shareUrl);
+    window.open(link, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleDownload = () => {
+    window.print();
+  };
+
+  const handleSave = async () => {
+    setSaveState({ status: 'saving' });
+    const result = await saveDesign(design, quote);
+    if ('error' in result) {
+      setSaveState({ status: 'error', error: result.error });
+      return;
+    }
+    setSaveState({
+      status: 'saved',
+      shareUrl: result.shareUrl,
+      isLocal: result.source === 'local',
+    });
+    onSave?.();
+  };
+
+  const handleCopyLink = async () => {
+    if (!saveState.shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(saveState.shareUrl);
+      setSaveState(prev => ({ ...prev, copied: true }));
+      setTimeout(() => setSaveState(prev => ({ ...prev, copied: false })), 2000);
+    } catch {
+      // Clipboard access denied; the user can still select the link text.
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
+        {STEP_TITLES[8]}
+      </h2>
+      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[8]}</p>
+
+      {/* Quantity selector */}
+      <div className="mb-8 border border-choco/15 p-6">
+        <label className="block text-xs font-black uppercase tracking-[0.2em] text-clay mb-3">
+          {QUOTE_COPY.quantityLabel}
+        </label>
+        <div className="flex items-center gap-4 mb-4">
+          <input
+            type="number"
+            min={1}
+            value={design.quantity}
+            onChange={e => handleQuantityChange(Number(e.target.value))}
+            className="w-32 border border-choco/20 bg-cream px-3 py-2 text-lg font-black text-choco focus:border-gold focus:outline-none"
+          />
+          {quote.moq > design.quantity && (
+            <p className="text-xs text-gold font-semibold">{QUOTE_COPY.moqClampNote(quote.moq)}</p>
+          )}
+        </div>
+        <div>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-clay mr-3">
+            {QUOTE_COPY.quantityPresetsLabel}
+          </span>
+          <div className="inline-flex flex-wrap gap-2 mt-2">
+            {QUANTITY_PRESETS.map(preset => (
+              <button
+                key={preset}
+                onClick={() => handleQuantityChange(preset)}
+                className={`px-3 py-1 text-xs font-bold border transition-all ${
+                  design.quantity === preset
+                    ? 'border-choco bg-choco text-cream'
+                    : 'border-choco/15 text-choco hover:border-gold'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Breakdown */}
+      <div className="mb-8 border border-choco/15 p-6">
+        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-clay mb-4">
+          {QUOTE_COPY.breakdownTitle}
+        </h3>
+        <div className="divide-y divide-choco/10">
+          {quote.lines.map((line, i) => (
+            <div key={`line-${i}`} className="flex justify-between py-2 text-sm">
+              <span className="text-clay">{line.label}</span>
+              <span className="text-choco font-semibold">{formatPrice(line.amount)}</span>
+            </div>
+          ))}
+          {quote.fees.map((fee, i) => (
+            <div key={`fee-${i}`} className="flex justify-between py-2 text-sm">
+              <span className="text-clay">{fee.label}</span>
+              <span className="text-choco font-semibold">{formatPrice(fee.amount)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-between items-baseline pt-4 mt-2 border-t border-choco/20">
+          <span className="text-sm font-black uppercase tracking-wide text-choco">
+            {QUOTE_COPY.totalLabel}
+          </span>
+          <span className="text-3xl font-black text-choco">{formatPrice(quote.total)}</span>
+        </div>
+      </div>
+
+      {/* Chips */}
+      <div className="mb-8 grid grid-cols-3 gap-3">
+        <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
+          <Package size={18} className="text-gold" />
+          <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
+            {QUOTE_COPY.moqChipLabel}
+          </span>
+          <span className="text-sm font-black text-choco">{quote.moq}</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
+          <Clock size={18} className="text-gold" />
+          <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
+            {QUOTE_COPY.leadChipLabel}
+          </span>
+          <span className="text-sm font-black text-choco">{QUOTE_COPY.leadDaysValue(quote.leadDays)}</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
+          <Truck size={18} className="text-gold" />
+          <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
+            {QUOTE_COPY.deliveryChipLabel}
+          </span>
+          <span className="text-sm font-black text-choco">
+            {QUOTE_COPY.deliveryDaysValue(quote.deliveryDays)}
+          </span>
+        </div>
+      </div>
+
+      <p className="text-xs text-clay italic mb-8">
+        {source === 'fallback' ? QUOTE_COPY.fallbackPricingNote : QUOTE_COPY.livePricingNote}
+      </p>
+
+      {/* CTAs */}
+      <div className="flex flex-wrap gap-3">
+        <button
+          onClick={handleWhatsApp}
+          className="inline-flex items-center gap-2 bg-choco text-cream px-6 py-3 font-black uppercase text-xs tracking-[0.15em] hover:bg-choco/90 transition-all"
+        >
+          <MessageCircle size={16} />
+          {QUOTE_COPY.sendWhatsAppCta}
+        </button>
+        <button
+          onClick={handleDownload}
+          className="inline-flex items-center gap-2 border border-choco text-choco px-6 py-3 font-black uppercase text-xs tracking-[0.15em] hover:border-gold hover:text-gold transition-all"
+        >
+          <Download size={16} />
+          {QUOTE_COPY.downloadQuoteCta}
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={saveState.status === 'saving'}
+          className="inline-flex items-center gap-2 border border-choco/30 text-choco px-6 py-3 font-black uppercase text-xs tracking-[0.15em] hover:border-gold hover:text-gold transition-all disabled:opacity-50"
+        >
+          <Save size={16} />
+          {saveState.status === 'saving' ? SAVE_SHARE_COPY.saving : QUOTE_COPY.saveDesignCta}
+        </button>
+      </div>
+
+      {saveState.status === 'error' && (
+        <p className="mt-4 text-xs text-red-600 font-semibold">{saveState.error}</p>
+      )}
+
+      {saveState.status === 'saved' && saveState.shareUrl && (
+        <div className="mt-6 border border-choco/15 bg-choco/[0.03] p-5">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-choco mb-1">
+            {SAVE_SHARE_COPY.savedTitle}
+          </p>
+          <p className="text-xs text-clay mb-3">
+            {saveState.isLocal ? SAVE_SHARE_COPY.savedLocalBody : SAVE_SHARE_COPY.savedCloudBody}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <code className="text-xs bg-cream border border-choco/15 px-3 py-2 break-all">
+              {saveState.shareUrl}
+            </code>
+            <button
+              onClick={handleCopyLink}
+              className="inline-flex items-center gap-2 border border-choco/30 text-choco px-4 py-2 font-black uppercase text-[11px] tracking-[0.15em] hover:border-gold hover:text-gold transition-all"
+            >
+              {saveState.copied ? <Check size={14} /> : <Copy size={14} />}
+              {saveState.copied ? SAVE_SHARE_COPY.copied : SAVE_SHARE_COPY.copyLink}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <QuotePrintSheet design={design} quote={quote} />
+    </div>
+  );
+}

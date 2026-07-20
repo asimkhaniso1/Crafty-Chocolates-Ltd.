@@ -23,6 +23,7 @@ import { WHATSAPP_NUMBER } from './constants';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import OccasionPage, { occasionSlug } from './pages/OccasionPage';
+import StudioPage from './studio/StudioPage';
 import { Link } from 'react-router-dom';
 
 export default function App() {
@@ -115,6 +116,7 @@ export default function App() {
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/product/:sku" element={<ProductPage products={products} onAddToCart={addToCart} />} />
         <Route path="/occasion/:slug" element={<OccasionPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/studio/*" element={<StudioPage />} />
         <Route path="/" element={
       <main>
         <div id="home">
