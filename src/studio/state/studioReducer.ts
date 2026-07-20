@@ -39,7 +39,6 @@ export type StudioAction =
   | { type: 'SET_LOGO'; logo: LogoState }
   | { type: 'CLEAR_LOGO' }
   | { type: 'SET_PACKAGING'; packaging: PackagingSelection }
-  | { type: 'SET_CELL'; cell: CellAssignment }
   | { type: 'SET_ALL_CELLS'; cells: CellAssignment[] }
   | { type: 'SET_EXTRAS'; extras: Partial<DesignExtras> }
   | { type: 'SET_BAR_CAPTION'; barCaption?: string }
@@ -93,13 +92,6 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
         ...state,
         design: { ...state.design, packaging: action.packaging, cells },
       };
-    }
-
-    case 'SET_CELL': {
-      const cells = state.design.cells.map(c =>
-        c.index === action.cell.index ? action.cell : c
-      );
-      return { ...state, design: { ...state.design, cells } };
     }
 
     case 'SET_ALL_CELLS':

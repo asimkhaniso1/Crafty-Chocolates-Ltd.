@@ -82,26 +82,29 @@ export function cssCoverCrop(crop: PhotoCrop): CssCoverCrop {
 
 type ChocolateKey = 'milk' | 'dark' | 'semidark';
 
+// Measured via edge-detection (sharp-gradient bounding box, which isolates
+// the object's true outline from its soft drop shadow — a plain colour-
+// distance threshold picks up the shadow too and skews the box off-centre).
 export const PIECE_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
-  milk: { pw: 1024, ph: 1024, left: 151, top: 151, right: 924, bottom: 941 },
-  dark: { pw: 1024, ph: 1024, left: 173, top: 173, right: 885, bottom: 885 },
-  semidark: { pw: 1024, ph: 1024, left: 172, top: 173, right: 899, bottom: 905 },
+  milk: { pw: 1024, ph: 1024, left: 150, top: 150, right: 872, bottom: 873 },
+  dark: { pw: 1024, ph: 1024, left: 172, top: 172, right: 852, bottom: 852 },
+  semidark: { pw: 1024, ph: 1024, left: 171, top: 172, right: 852, bottom: 852 },
 };
 
 export const BAR_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
-  milk: { pw: 1264, ph: 848, left: 140, top: 184, right: 1136, bottom: 708 },
-  dark: { pw: 1264, ph: 848, left: 138, top: 172, right: 1148, bottom: 701 },
-  semidark: { pw: 1264, ph: 848, left: 292, top: 250, right: 999, bottom: 625 },
+  milk: { pw: 1264, ph: 848, left: 140, top: 183, right: 1115, bottom: 683 },
+  dark: { pw: 1264, ph: 848, left: 137, top: 171, right: 1121, bottom: 675 },
+  semidark: { pw: 1264, ph: 848, left: 291, top: 250, right: 972, bottom: 597 },
 };
 
 type FoilColour = 'silver' | 'gold';
 
 export const FOIL_BAR_PHOTO_CROP: Record<FoilColour, PhotoCrop> = {
-  silver: { pw: 1264, ph: 848, left: 203, top: 216, right: 1108, bottom: 693 },
-  gold: { pw: 1264, ph: 848, left: 200, top: 249, right: 1106, bottom: 657 },
+  silver: { pw: 1264, ph: 848, left: 201, top: 217, right: 1061, bottom: 640 },
+  gold: { pw: 1264, ph: 848, left: 199, top: 248, right: 1065, bottom: 599 },
 };
 
 export const FOIL_BITE_PHOTO_CROP: Record<FoilColour, PhotoCrop> = {
-  silver: { pw: 1024, ph: 1024, left: 302, top: 306, right: 809, bottom: 839 },
-  gold: { pw: 1024, ph: 1024, left: 204, top: 203, right: 883, bottom: 885 },
+  silver: { pw: 1024, ph: 1024, left: 301, top: 321, right: 721, bottom: 721 },
+  gold: { pw: 1024, ph: 1024, left: 203, top: 202, right: 820, bottom: 821 },
 };

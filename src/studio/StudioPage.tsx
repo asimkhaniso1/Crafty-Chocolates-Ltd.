@@ -105,7 +105,7 @@ function StudioShell() {
           <div className="grid lg:grid-cols-[1fr_380px] gap-16">
             <CustomBriefStep />
             <div className="hidden lg:block sticky top-40 self-start h-[420px] rounded-sm overflow-hidden">
-              <PreviewPane />
+              <PreviewPane registerRef />
             </div>
           </div>
         ) : (
@@ -132,7 +132,7 @@ function StudioShell() {
             </div>
 
             <div className="hidden lg:block sticky top-40 self-start h-[420px] rounded-sm overflow-hidden">
-              <PreviewPane />
+              <PreviewPane registerRef />
             </div>
           </div>
         )}

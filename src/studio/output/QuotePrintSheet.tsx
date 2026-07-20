@@ -6,6 +6,7 @@ import {
   centerBarSpec,
   packagingSummaryName,
   productSpecLine,
+  formatEstimatedWeight,
 } from '../copy';
 import { WHATSAPP_DISPLAY, PHONE_DISPLAY, formatPrice } from '../../constants';
 import { getPackagingOption } from '../data/packagingOptions';
@@ -15,6 +16,8 @@ import type { Design, Quote } from '../types';
 interface QuotePrintSheetProps {
   design: Design;
   quote: Quote;
+  /** Data URL snapshot of the on-screen box/piece preview, captured by Step7Quote. */
+  arrangementImage?: string;
 }
 
 /**
@@ -22,7 +25,7 @@ interface QuotePrintSheetProps {
  * document.body so the app's animated/clipped containers can never affect it;
  * printing simply hides #root and shows the sheet (see the <style> block).
  */
-export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps) {
+export default function QuotePrintSheet({ design, quote, arrangementImage }: QuotePrintSheetProps) {
   const productName = design.product
     ? productSpecLine(getStudioProduct(design.product)) || design.product
     : 'Custom piece';
@@ -76,6 +79,17 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
       </header>
 
       <section className="mb-8">
+        {arrangementImage && (
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-wide text-clay mb-2">Your Design</p>
+            <img
+              src={arrangementImage}
+              alt="Your arrangement"
+              style={{ maxWidth: 280 }}
+              className="border border-choco/15 rounded-sm"
+            />
+          </div>
+        )}
         <table className="w-full text-sm mb-4">
           <tbody>
             <tr>
@@ -153,6 +167,9 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
         <p className="mt-4 text-xs text-clay">
           MOQ: {quote.moq} &middot; Lead time: {quote.leadDays} days &middot; Est. delivery:{' '}
           {quote.deliveryDays} days
+          {quote.estimatedWeightG !== undefined && (
+            <> &middot; Est. weight: {formatEstimatedWeight(quote.estimatedWeightG)}</>
+          )}
         </p>
       </section>
 

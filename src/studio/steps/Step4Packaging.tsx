@@ -96,8 +96,13 @@ export default function Step4Packaging() {
   const [view, setView] = useState<Presentation | null>(initialView);
 
   const boxedOptions = useMemo(
-    () => PACKAGING_OPTIONS.filter(o => o.type !== 'individual'),
-    []
+    () =>
+      PACKAGING_OPTIONS.filter(
+        o =>
+          o.type !== 'individual' &&
+          (o.compatibleProducts === undefined || (design.product && o.compatibleProducts.includes(design.product)))
+      ),
+    [design.product]
   );
   const individualOption = getPackagingOption('individual');
 
