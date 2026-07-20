@@ -4,8 +4,9 @@
  */
 
 export type ProductKey = 'bite' | 'signature' | 'bar' | 'custom';
-export type ChocolateType = 'milk' | 'dark' | 'white' | 'mixed';
-export type EmbossStyle = 'emboss' | 'deboss' | 'gold' | 'silver';
+export type ChocolateType = 'milk' | 'dark' | 'semidark';
+/** The studio only ever produces an emboss finish; kept as a literal union for forward-compat. */
+export type EmbossStyle = 'emboss';
 export type CellContent = 'logo' | 'message' | 'initials' | 'pattern';
 
 export interface LogoState {
@@ -27,15 +28,25 @@ export interface PackagingSelection {
   count: number;
 }
 
+export interface PrintedWrapper {
+  enabled: true;
+  /** Full-colour artwork, downscaled to a compact data URL. */
+  imageDataUrl?: string;
+  message?: string;
+}
+
 export interface DesignExtras {
   ribbon?: string;
   foil?: 'silver' | 'gold';
   boxColour?: string;
   sleevePrint?: boolean;
+  /** Personal message, printed on butter paper placed inside the box. */
   insideMessage?: string;
   greetingCard?: boolean;
   qrUrl?: string;
   waxSeal?: boolean;
+  /** Printed paper wrapper around the piece (bars and loose packs). */
+  printedWrapper?: PrintedWrapper;
 }
 
 export interface Design {
@@ -48,9 +59,13 @@ export interface Design {
   cells: CellAssignment[];
   extras: DesignExtras;
   quantity: number;
+  /** Optional caption embossed beneath the mark on bar faces. */
+  barCaption?: string;
+  /** Mark scale on the X+1 center bar (0.5–1.4, default 1). */
+  centerBarScale?: number;
 }
 
-export type StudioStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type StudioStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export interface PricingRule {
   rule_key: string;
@@ -95,11 +110,24 @@ export interface StudioProduct {
   thicknessMm?: number;
 }
 
+/** Percentage rect (0–100) of the customizable center-bar area within a box photo. */
+export interface PhotoOverlayRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface PackagingOption {
   type: string;
   name: string;
   count: number;
   grid: { rows: number; cols: number } | null;
-  premium: boolean;
   occasions: string[];
+  /** X+1 signature boxes: N assorted pieces around one large message bar. */
+  centerBar?: true;
+  /** Real product photo used as the box preview, when available. */
+  photo?: string;
+  /** Where the customer's center bar sits within the photo. */
+  overlay?: PhotoOverlayRect;
 }

@@ -9,15 +9,11 @@ import { activeRenderer } from './DesignRenderer';
 const CHOCOLATE_LABEL: Record<string, string> = {
   milk: 'Milk',
   dark: 'Dark',
-  white: 'White',
-  mixed: 'Mixed',
+  semidark: 'Semi-Dark',
 };
 
 const EMBOSS_LABEL: Record<string, string> = {
   emboss: 'Embossed',
-  deboss: 'Debossed',
-  gold: 'Gold Dust',
-  silver: 'Silver Dust',
 };
 
 export interface PreviewPaneProps {
@@ -36,7 +32,7 @@ export default function PreviewPane({ compact = false }: PreviewPaneProps) {
   const product = design.product ? getStudioProduct(design.product) : undefined;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPiece = !!packagingOption?.grid && packagingOption.count > 1;
-  const boxEligible = isMultiPiece && step >= 5;
+  const boxEligible = isMultiPiece && step >= 4;
 
   const [manualMode, setManualMode] = useState<ViewMode | null>(null);
   const mode: ViewMode = manualMode ?? (boxEligible ? 'box' : 'piece');

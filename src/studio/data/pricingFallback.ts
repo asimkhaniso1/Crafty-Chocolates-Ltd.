@@ -16,14 +16,15 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'base.signature', kind: 'base_unit', value: 260, meta: { product: 'signature' } },
   { rule_key: 'base.bar', kind: 'base_unit', value: 420, meta: { product: 'bar' } },
 
-  // --- Add-on unit price per piece (chocolate type / emboss finish) ---
-  { rule_key: 'chocolate.mixed', kind: 'addon_unit', value: 15, meta: { group: 'chocolate' } },
-  { rule_key: 'emboss.emboss', kind: 'addon_unit', value: 0, meta: { group: 'emboss' } },
-  { rule_key: 'emboss.deboss', kind: 'addon_unit', value: 0, meta: { group: 'emboss' } },
-  { rule_key: 'emboss.gold', kind: 'addon_unit', value: 40, meta: { group: 'emboss' } },
-  { rule_key: 'emboss.silver', kind: 'addon_unit', value: 35, meta: { group: 'emboss' } },
+  // --- Add-on unit price per piece (chocolate type) ---
+  { rule_key: 'chocolate.semidark', kind: 'addon_unit', value: 15, meta: { group: 'chocolate' } },
 
   // --- Packaging: price per box/wrapper, keyed to packagingOptions `type` ---
+  // X+1 signature boxes (assorted ring + center message bar) are premium tins,
+  // priced above the box-16 level.
+  { rule_key: 'pkg.4+1', kind: 'packaging', value: 750, meta: { type: '4+1' } },
+  { rule_key: 'pkg.9+1', kind: 'packaging', value: 900, meta: { type: '9+1' } },
+  { rule_key: 'pkg.16+1', kind: 'packaging', value: 1100, meta: { type: '16+1' } },
   { rule_key: 'pkg.individual', kind: 'packaging', value: 25, meta: { type: 'individual' } },
   { rule_key: 'pkg.box-2', kind: 'packaging', value: 180, meta: { type: 'box-2' } },
   { rule_key: 'pkg.box-4', kind: 'packaging', value: 260, meta: { type: 'box-4' } },
@@ -33,12 +34,12 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'pkg.box-16', kind: 'packaging', value: 700, meta: { type: 'box-16' } },
   { rule_key: 'pkg.box-24', kind: 'packaging', value: 950, meta: { type: 'box-24' } },
   { rule_key: 'pkg.box-36', kind: 'packaging', value: 1300, meta: { type: 'box-36' } },
-  // Premium boxes: base box price +40%
-  { rule_key: 'pkg.luxury-magnetic', kind: 'packaging', value: 630, meta: { type: 'luxury-magnetic' } },
-  { rule_key: 'pkg.drawer', kind: 'packaging', value: 784, meta: { type: 'drawer' } },
-  { rule_key: 'pkg.window', kind: 'packaging', value: 476, meta: { type: 'window' } },
-  { rule_key: 'pkg.corporate', kind: 'packaging', value: 980, meta: { type: 'corporate' } },
-  { rule_key: 'pkg.wedding', kind: 'packaging', value: 364, meta: { type: 'wedding' } },
+
+  // --- Center message bar (one per X+1 box) ---
+  { rule_key: 'bar.center', kind: 'addon_unit', value: 450, meta: { group: 'bar', per: 'box' } },
+
+  // --- Printed wrapper (per wrapped piece) ---
+  { rule_key: 'extra.printedWrapper', kind: 'addon_unit', value: 20, meta: { group: 'extra', per: 'unit' } },
 
   // --- Per-box extras (from DesignExtras) ---
   { rule_key: 'extra.ribbon', kind: 'addon_unit', value: 60, meta: { group: 'extra', per: 'box' } },

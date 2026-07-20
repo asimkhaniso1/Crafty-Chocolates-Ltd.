@@ -1,17 +1,112 @@
 import { useId } from 'react';
 import { motion } from 'motion/react';
-import type { Design } from '../types';
+import type { CellAssignment, ChocolateType, Design, PackagingOption } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
 import ChocolatePreview from './ChocolatePreview';
+import CenterBarFace from './CenterBarFace';
 
 export interface BoxPreviewProps {
   design: Design;
 }
 
+/** Assorted molded shapes ring the X+1 center bar; cycle chocolates for variety. */
+const ASSORTED_CYCLE: ChocolateType[] = ['milk', 'dark', 'semidark', 'dark'];
+
+function assortedCell(index: number): CellAssignment {
+  return { index, content: 'pattern', chocolate: ASSORTED_CYCLE[index % ASSORTED_CYCLE.length] };
+}
+
+/**
+ * Real product photo with the customer's center bar composited over the
+ * overlay rect — a subtle soft-light blend and drop shadow settle it into
+ * the photographed box.
+ */
+function PhotoBoxPreview({ design, option }: { design: Design; option: PackagingOption }) {
+  const overlay = option.overlay!;
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="relative flex h-full w-full items-center justify-center"
+    >
+      <div className="relative w-full overflow-hidden rounded-md shadow-[0_20px_46px_rgba(45,30,23,0.4)]">
+        <img src={option.photo} alt={option.name} className="block h-auto w-full" />
+        <div
+          className="absolute"
+          style={{
+            left: `${overlay.x}%`,
+            top: `${overlay.y}%`,
+            width: `${overlay.w}%`,
+            height: `${overlay.h}%`,
+            filter: 'drop-shadow(0 4px 10px rgba(31,15,8,0.5))',
+          }}
+        >
+          <CenterBarFace design={design} />
+          {/* Pick up the photo's lighting so the bar sits naturally */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              mixBlendMode: 'soft-light',
+              borderRadius: '7%',
+              background:
+                'radial-gradient(120% 120% at 40% 25%, rgba(255,255,255,0.55), transparent 60%), linear-gradient(160deg, transparent 55%, rgba(31,15,8,0.5))',
+            }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/** Drawn fallback for X+1 boxes without a photo: assorted ring + centered bar. */
+function DrawnCenterBarPreview({ design, option }: { design: Design; option: PackagingOption }) {
+  const boxColour = design.extras.boxColour || '#2D1E17';
+  const { rows, cols } = option.grid ?? { rows: 2, cols: 2 };
+  const cells = Array.from({ length: option.count }, (_, i) => assortedCell(i));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="relative flex h-full w-full items-center justify-center"
+    >
+      <div
+        className="relative rounded-[4%] p-[4%] shadow-[0_20px_46px_rgba(45,30,23,0.4)]"
+        style={{ background: boxColour, width: '92%', aspectRatio: '1 / 1' }}
+      >
+        <div
+          className="grid h-full w-full gap-[4%] rounded-[3%] p-[5%]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(253,251,247,0.14), rgba(253,251,247,0.04))',
+            gridTemplateColumns: `repeat(${cols}, 1fr)`,
+            gridTemplateRows: `repeat(${rows}, 1fr)`,
+          }}
+        >
+          {cells.map(cell => (
+            <div key={cell.index} className="flex items-center justify-center opacity-90">
+              <ChocolatePreview design={design} cell={cell} size={110} />
+            </div>
+          ))}
+        </div>
+        {/* The message bar rides on top of the assorted layer, centred */}
+        <div
+          className="absolute left-1/2 top-1/2 z-10 aspect-square w-[54%] -translate-x-1/2 -translate-y-1/2"
+          style={{ filter: 'drop-shadow(0 8px 18px rgba(31,15,8,0.55))' }}
+        >
+          <CenterBarFace design={design} />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 /**
  * Top-down open box: outer tray in extras.boxColour, a lighter inner tray,
  * a CSS grid of mini chocolate pieces per the packaging grid, and a ribbon
- * cross rendered in SVG over the top.
+ * cross rendered in SVG over the top. X+1 boxes render either a real photo
+ * composite or a drawn assorted-ring fallback.
  */
 export default function BoxPreview({ design }: BoxPreviewProps) {
   const rawUid = useId();
@@ -22,6 +117,14 @@ export default function BoxPreview({ design }: BoxPreviewProps) {
   const ribbonColour = design.extras.ribbon || '#1A1A1A';
   const foilColour =
     design.extras.foil === 'gold' ? '#C9A24B' : design.extras.foil === 'silver' ? '#C0C0C4' : undefined;
+
+  if (option?.centerBar) {
+    return option.photo && option.overlay ? (
+      <PhotoBoxPreview design={design} option={option} />
+    ) : (
+      <DrawnCenterBarPreview design={design} option={option} />
+    );
+  }
 
   if (!option || !option.grid || option.count <= 1) {
     return (

@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { X } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, STEP6_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, STEP5_COPY, CENTER_BAR_COPY } from '../copy';
 import type { CellAssignment, CellContent, ChocolateType } from '../types';
+import { BAR_CAPTION_MAX, MARK_SCALE_MAX, MARK_SCALE_MIN } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { getPackagingOption } from '../data/packagingOptions';
 import ChocolatePreview from '../preview/ChocolatePreview';
+import BoxPreview from '../preview/BoxPreview';
 
 const CONTENT_OPTIONS: CellContent[] = ['logo', 'message', 'initials', 'pattern'];
-const CHOCOLATE_OPTIONS: ChocolateType[] = ['milk', 'dark', 'white'];
+const CHOCOLATE_OPTIONS: ChocolateType[] = ['milk', 'dark', 'semidark'];
 
 function cellFor(cells: CellAssignment[], index: number): CellAssignment {
   return cells.find(c => c.index === index) ?? { index, content: 'pattern', chocolate: 'milk' };
 }
 
-export default function Step6Arrange() {
+export default function Step5Arrange() {
   const { design, dispatch } = useStudio();
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -23,9 +25,9 @@ export default function Step6Arrange() {
   const headline = (
     <>
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[6]}
+        {STEP_TITLES[5]}
       </h2>
-      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[6]}</p>
+      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[5]}</p>
     </>
   );
 
@@ -35,13 +37,74 @@ export default function Step6Arrange() {
       <div>
         {headline}
         <div className="border border-dashed border-choco/20 rounded-sm p-12 text-center">
-          <p className="text-clay font-medium mb-6">{STEP6_COPY.emptyBody}</p>
+          <p className="text-clay font-medium mb-6">{STEP5_COPY.emptyBody}</p>
           <button
-            onClick={() => dispatch({ type: 'SET_STEP', step: 5 })}
+            onClick={() => dispatch({ type: 'SET_STEP', step: 4 })}
             className="bg-choco text-cream px-8 py-4 uppercase font-sans text-xs tracking-widest font-black hover:bg-gold transition-all"
           >
-            {STEP6_COPY.emptyCta}
+            {STEP5_COPY.emptyCta}
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // X+1 signature box — the ring is assorted stock; only the center bar is
+  // customizable, so there is no per-cell grid here.
+  if (option.centerBar) {
+    return (
+      <div>
+        {headline}
+        <div className="grid lg:grid-cols-[1fr_300px] gap-8 items-start">
+          <div className="bg-choco/5 p-6 flex items-center justify-center">
+            <div className="w-full max-w-sm">
+              <BoxPreview design={design} />
+            </div>
+          </div>
+
+          <div className="border border-choco/15 bg-cream p-5 lg:sticky lg:top-40">
+            <h3 className="font-black uppercase tracking-tight text-sm text-choco mb-4">
+              {CENTER_BAR_COPY.panelTitle}
+            </h3>
+
+            <label className="block text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+              {CENTER_BAR_COPY.markSizeLabel}
+            </label>
+            <input
+              type="range"
+              min={MARK_SCALE_MIN}
+              max={MARK_SCALE_MAX}
+              step={0.01}
+              value={design.centerBarScale ?? 1}
+              onChange={e =>
+                dispatch({ type: 'SET_CENTER_BAR_SCALE', scale: parseFloat(e.target.value) })
+              }
+              className="w-full accent-gold mb-5"
+            />
+
+            <label
+              className="block text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2"
+              htmlFor="studio-bar-caption"
+            >
+              {CENTER_BAR_COPY.captionLabel}
+            </label>
+            <input
+              id="studio-bar-caption"
+              type="text"
+              maxLength={BAR_CAPTION_MAX}
+              value={design.barCaption ?? ''}
+              placeholder={CENTER_BAR_COPY.captionPlaceholder}
+              onChange={e => dispatch({ type: 'SET_BAR_CAPTION', barCaption: e.target.value })}
+              className="w-full border border-choco/15 bg-cream px-3 py-2 text-sm text-choco focus:border-gold outline-none"
+            />
+            <p className="text-[11px] text-clay/70 mt-1 italic font-serif">
+              {CENTER_BAR_COPY.captionHint}
+            </p>
+
+            <p className="text-xs text-clay mt-5 pt-4 border-t border-choco/10">
+              {CENTER_BAR_COPY.assortedNote}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -58,9 +121,9 @@ export default function Step6Arrange() {
           </div>
           <div>
             <h3 className="font-black uppercase tracking-tight text-sm text-choco mb-2">
-              {STEP6_COPY.singleTitle}
+              {STEP5_COPY.singleTitle}
             </h3>
-            <p className="text-sm text-clay">{STEP6_COPY.singleBody}</p>
+            <p className="text-sm text-clay">{STEP5_COPY.singleBody}</p>
           </div>
         </div>
       </div>
@@ -92,12 +155,12 @@ export default function Step6Arrange() {
     <>
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-black uppercase tracking-tight text-sm text-choco">
-          {STEP6_COPY.panelTitle(selectedCell.index)}
+          {STEP5_COPY.panelTitle(selectedCell.index)}
         </h3>
         <button
           onClick={() => setSelected(null)}
           className="text-choco/50 hover:text-choco lg:hidden"
-          aria-label={STEP6_COPY.doneCta}
+          aria-label={STEP5_COPY.doneCta}
         >
           <X size={20} />
         </button>
@@ -105,7 +168,7 @@ export default function Step6Arrange() {
 
       <div className="mb-5">
         <p className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
-          {STEP6_COPY.panelContentLabel}
+          {STEP5_COPY.panelContentLabel}
         </p>
         <div className="grid grid-cols-2 gap-2">
           {CONTENT_OPTIONS.map(c => (
@@ -118,7 +181,7 @@ export default function Step6Arrange() {
                   : 'border-choco/15 text-choco hover:border-gold'
               }`}
             >
-              {STEP6_COPY.contentLabels[c]}
+              {STEP5_COPY.contentLabels[c]}
             </button>
           ))}
         </div>
@@ -126,7 +189,7 @@ export default function Step6Arrange() {
 
       <div className="mb-5">
         <p className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
-          {STEP6_COPY.panelChocolateLabel}
+          {STEP5_COPY.panelChocolateLabel}
         </p>
         <div className="grid grid-cols-3 gap-2">
           {CHOCOLATE_OPTIONS.map(c => (
@@ -139,7 +202,7 @@ export default function Step6Arrange() {
                   : 'border-choco/15 text-choco hover:border-gold'
               }`}
             >
-              {STEP6_COPY.chocolateLabels[c]}
+              {STEP5_COPY.chocolateLabels[c]}
             </button>
           ))}
         </div>
@@ -148,7 +211,7 @@ export default function Step6Arrange() {
       {(selectedCell.content === 'message' || selectedCell.content === 'initials') && (
         <div className="mb-2">
           <p className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
-            {STEP6_COPY.panelTextLabel}
+            {STEP5_COPY.panelTextLabel}
           </p>
           <input
             type="text"
@@ -156,8 +219,8 @@ export default function Step6Arrange() {
             maxLength={selectedCell.content === 'initials' ? 4 : 40}
             placeholder={
               selectedCell.content === 'initials'
-                ? STEP6_COPY.panelInitialsPlaceholder
-                : STEP6_COPY.panelMessagePlaceholder
+                ? STEP5_COPY.panelInitialsPlaceholder
+                : STEP5_COPY.panelMessagePlaceholder
             }
             onChange={e => updateSelected({ text: e.target.value })}
             className="w-full border border-choco/15 bg-cream px-3 py-2 text-sm text-choco focus:border-gold outline-none"
@@ -169,7 +232,7 @@ export default function Step6Arrange() {
         onClick={() => setSelected(null)}
         className="hidden lg:block mt-6 w-full bg-choco text-cream px-6 py-3 uppercase font-sans text-xs tracking-widest font-black hover:bg-gold transition-all"
       >
-        {STEP6_COPY.doneCta}
+        {STEP5_COPY.doneCta}
       </button>
     </>
   );
@@ -184,19 +247,19 @@ export default function Step6Arrange() {
           onClick={() => applyBulk('logo')}
           className="px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border border-choco/20 text-choco hover:border-gold transition-all"
         >
-          {STEP6_COPY.bulkAllLogo}
+          {STEP5_COPY.bulkAllLogo}
         </button>
         <button
           onClick={() => applyBulk('alternate')}
           className="px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border border-choco/20 text-choco hover:border-gold transition-all"
         >
-          {STEP6_COPY.bulkAlternate}
+          {STEP5_COPY.bulkAlternate}
         </button>
         <button
           onClick={() => applyBulk('first')}
           className="px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border border-choco/20 text-choco hover:border-gold transition-all"
         >
-          {STEP6_COPY.bulkFillFirst}
+          {STEP5_COPY.bulkFillFirst}
         </button>
       </div>
 
@@ -224,7 +287,7 @@ export default function Step6Arrange() {
             <div className="border border-choco/15 bg-cream p-5 sticky top-40">{panelContent}</div>
           ) : (
             <div className="border border-dashed border-choco/20 p-5 text-xs text-clay/60 uppercase tracking-[0.15em] text-center">
-              {STEP6_COPY.hintLabel}
+              {STEP5_COPY.hintLabel}
             </div>
           )}
         </div>

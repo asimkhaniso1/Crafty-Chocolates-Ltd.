@@ -13,22 +13,20 @@ export const STEP_TITLES: Record<number, string> = {
   1: 'Choose your canvas',
   2: 'Choose your chocolate',
   3: 'Add your mark',
-  4: 'Choose your finish',
-  5: 'Choose your packaging',
-  6: 'Arrange your box',
-  7: 'Finishing touches',
-  8: 'Your quote',
+  4: 'Choose your packaging',
+  5: 'Arrange your box',
+  6: 'Finishing touches',
+  7: 'Your quote',
 };
 
 export const STEP_SUBTITLES: Record<number, string> = {
   1: 'Every design begins with a shape. Pick the piece that carries your story.',
-  2: 'Milk, dark, white, or a marbled mix — the base of everything to come.',
+  2: 'Milk, dark, or semi-dark — the base of everything to come.',
   3: 'Upload a logo, a monogram, or a message. We translate it into a mark on chocolate.',
-  4: 'Raised, pressed, or gilded — decide how your mark catches the light.',
-  5: 'From a single wrapped piece to a signature box, choose how it arrives.',
-  6: 'Assign a chocolate and a mark to every cell in your box.',
-  7: 'Ribbon, sleeve, a note inside — the small details that make it a gift.',
-  8: 'Here is your bespoke quote, ready to save, download, or send.',
+  4: 'From a single wrapped piece to a signature box, choose how it arrives.',
+  5: 'Assign a chocolate and a mark to every cell in your box.',
+  6: 'Ribbon, sleeve, a note inside — the small details that make it a gift.',
+  7: 'Here is your bespoke quote, ready to save, download, or send.',
 };
 
 export const NAV_LABELS = {
@@ -42,6 +40,7 @@ export const CUSTOM_BRIEF_COPY = {
   body:
     "Fully custom shapes are handled by our design team directly. Share a brief and reference images, and we'll follow up with a tailored quote.",
   cta: 'Send your brief via WhatsApp',
+  backCta: 'Back to products',
 };
 
 export const PRODUCT_CARD_COPY: Record<string, { blurb: string }> = {
@@ -54,29 +53,20 @@ export const PRODUCT_CARD_COPY: Record<string, { blurb: string }> = {
 export const CHOCOLATE_NAMES: Record<string, string> = {
   milk: 'Milk',
   dark: 'Dark',
-  white: 'White',
-  mixed: 'Marbled Mix',
+  semidark: 'Semi-Dark',
 };
 
 export const CHOCOLATE_DESCRIPTIONS: Record<string, string> = {
   milk: 'Smooth, warm, and universally loved.',
   dark: 'Rich and refined, for the discerning palate.',
-  white: 'Delicate and creamy, a bright canvas for detail.',
-  mixed: 'A hand-marbled blend, no two pieces alike.',
+  semidark: 'A balanced middle ground, mellow with a little edge.',
 };
 
+// The studio produces one finish — an embossed, raised mark. Kept as a
+// lookup (rather than inlined) since the WhatsApp summary and print sheet
+// still print a "Finish" line.
 export const EMBOSS_NAMES: Record<string, string> = {
-  emboss: 'Raised',
-  deboss: 'Pressed',
-  gold: 'Gold Dust',
-  silver: 'Silver Dust',
-};
-
-export const EMBOSS_DESCRIPTIONS: Record<string, string> = {
-  emboss: 'Your mark lifted proud above the surface.',
-  deboss: 'Your mark set gently into the chocolate.',
-  gold: 'A raised mark finished with edible gold leaf.',
-  silver: 'A raised mark finished with edible silver leaf.',
+  emboss: 'Embossed',
 };
 
 export const WARNINGS = {
@@ -158,7 +148,9 @@ export const QUOTE_LINE_LABELS = {
   extraGreetingCard: 'Greeting card',
   extraWaxSeal: 'Wax seal',
   extraQr: 'QR code',
-  extraInsideMessage: 'Inside message',
+  extraInsideMessage: 'Butter-paper message',
+  messageBar: 'Message bar',
+  printedWrapper: 'Printed wrapper',
   moldFee: 'Custom mold fee',
   artworkFee: 'Artwork setup fee',
 };
@@ -167,20 +159,25 @@ export const QUOTE_LINE_LABELS = {
 /* Step 5 (Choose your packaging) — added by packaging/arrange/extras work */
 /* ---------------------------------------------------------------------- */
 
-export const STEP5_COPY = {
+export const STEP4_COPY = {
   filterAll: 'All',
-  premiumBadge: 'Premium',
   piecesLabel: (n: number) => (n === 1 ? '1 piece' : `${n} pieces`),
+  centerBarPiecesLabel: (n: number) => `${n} pieces + your message bar in the center`,
+  centerBarNote: 'Our signature box — assorted chocolates around one large embossed message bar.',
   individualNote: "You'll choose a foil colour for the wrapper in a later step.",
   selectCta: 'Select',
   selectedCta: 'Selected',
 };
 
+/** Summary naming for X+1 boxes in WhatsApp / print output. */
+export const packagingSummaryName = (name: string, count: number, centerBar?: boolean) =>
+  centerBar ? `${name} (${count} pieces + message bar)` : name;
+
 /* ---------------------------------------------------------------------- */
-/* Step 6 (Arrange your box) — added by packaging/arrange/extras work */
+/* Step 5 (Arrange your box) — added by packaging/arrange/extras work */
 /* ---------------------------------------------------------------------- */
 
-export const STEP6_COPY = {
+export const STEP5_COPY = {
   emptyTitle: 'Pick your packaging first',
   emptyBody: 'Choose how your chocolates arrive, then come back to arrange each piece.',
   emptyCta: 'Choose packaging',
@@ -207,15 +204,31 @@ export const STEP6_COPY = {
   chocolateLabels: {
     milk: 'Milk',
     dark: 'Dark',
-    white: 'White',
+    semidark: 'Semi-Dark',
   } as Record<string, string>,
 };
 
 /* ---------------------------------------------------------------------- */
-/* Step 7 (Finishing touches) — added by packaging/arrange/extras work */
+/* Center bar (X+1 boxes) & bar caption                                    */
 /* ---------------------------------------------------------------------- */
 
-export const STEP7_COPY = {
+export const CENTER_BAR_COPY = {
+  panelTitle: 'Center bar',
+  assortedNote:
+    'Surrounding pieces come from our assorted collection — the center bar carries your mark.',
+  markSizeLabel: 'Mark size on the bar',
+  captionLabel: 'Caption line (optional)',
+  captionHint: 'Embossed beneath your mark',
+  captionPlaceholder: 'e.g. Congratulations, Ayesha & Bilal',
+};
+
+/* ---------------------------------------------------------------------- */
+/* Step 6 (Finishing touches) — added by packaging/arrange/extras work */
+/* ---------------------------------------------------------------------- */
+
+export const STEP6_COPY = {
+  loosePackNote:
+    'Individually foil-wrapped, packed loose — ready for your own presentation.',
   ribbonTitle: 'Ribbon',
   ribbonNone: 'No ribbon',
   ribbonNames: {
@@ -241,9 +254,18 @@ export const STEP7_COPY = {
   greetingCardToggleBody: 'A matching card tucked inside the box.',
   waxSealToggleLabel: 'Wax seal',
   waxSealToggleBody: 'A pressed wax seal finishing the ribbon.',
-  insideMessageTitle: 'Inside message',
+  insideMessageTitle: 'Personal message — printed on butter paper inside the box',
   insideMessagePlaceholder: 'Write a short note to go inside the box…',
   insideMessageCounter: (used: number, max: number) => `${used} / ${max}`,
+  printedWrapperToggleLabel: 'Printed wrapper',
+  printedWrapperToggleBody:
+    'A printed paper wrapper around your chocolate — it can carry a full-colour image and its own message, separate from the embossed mark.',
+  printedWrapperImageLabel: 'Wrapper image (full colour, optional)',
+  printedWrapperImageCta: 'Upload image',
+  printedWrapperImageReplaceCta: 'Replace image',
+  printedWrapperImageRemoveCta: 'Remove image',
+  printedWrapperMessageLabel: 'Wrapper message (optional)',
+  printedWrapperMessagePlaceholder: 'e.g. Thank you for celebrating with us',
   qrTitle: 'QR code',
   qrPlaceholder: 'https://your-link.com',
   qrNote: 'Printed on the sleeve.',

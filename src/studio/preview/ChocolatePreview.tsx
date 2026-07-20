@@ -30,23 +30,6 @@ function ChocolateBody({
   type: ChocolateType;
   uid: string;
 }) {
-  if (type === 'mixed') {
-    const clipId = `studio-mixed-clip-${uid}`;
-    return (
-      <g>
-        <defs>
-          <clipPath id={clipId}>
-            <rect x={0} y={0} width={w} height={h} rx={r} ry={r} />
-          </clipPath>
-        </defs>
-        <g clipPath={`url(#${clipId})`}>
-          <rect x={0} y={0} width={w} height={h} fill={`url(#${gradientId('milk', uid)})`} />
-          <polygon points={`0,${h} ${w},0 ${w},${h}`} fill={`url(#${gradientId('dark', uid)})`} />
-        </g>
-        <rect x={0} y={0} width={w} height={h} rx={r} ry={r} fill={`url(#${highlightId(uid)})`} />
-      </g>
-    );
-  }
   return (
     <g>
       <rect x={0} y={0} width={w} height={h} rx={r} ry={r} fill={`url(#${gradientId(type, uid)})`} />
@@ -92,6 +75,18 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   const filter = filterId(style, uid);
   const content = cell?.content ?? (design.logo ? 'logo' : 'pattern');
   const pad = Math.min(w, h) * 0.14;
+
+  // Bar caption: an embossed serif line beneath the mark on the bar face.
+  const caption = !cell && design.product === 'bar' ? design.barCaption?.trim() : undefined;
+  const logoCenterY = caption ? h * 0.42 : h / 2;
+
+  // Printed wrapper band (bars and loose-pack pieces only, full colour).
+  const wrapper =
+    !cell && (design.product === 'bar' || design.packaging?.count === 1)
+      ? design.extras.printedWrapper
+      : undefined;
+  const bandH = h * (isBar ? 0.46 : 0.36);
+  const bandY = h - bandH - h * 0.08;
 
   return (
     <svg
@@ -150,12 +145,28 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
           <image
             href={design.logo.maskDataUrl}
             x={w / 2 - (w * 0.5 * design.logo.scale) / 2}
-            y={h / 2 - (h * 0.5 * design.logo.scale) / 2}
+            y={logoCenterY - (h * 0.5 * design.logo.scale) / 2}
             width={w * 0.5 * design.logo.scale}
             height={h * 0.5 * design.logo.scale}
             preserveAspectRatio="xMidYMid meet"
             filter={`url(#${filter})`}
           />
+        )}
+
+        {caption && (
+          <text
+            x={w / 2}
+            y={h * 0.8}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontFamily="'Cormorant Garamond', serif"
+            fontStyle="italic"
+            fontSize={Math.min(h * 0.12, ((w - pad * 2) / Math.max(6, caption.length)) * 1.6)}
+            fill="#000"
+            filter={`url(#${filter})`}
+          >
+            {caption}
+          </text>
         )}
 
         {(content === 'message' || content === 'initials') && (
@@ -175,6 +186,56 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
         )}
 
         {content === 'pattern' && <QuiltPattern w={w} h={h} uid={uid} filter={filter} />}
+
+        {/* Printed paper wrapper band — full colour, over the piece (and foil) */}
+        {wrapper?.enabled && (
+          <g>
+            <clipPath id={`studio-wrapper-clip-${uid}`}>
+              <rect x={0} y={bandY} width={w} height={bandH} rx={1.5} />
+            </clipPath>
+            <rect
+              x={0}
+              y={bandY}
+              width={w}
+              height={bandH}
+              fill="#FDFBF7"
+              opacity={0.97}
+            />
+            {wrapper.imageDataUrl && (
+              <image
+                href={wrapper.imageDataUrl}
+                x={0}
+                y={bandY}
+                width={w}
+                height={bandH}
+                preserveAspectRatio="xMidYMid slice"
+                clipPath={`url(#studio-wrapper-clip-${uid})`}
+              />
+            )}
+            {wrapper.message && (
+              <text
+                x={w / 2}
+                y={bandY + bandH / 2}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fontFamily="'Cormorant Garamond', serif"
+                fontStyle="italic"
+                fontSize={Math.min(bandH * 0.4, ((w - pad) / Math.max(6, wrapper.message.length)) * 1.7)}
+                fill={wrapper.imageDataUrl ? '#FDFBF7' : '#2D1E17'}
+                style={
+                  wrapper.imageDataUrl
+                    ? { paintOrder: 'stroke', stroke: 'rgba(45,30,23,0.65)', strokeWidth: 1.4 }
+                    : undefined
+                }
+              >
+                {wrapper.message}
+              </text>
+            )}
+            {/* Paper edge shadows so the band reads as wrapped around */}
+            <rect x={0} y={bandY} width={w} height={1.2} fill="#000" opacity={0.18} />
+            <rect x={0} y={bandY + bandH - 1.2} width={w} height={1.2} fill="#000" opacity={0.18} />
+          </g>
+        )}
       </g>
     </svg>
   );

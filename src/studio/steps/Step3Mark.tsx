@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 'react';
 import { UploadCloud, X, AlertTriangle, Loader2 } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, STUDIO_COPY_STEP3 } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, STUDIO_COPY_STEP3, CENTER_BAR_COPY } from '../copy';
+import { BAR_CAPTION_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { processLogoFile, initialsToMask } from '../lib/logoProcessor';
 
@@ -172,6 +173,31 @@ export default function Step3Mark() {
                 onChange={e => handleScaleChange(parseFloat(e.target.value))}
                 className="w-full accent-gold"
               />
+
+              {design.product === 'bar' && (
+                <div className="mt-5">
+                  <label
+                    className="block text-[10px] uppercase tracking-[0.2em] font-bold text-cream/60 mb-2"
+                    htmlFor="studio-bar-caption-step3"
+                  >
+                    {CENTER_BAR_COPY.captionLabel}
+                  </label>
+                  <input
+                    id="studio-bar-caption-step3"
+                    type="text"
+                    maxLength={BAR_CAPTION_MAX}
+                    value={design.barCaption ?? ''}
+                    placeholder={CENTER_BAR_COPY.captionPlaceholder}
+                    onChange={e =>
+                      dispatch({ type: 'SET_BAR_CAPTION', barCaption: e.target.value })
+                    }
+                    className="w-full border border-cream/20 bg-cream/10 px-3 py-2 text-sm text-cream placeholder:text-cream/40 focus:border-gold outline-none"
+                  />
+                  <p className="text-[10px] text-cream/50 mt-1 italic font-serif">
+                    {CENTER_BAR_COPY.captionHint}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

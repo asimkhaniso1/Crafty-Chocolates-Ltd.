@@ -51,6 +51,40 @@ export async function processLogoFile(file: File): Promise<ProcessLogoResult> {
   }
 }
 
+export type ProcessWrapperResult = { imageDataUrl: string } | { error: string };
+
+/**
+ * Validate + decode + downscale an uploaded image for the printed wrapper.
+ * Unlike the mark pipeline this keeps full colour: no background removal,
+ * no monochrome mask — the wrapper is printed, not embossed.
+ */
+export async function processWrapperImage(file: File): Promise<ProcessWrapperResult> {
+  try {
+    const validationError = validateFile(file);
+    if (validationError) return { error: validationError };
+
+    const bitmapResult = await decodeFileToCanvas(file);
+    if (bitmapResult.ok === false) return { error: bitmapResult.error };
+
+    // Flatten onto white (JPEG has no alpha channel) — a transparent PNG
+    // would otherwise export with a black background.
+    const source = bitmapResult.value;
+    const flat = document.createElement('canvas');
+    flat.width = source.width;
+    flat.height = source.height;
+    const flatCtx = flat.getContext('2d');
+    if (!flatCtx) return { error: STUDIO_COPY_STEP3.genericError };
+    flatCtx.fillStyle = '#ffffff';
+    flatCtx.fillRect(0, 0, flat.width, flat.height);
+    flatCtx.drawImage(source, 0, 0);
+
+    // JPEG keeps the data URL compact; wrapper artwork needs no transparency.
+    return { imageDataUrl: flat.toDataURL('image/jpeg', 0.82) };
+  } catch {
+    return { error: STUDIO_COPY_STEP3.genericError };
+  }
+}
+
 /** Render typed initials (up to 4 chars) in an elegant serif and run them through the mask pipeline. */
 export async function initialsToMask(text: string): Promise<LogoState> {
   const trimmed = text.trim().slice(0, 4);

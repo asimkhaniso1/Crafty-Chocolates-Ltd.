@@ -11,7 +11,7 @@ import QuotePrintSheet from '../output/QuotePrintSheet';
 
 const QUANTITY_PRESETS = [50, 100, 250, 500];
 
-interface Step8QuoteProps {
+interface Step7QuoteProps {
   onSave?: () => void;
 }
 
@@ -23,7 +23,7 @@ interface SaveState {
   copied?: boolean;
 }
 
-export default function Step8Quote({ onSave }: Step8QuoteProps) {
+export default function Step7Quote({ onSave }: Step7QuoteProps) {
   const { design, dispatch } = useStudio();
   const { rules, source } = usePricingRules();
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' });
@@ -73,9 +73,9 @@ export default function Step8Quote({ onSave }: Step8QuoteProps) {
   return (
     <div>
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[8]}
+        {STEP_TITLES[7]}
       </h2>
-      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[8]}</p>
+      <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[7]}</p>
 
       {/* Quantity selector */}
       <div className="mb-8 border border-choco/15 p-6">

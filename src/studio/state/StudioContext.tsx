@@ -15,6 +15,7 @@ import {
 } from './studioReducer';
 import type { Design } from '../types';
 import { MAX_DESIGN_JSON_BYTES } from '../constraints';
+import { sanitizeDesign } from './sanitizeDesign';
 
 const STORAGE_KEY = 'crafty-studio-design-v1';
 const PERSIST_DEBOUNCE_MS = 400;
@@ -33,7 +34,7 @@ function loadPersistedDesign(): Design | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Design>;
     if (parsed && parsed.v === 1) {
-      return parsed as Design;
+      return sanitizeDesign(parsed as Design);
     }
     return null;
   } catch {
