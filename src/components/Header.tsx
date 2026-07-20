@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   cartCount: number;
@@ -60,6 +61,12 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 {item.name}
               </a>
             ))}
+            <Link
+              to="/studio"
+              className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
+            >
+              Design Studio
+            </Link>
           </nav>
         </div>
 
@@ -116,6 +123,13 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                   {item.name}
                 </a>
               ))}
+              <Link
+                to="/studio"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="font-serif text-2xl text-choco hover:text-gold italic"
+              >
+                Design Studio
+              </Link>
             </nav>
           </motion.div>
         )}
