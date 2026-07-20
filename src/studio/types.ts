@@ -4,7 +4,13 @@
  */
 
 export type ProductKey = 'bite' | 'signature' | 'bar' | 'custom' | 'slim';
-export type ChocolateType = 'milk' | 'dark' | 'semidark';
+export type ChocolateType = 'milk' | 'semidark';
+/**
+ * Box-size step (multi-piece boxes only): whether every cell uses the
+ * chosen chocolate ('single', the default) or cells alternate milk/
+ * semi-dark ('mixed'). Additive field — undefined behaves as 'single'.
+ */
+export type BoxMix = 'single' | 'mixed';
 /** The studio only ever produces an emboss finish; kept as a literal union for forward-compat. */
 export type EmbossStyle = 'emboss';
 export type CellContent = 'logo' | 'message' | 'initials' | 'pattern';
@@ -49,6 +55,13 @@ export interface DesignExtras {
   waxSeal?: boolean;
   /** Printed paper wrapper around the piece (bars and loose packs). */
   printedWrapper?: PrintedWrapper;
+  /**
+   * Boxed presentation only: whether each piece inside the box is
+   * individually foil-wrapped (true) or bare/in paper cups (false or
+   * undefined — undefined means unspecified/bare). Loose-pack wrap status
+   * is carried by `foil` alone (set = foil-wrapped, unset = unwrapped).
+   */
+  piecesWrapped?: boolean;
 }
 
 export interface Design {
@@ -61,13 +74,15 @@ export interface Design {
   cells: CellAssignment[];
   extras: DesignExtras;
   quantity: number;
+  /** Box-size step: whether a multi-piece box is all one chocolate or alternates milk/semi-dark. Default 'single'. */
+  boxMix?: BoxMix;
   /** Optional caption embossed beneath the mark on bar faces. */
   barCaption?: string;
   /** Mark scale on the X+1 center bar (0.5–1.4, default 1). */
   centerBarScale?: number;
 }
 
-export type StudioStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type StudioStep = 1 | 2 | 3 | 4;
 
 export interface PricingRule {
   rule_key: string;

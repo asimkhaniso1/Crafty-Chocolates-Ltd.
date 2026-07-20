@@ -1,7 +1,13 @@
 import { Phone } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { WHATSAPP_URL, PHONE_TEL, PHONE_DISPLAY } from '../constants';
 
 export default function WhatsAppFloat() {
+  // The Design Studio has its own WhatsApp CTA in the quote step, and the
+  // floats overlap the wizard's Continue controls — hide them there.
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/studio')) return null;
+
   return (
     <div className="fixed bottom-6 right-6 z-[55] flex flex-col items-end gap-3">
       <a

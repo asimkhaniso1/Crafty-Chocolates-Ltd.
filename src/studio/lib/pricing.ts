@@ -75,8 +75,32 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
 
   // --- Add-on unit price: chocolate type ---
   let addonUnit = 0;
-  const chocolateRule = findRule(rules, `chocolate.${design.chocolate}`);
-  if (chocolateRule) addonUnit += chocolateRule.value;
+  const chocolatePackagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
+  const isMultiPieceBoxForChocolate = Boolean(
+    chocolatePackagingOption?.grid && chocolatePackagingOption.count > 1
+  );
+  if (isMultiPieceBoxForChocolate && design.boxMix === 'mixed') {
+    // Mixed box: cells alternate milk/semi-dark, so only the semidark half
+    // of the pieces carry the semidark addon. Simplest correct approach —
+    // apply the addon to the unit price scaled by the actual fraction of
+    // semidark cells (falls back to the alternating 50/50 split when cells
+    // haven't been (re)built yet).
+    const semidarkRule = findRule(rules, 'chocolate.semidark');
+    if (semidarkRule) {
+      const cellCount = chocolatePackagingOption!.count;
+      const cells =
+        design.cells.length > 0
+          ? design.cells
+          : Array.from({ length: cellCount }, (_, i) => ({
+              chocolate: i % 2 === 0 ? 'milk' : 'semidark',
+            }));
+      const semidarkFraction = cells.filter(c => c.chocolate === 'semidark').length / cells.length;
+      addonUnit += semidarkRule.value * semidarkFraction;
+    }
+  } else {
+    const chocolateRule = findRule(rules, `chocolate.${design.chocolate}`);
+    if (chocolateRule) addonUnit += chocolateRule.value;
+  }
 
   const rawUnit = baseUnit + addonUnit;
 

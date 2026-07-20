@@ -4,7 +4,7 @@
  * Confidentiality: never mention the mold fabrication method or material,
  * or sheet-size names, anywhere in public copy.
  */
-import type { StudioProduct } from './types';
+import type { BoxMix, ChocolateType, StudioProduct } from './types';
 
 export const STUDIO_TITLE = 'The Design Studio';
 export const STUDIO_SUBTITLE =
@@ -12,23 +12,30 @@ export const STUDIO_SUBTITLE =
 export const STUDIO_BULK_BADGE = 'Bulk custom orders · from 50 pieces';
 
 export const STEP_TITLES: Record<number, string> = {
-  1: 'Choose your canvas',
-  2: 'Choose your chocolate',
-  3: 'Add your mark',
-  4: 'Choose your packaging',
-  5: 'Arrange your box',
-  6: 'Finishing touches',
-  7: 'Your quote',
+  1: 'Choose your creation',
+  2: 'Design it',
+  3: 'Finishing touches',
+  4: 'Your quote',
 };
 
 export const STEP_SUBTITLES: Record<number, string> = {
-  1: 'Every design begins with a shape. Pick the piece that carries your story.',
-  2: 'Milk, dark, or semi-dark — the base of everything to come.',
-  3: 'Upload a logo, a monogram, or a message. We translate it into a mark on chocolate.',
-  4: 'From a single wrapped piece to a signature box, choose how it arrives.',
-  5: 'Assign a chocolate and a mark to every cell in your box.',
-  6: 'Ribbon, sleeve, a note inside — the small details that make it a gift.',
-  7: 'Here is your bespoke quote, ready to save, download, or send.',
+  1: 'The box is the product. Pick the piece that carries your story — everything inside follows from it.',
+  2: 'Your mark, your chocolate, your message bar — brought together in one place.',
+  3: 'Ribbon, sleeve, a note inside — the small details that make it a gift.',
+  4: 'Here is your bespoke quote, ready to save, download, or send.',
+};
+
+/* ---------------------------------------------------------------------- */
+/* Step 1 (Choose your creation) — catalog gallery                         */
+/* ---------------------------------------------------------------------- */
+
+export const CATALOG_COPY = {
+  sectionSignature: 'Signature Boxes',
+  sectionClassic: 'Classic Boxes',
+  sectionLoose: 'Loose & Bars',
+  filterAll: 'All',
+  chooseCta: 'Choose this',
+  chosenCta: 'Chosen',
 };
 
 export const NAV_LABELS = {
@@ -79,15 +86,32 @@ export function productSpecLine(product: StudioProduct | null | undefined): stri
 
 export const CHOCOLATE_NAMES: Record<string, string> = {
   milk: 'Milk',
-  dark: 'Dark',
   semidark: 'Semi-Dark',
 };
 
 export const CHOCOLATE_DESCRIPTIONS: Record<string, string> = {
   milk: 'Smooth, warm, and universally loved.',
-  dark: 'Rich and refined, for the discerning palate.',
   semidark: 'A balanced middle ground, mellow with a little edge.',
 };
+
+/** "Mixed — milk & semi-dark" copy, shared by the box-mix step and every design summary. */
+export const MIXED_CHOCOLATE_LABEL = 'Mixed — milk & semi-dark';
+
+/**
+ * Chocolate summary label for a design — used wherever a quote/WhatsApp/
+ * print summary needs one line for "which chocolate(s)". A multi-piece box
+ * set to 'mixed' reports the mixed label instead of a single chocolate name,
+ * since its cells alternate milk/semi-dark rather than all matching
+ * `chocolate`.
+ */
+export function chocolateSummaryLabel(
+  chocolate: ChocolateType,
+  boxMix: BoxMix | undefined,
+  isMultiPieceBox: boolean
+): string {
+  if (isMultiPieceBox && boxMix === 'mixed') return MIXED_CHOCOLATE_LABEL;
+  return CHOCOLATE_NAMES[chocolate] ?? chocolate;
+}
 
 // The studio produces one finish — an embossed, raised mark. Kept as a
 // lookup (rather than inlined) since the WhatsApp summary and print sheet
@@ -119,7 +143,8 @@ export const PACKAGING_OCCASION_LABELS: Record<string, string> = {
 };
 
 /* ---------------------------------------------------------------------- */
-/* Step 3 (Add your mark) — added by the logo processing / mark step work */
+/* Step 2 (Design it) — mark upload/initials, part of the combined design */
+/* step alongside chocolate and the center-bar panel.                     */
 /* ---------------------------------------------------------------------- */
 
 export const STUDIO_COPY_STEP3 = {
@@ -141,7 +166,7 @@ export const STUDIO_COPY_STEP3 = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Step 8 — Quote copy (added by pricing/quote implementation)
+// Step 4 — Quote copy (added by pricing/quote implementation)
 // ---------------------------------------------------------------------------
 
 export const QUOTE_COPY = {
@@ -196,47 +221,45 @@ export const QUOTE_LINE_LABELS = {
 };
 
 /* ---------------------------------------------------------------------- */
-/* Step 5 (Choose your packaging) — added by packaging/arrange/extras work */
+/* Step 2 (Design it) — box-mix control, reused from the old box-size step */
 /* ---------------------------------------------------------------------- */
 
 export const STEP4_COPY = {
-  presentationTitle: 'How would you like it presented?',
-  presentationBoxedTitle: 'Boxed collection',
-  presentationBoxedBody: 'A curated box, arranged piece by piece.',
-  presentationLooseTitle: 'Individually wrapped — loose',
-  presentationLooseBody: 'Foil-wrapped pieces, packed loose — ready to place your way.',
-  presentationChosenCta: 'Chosen',
-  presentationChooseCta: 'Choose',
-  looseConfirmedTitle: 'Individually wrapped, loose',
-  filterAll: 'All',
   piecesLabel: (n: number) => (n === 1 ? '1 piece' : `${n} pieces`),
   centerBarPiecesLabel: (n: number) =>
     n === 1 ? `1 piece + your message bar in the center` : `${n} pieces + your message bar in the center`,
   centerBarNote: 'Our signature box — assorted chocolates around one large embossed message bar.',
-  individualNote: "You'll choose a foil colour for the wrapper in a later step.",
-  selectCta: 'Select',
-  selectedCta: 'Selected',
+  boxMixTitle: 'How should the box be mixed?',
+  boxMixSingleTitle: 'All one chocolate',
+  boxMixSingleBody: 'Every piece in the box matches the chocolate you chose earlier.',
+  boxMixMixedTitle: MIXED_CHOCOLATE_LABEL,
+  boxMixMixedBody: 'Pieces alternate milk and semi-dark, for a classic assorted look.',
+  boxMixChosenCta: 'Chosen',
+  boxMixChooseCta: 'Choose',
+};
+
+/* ---------------------------------------------------------------------- */
+/* Step 3 (Finishing touches) — wrapped/unwrapped choice, shared by both  */
+/* the loose and boxed packaging types.                                   */
+/* ---------------------------------------------------------------------- */
+
+export const STEP3_WRAPPED_COPY = {
+  looseWrappedTitle: 'Foil-wrapped',
+  looseWrappedBody: 'Each piece individually wrapped in a foil finish.',
+  looseUnwrappedTitle: 'Unwrapped',
+  looseUnwrappedBody: 'Bare chocolate, no wrapper — a quieter, minimal finish.',
+  boxedWrappedTitle: 'Foil-wrapped pieces',
+  boxedWrappedBody: 'Every piece in the box individually wrapped in foil.',
+  boxedUnwrappedTitle: 'Bare, in paper cups',
+  boxedUnwrappedBody: 'Bare chocolate pieces, set in paper cups inside the box.',
+  chosenCta: 'Chosen',
+  chooseCta: 'Choose',
+  foilPickerTitle: 'Foil colour',
 };
 
 /** Summary naming for X+1 boxes in WhatsApp / print output. */
 export const packagingSummaryName = (name: string, count: number, centerBar?: boolean) =>
   centerBar ? `${name} (${count} pieces + message bar)` : name;
-
-/* ---------------------------------------------------------------------- */
-/* Step 5 (Arrange your box) — added by packaging/arrange/extras work */
-/* ---------------------------------------------------------------------- */
-
-export const STEP5_COPY = {
-  emptyTitle: 'Pick your packaging first',
-  emptyBody: 'Choose how your chocolates arrive, then come back to arrange each piece.',
-  emptyCta: 'Choose packaging',
-  singleTitle: 'A single, wrapped piece',
-  singleBody:
-    'Arrangement applies to boxes of more than one piece. Your single wrapped chocolate carries the mark and finish you already chose.',
-  bulkAllLogo: 'All logo',
-  bulkAlternate: 'Alternate milk / dark',
-  bulkFillFirst: 'Fill like first cell',
-};
 
 /* ---------------------------------------------------------------------- */
 /* Center bar (X+1 boxes) & bar caption                                    */
@@ -291,12 +314,10 @@ export function centerBarWeightG(packagingType: string | undefined): number {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Step 6 (Finishing touches) — added by packaging/arrange/extras work */
+/* Step 3 (Finishing touches) — ribbon, box colour, extras                */
 /* ---------------------------------------------------------------------- */
 
 export const STEP6_COPY = {
-  loosePackNote:
-    'Individually foil-wrapped, packed loose — ready for your own presentation.',
   ribbonTitle: 'Ribbon',
   ribbonNone: 'No ribbon',
   ribbonNames: {
@@ -323,7 +344,12 @@ export const STEP6_COPY = {
   greetingCardToggleBody: 'A matching card tucked inside the box.',
   waxSealToggleLabel: 'Wax seal',
   waxSealToggleBody: 'A pressed wax seal finishing the ribbon.',
-  insideMessageTitle: 'Personal message — printed on butter paper inside the box',
+  insideMessageTitle: 'Personal message',
+  // Butter paper is the medium for bare/unwrapped pieces; when pieces are
+  // foil-wrapped, the message moves to the printed sleeve instead — the
+  // field itself stays, only the helper copy changes to say where it lands.
+  insideMessageBareNote: 'Printed on butter paper, placed inside the box.',
+  insideMessageWrappedNote: "Pieces are foil-wrapped, so this prints on the sleeve instead of butter paper.",
   insideMessagePlaceholder: 'Write a short note to go inside the box…',
   insideMessageCounter: (used: number, max: number) => `${used} / ${max}`,
   printedWrapperToggleLabel: 'Printed wrapper',

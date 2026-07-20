@@ -10,28 +10,23 @@ import {
 } from './copy';
 import type { StudioStep } from './types';
 import { StudioProvider, useStudio } from './state/StudioContext';
+import { MAX_STEP } from './state/studioReducer';
 import { loadDesign } from './lib/designStore';
 import PreviewPane from './preview/PreviewPane';
-import Step1Product from './steps/Step1Product';
-import Step2Chocolate from './steps/Step2Chocolate';
-import Step3Mark from './steps/Step3Mark';
-import Step4Packaging from './steps/Step4Packaging';
-import Step5Arrange from './steps/Step5Arrange';
-import Step6Extras from './steps/Step6Extras';
+import Step1Catalog from './steps/Step1Catalog';
+import Step2Design from './steps/Step2Design';
+import Step3Finishing from './steps/Step3Finishing';
 import Step7Quote from './steps/Step7Quote';
 import CustomBriefStep from './steps/CustomBriefStep';
 
-const STEPS: StudioStep[] = [1, 2, 3, 4, 5, 6, 7];
-
 const STEP_COMPONENTS: Record<StudioStep, ComponentType> = {
-  1: Step1Product,
-  2: Step2Chocolate,
-  3: Step3Mark,
-  4: Step4Packaging,
-  5: Step5Arrange,
-  6: Step6Extras,
-  7: Step7Quote,
+  1: Step1Catalog,
+  2: Step2Design,
+  3: Step3Finishing,
+  4: Step7Quote,
 };
+
+const ALL_STEPS: StudioStep[] = [1, 2, 3, 4];
 
 function StudioShell() {
   const { design, step, dispatch } = useStudio();
@@ -46,6 +41,7 @@ function StudioShell() {
   const isCustom = design.product === 'custom';
   const maxVisitedStep = step;
   const CurrentStepComponent = STEP_COMPONENTS[step];
+  const visibleSteps = ALL_STEPS;
 
   return (
     <main className="pt-40 pb-32 md:pb-24 bg-cream min-h-screen">
@@ -69,7 +65,7 @@ function StudioShell() {
         {/* Stepper */}
         {!isCustom && (
           <nav className="hidden md:flex flex-wrap items-center gap-x-2 gap-y-3 mb-12 font-sans">
-            {STEPS.map((s, i) => {
+            {visibleSteps.map((s, i) => {
               const visited = s <= maxVisitedStep;
               const active = s === step;
               return (
@@ -94,7 +90,7 @@ function StudioShell() {
                     </span>
                     {STEP_TITLES[s]}
                   </button>
-                  {i < STEPS.length - 1 && <span className="text-choco/10 mx-1">/</span>}
+                  {i < visibleSteps.length - 1 && <span className="text-choco/10 mx-1">/</span>}
                 </div>
               );
             })}
@@ -123,7 +119,7 @@ function StudioShell() {
                 </button>
                 <button
                   onClick={() => dispatch({ type: 'NEXT_STEP' })}
-                  disabled={step === 7}
+                  disabled={step === MAX_STEP}
                   className="bg-choco text-cream px-8 py-4 uppercase font-sans text-xs tracking-widest font-black hover:bg-gold transition-all disabled:opacity-30"
                 >
                   {NAV_LABELS.next} &rarr;
@@ -156,11 +152,11 @@ function StudioShell() {
             &larr; {NAV_LABELS.back}
           </button>
           <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-gold">
-            {NAV_LABELS.step} {step} / 7
+            {NAV_LABELS.step} {step} / {MAX_STEP}
           </span>
           <button
             onClick={() => dispatch({ type: 'NEXT_STEP' })}
-            disabled={step === 7}
+            disabled={step === MAX_STEP}
             className="bg-choco text-cream px-5 py-2.5 uppercase font-sans text-[11px] tracking-widest font-black disabled:opacity-30"
           >
             {NAV_LABELS.next} &rarr;
@@ -194,7 +190,7 @@ function SharedDesignLoader() {
         return;
       }
       dispatch({ type: 'LOAD_DESIGN', design: result.design });
-      dispatch({ type: 'SET_STEP', step: 7 });
+      dispatch({ type: 'SET_STEP', step: 4 });
       navigate('/studio', { replace: true });
     })();
     return () => {

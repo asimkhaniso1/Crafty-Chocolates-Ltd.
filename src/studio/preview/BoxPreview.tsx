@@ -10,7 +10,7 @@ export interface BoxPreviewProps {
 }
 
 /** Fallback cycle used only when a ring cell has no assignment yet. */
-const ASSORTED_CYCLE: ChocolateType[] = ['milk', 'dark', 'semidark', 'dark'];
+const ASSORTED_CYCLE: ChocolateType[] = ['milk', 'semidark'];
 
 function ringCellFor(design: Design, index: number): CellAssignment {
   const found = design.cells.find(c => c.index === index);

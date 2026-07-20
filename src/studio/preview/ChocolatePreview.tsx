@@ -263,6 +263,25 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
         )}
 
         {content === 'pattern' && <QuiltPattern w={w} h={h} uid={uid} filter={filter} />}
+
+        {/* Boxed presentation: a subtle foil-colour sheen over pieces marked
+            individually wrapped in step 3 ("Wrapped or unwrapped"). Mirrors
+            the loose-pack foil overlay treatment used elsewhere (see
+            BoxPreview's single/individual-wrapper foil overlay). */}
+        {design.extras.piecesWrapped && (
+          <rect
+            x={0}
+            y={0}
+            width={w}
+            height={h}
+            rx={r}
+            ry={r}
+            fill={design.extras.foil === 'gold' ? '#C9A24B' : '#C0C0C4'}
+            opacity={0.28}
+            style={{ mixBlendMode: 'overlay' }}
+            pointerEvents="none"
+          />
+        )}
       </g>
     </svg>
   );
