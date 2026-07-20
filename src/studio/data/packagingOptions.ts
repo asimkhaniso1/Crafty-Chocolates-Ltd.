@@ -20,6 +20,7 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     centerBarShape: 'rectangle',
     photo: '/studio/box-4p1.webp',
     overlay: { x: 24.2, y: 38.1, w: 52, h: 22.9 },
+    boxDims: '16 × 20 × 3 cm',
   },
   {
     type: '9+1',
@@ -43,6 +44,7 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     centerBarShape: 'square',
     photo: '/studio/box-16p1.webp',
     overlay: { x: 35.8, y: 35.9, w: 28.8, h: 27.4 },
+    boxDims: '20 × 20 × 5.5 cm',
   },
   {
     type: 'wedding-favor',
@@ -79,13 +81,28 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     ],
     boxDims: '15 × 6.5 × 2.5 cm',
   },
-  { type: 'box-4', name: 'Box of 4', count: 4, grid: { rows: 2, cols: 2 }, occasions: ['birthday'] },
-  { type: 'box-6', name: 'Box of 6', count: 6, grid: { rows: 2, cols: 3 }, occasions: ['birthday'] },
+  {
+    type: 'duo-bars',
+    name: 'Signature Duo',
+    count: 2,
+    grid: { rows: 1, cols: 2 },
+    occasions: ['corporate', 'birthday'],
+    boxDims: '12 × 9 × 3.5 cm',
+  },
+  { type: 'box-4', name: 'Box of 4', count: 4, grid: { rows: 2, cols: 2 }, occasions: ['birthday'], boxDims: '12 × 9 × 3.5 cm' },
+  { type: 'box-6', name: 'Box of 6', count: 6, grid: { rows: 2, cols: 3 }, occasions: ['birthday'], boxDims: '12 × 9 × 3.5 cm' },
   { type: 'box-9', name: 'Box of 9', count: 9, grid: { rows: 3, cols: 3 }, occasions: ['eid'], boxDims: '11 × 11 × 5.5 cm' },
-  { type: 'box-12', name: 'Box of 12', count: 12, grid: { rows: 3, cols: 4 }, occasions: ['eid', 'wedding'] },
-  { type: 'box-16', name: 'Box of 16', count: 16, grid: { rows: 4, cols: 4 }, occasions: ['corporate'] },
-  { type: 'box-24', name: 'Box of 24', count: 24, grid: { rows: 4, cols: 6 }, occasions: ['corporate', 'wedding'] },
-  { type: 'box-36', name: 'Box of 36', count: 36, grid: { rows: 6, cols: 6 }, occasions: ['corporate', 'wedding'] },
+  { type: 'box-12', name: 'Box of 12', count: 12, grid: { rows: 3, cols: 4 }, occasions: ['eid', 'wedding'], boxDims: '16 × 20 × 3 cm' },
+  { type: 'box-25', name: 'Box of 25', count: 25, grid: { rows: 5, cols: 5 }, occasions: ['corporate', 'wedding'], boxDims: '20 × 20 × 5.5 cm' },
+  {
+    type: 'box-50',
+    name: 'Box of 50',
+    count: 50,
+    grid: { rows: 5, cols: 5 },
+    occasions: ['corporate', 'wedding'],
+    layers: 2,
+    boxDims: '20 × 20 × 5.5 cm',
+  },
 ];
 
 export function getPackagingOption(type: string): PackagingOption | undefined {
