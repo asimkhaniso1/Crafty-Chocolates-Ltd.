@@ -37,12 +37,10 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
   const baseRule = findRule(rules, `base.${product}`);
   const baseUnit = (baseRule?.value as number | undefined) ?? 0;
 
-  // --- Add-on unit price: chocolate type + emboss finish ---
+  // --- Add-on unit price: chocolate type ---
   let addonUnit = 0;
   const chocolateRule = findRule(rules, `chocolate.${design.chocolate}`);
   if (chocolateRule) addonUnit += chocolateRule.value;
-  const embossRule = findRule(rules, `emboss.${design.emboss}`);
-  if (embossRule) addonUnit += embossRule.value;
 
   const rawUnit = baseUnit + addonUnit;
 
@@ -86,6 +84,16 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     if (packagingCost > 0) {
       lines.push({ label: QUOTE_LINE_LABELS.packaging, amount: round(packagingCost) });
     }
+
+    // X+1 boxes: one large embossed message bar per box, its own quote line.
+    if (option?.centerBar) {
+      const barRule = findRule(rules, 'bar.center');
+      const barCost = (barRule?.value ?? 0) * boxCount;
+      if (barCost > 0) {
+        packagingCost += barCost;
+        lines.push({ label: QUOTE_LINE_LABELS.messageBar, amount: round(barCost) });
+      }
+    }
   }
 
   // --- Per-box extras ---
@@ -109,6 +117,16 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     const cost = price * boxesForExtras;
     extrasCost += cost;
     lines.push({ label: spec.label, amount: round(cost) });
+  }
+
+  // --- Printed wrapper (per wrapped piece) ---
+  if (design.extras.printedWrapper?.enabled) {
+    const wrapperRule = findRule(rules, 'extra.printedWrapper');
+    const wrapperCost = (wrapperRule?.value ?? 0) * quantity;
+    if (wrapperCost > 0) {
+      extrasCost += wrapperCost;
+      lines.push({ label: QUOTE_LINE_LABELS.printedWrapper, amount: round(wrapperCost) });
+    }
   }
 
   const subtotal = chocolateSubtotal + packagingCost + extrasCost;

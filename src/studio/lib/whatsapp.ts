@@ -1,5 +1,5 @@
 import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
-import { CHOCOLATE_NAMES, EMBOSS_NAMES } from '../copy';
+import { CHOCOLATE_NAMES, EMBOSS_NAMES, packagingSummaryName } from '../copy';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
 import type { Design, Quote } from '../types';
@@ -12,8 +12,11 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
   const productName = design.product ? getStudioProduct(design.product)?.name ?? design.product : 'Custom piece';
   const chocolateName = CHOCOLATE_NAMES[design.chocolate] ?? design.chocolate;
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
+  const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const packagingName = design.packaging
-    ? getPackagingOption(design.packaging.type)?.name ?? design.packaging.type
+    ? packagingOption
+      ? packagingSummaryName(packagingOption.name, packagingOption.count, packagingOption.centerBar)
+      : design.packaging.type
     : 'Not selected';
 
   const lines = [
@@ -23,9 +26,28 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
     `Chocolate: ${chocolateName}`,
     `Finish: ${embossName}`,
     `Packaging: ${packagingName}`,
-    `Quantity: ${design.quantity}`,
-    `Quoted total: ${formatPrice(quote.total)}`,
   ];
+
+  if (design.barCaption?.trim()) {
+    lines.push(`Bar caption: "${design.barCaption.trim()}"`);
+  }
+
+  if (design.extras.insideMessage?.trim()) {
+    lines.push(`Butter-paper message: "${design.extras.insideMessage.trim()}"`);
+  }
+
+  const wrapper = design.extras.printedWrapper;
+  if (wrapper?.enabled) {
+    const details = [
+      wrapper.message?.trim() ? `"${wrapper.message.trim()}"` : '',
+      wrapper.imageDataUrl ? 'with image' : '',
+    ]
+      .filter(Boolean)
+      .join(', ');
+    lines.push(`Printed wrapper: Yes${details ? ` (${details})` : ''}`);
+  }
+
+  lines.push(`Quantity: ${design.quantity}`, `Quoted total: ${formatPrice(quote.total)}`);
 
   if (shareUrl) {
     lines.push('', `View my design: ${shareUrl}`);

@@ -1,4 +1,4 @@
-import { CHOCOLATE_NAMES, EMBOSS_NAMES, PRINT_SHEET_COPY } from '../copy';
+import { CHOCOLATE_NAMES, EMBOSS_NAMES, PRINT_SHEET_COPY, packagingSummaryName } from '../copy';
 import { WHATSAPP_DISPLAY, PHONE_DISPLAY, formatPrice } from '../../constants';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
@@ -20,9 +20,18 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
     : 'Custom piece';
   const chocolateName = CHOCOLATE_NAMES[design.chocolate] ?? design.chocolate;
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
+  const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const packagingName = design.packaging
-    ? getPackagingOption(design.packaging.type)?.name ?? design.packaging.type
+    ? packagingOption
+      ? packagingSummaryName(packagingOption.name, packagingOption.count, packagingOption.centerBar)
+      : design.packaging.type
     : 'Not selected';
+  const wrapper = design.extras.printedWrapper;
+  const wrapperSummary = wrapper?.enabled
+    ? ['Yes', wrapper.message?.trim() ? `"${wrapper.message.trim()}"` : '', wrapper.imageDataUrl ? 'with image' : '']
+        .filter(Boolean)
+        .join(' — ')
+    : null;
   const today = new Date().toLocaleDateString('en-PK', {
     year: 'numeric',
     month: 'long',
@@ -75,6 +84,28 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
               <td className="py-1 text-clay">Packaging</td>
               <td className="py-1 text-right font-semibold text-choco">{packagingName}</td>
             </tr>
+            {design.barCaption?.trim() && (
+              <tr>
+                <td className="py-1 text-clay">Bar caption</td>
+                <td className="py-1 text-right font-semibold text-choco">
+                  &ldquo;{design.barCaption.trim()}&rdquo;
+                </td>
+              </tr>
+            )}
+            {design.extras.insideMessage?.trim() && (
+              <tr>
+                <td className="py-1 text-clay">Butter-paper message</td>
+                <td className="py-1 text-right font-semibold text-choco">
+                  &ldquo;{design.extras.insideMessage.trim()}&rdquo;
+                </td>
+              </tr>
+            )}
+            {wrapperSummary && (
+              <tr>
+                <td className="py-1 text-clay">Printed wrapper</td>
+                <td className="py-1 text-right font-semibold text-choco">{wrapperSummary}</td>
+              </tr>
+            )}
             <tr>
               <td className="py-1 text-clay">{PRINT_SHEET_COPY.quantityLabel}</td>
               <td className="py-1 text-right font-semibold text-choco">{design.quantity}</td>

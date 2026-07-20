@@ -23,4 +23,15 @@ export const MOQ_DEFAULTS: Record<ProductKey, number> = {
 };
 
 // Maximum serialized size of a saved Design JSON blob, in bytes.
+// A design may carry two images (mark mask + printed-wrapper artwork).
 export const MAX_DESIGN_JSON_BYTES = 300_000;
+
+// Center bar caption (embossed beneath the mark), in characters.
+export const BAR_CAPTION_MAX = 40;
+
+// Printed wrapper message, in characters.
+export const WRAPPER_MESSAGE_MAX = 60;
+
+// Mark scale range shared by the Step 3 slider and the center-bar slider.
+export const MARK_SCALE_MIN = 0.5;
+export const MARK_SCALE_MAX = 1.4;

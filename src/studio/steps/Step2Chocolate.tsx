@@ -3,10 +3,9 @@ import type { ChocolateType } from '../types';
 import { useStudio } from '../state/StudioContext';
 
 const CHOCOLATE_SWATCHES: { key: ChocolateType; color: string }[] = [
-  { key: 'milk', color: '#8B5A2B' },
-  { key: 'dark', color: '#2D1E17' },
-  { key: 'white', color: '#F3E5D8' },
-  { key: 'mixed', color: 'linear-gradient(135deg, #8B5A2B 50%, #F3E5D8 50%)' },
+  { key: 'milk', color: '#7B4A26' },
+  { key: 'semidark', color: '#56331B' },
+  { key: 'dark', color: '#241209' },
 ];
 
 export default function Step2Chocolate() {
@@ -19,7 +18,7 @@ export default function Step2Chocolate() {
       </h2>
       <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[2]}</p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
         {CHOCOLATE_SWATCHES.map(swatch => {
           const active = design.chocolate === swatch.key;
           return (

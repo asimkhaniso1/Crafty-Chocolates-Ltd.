@@ -48,14 +48,14 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   ('base.signature', 'base_unit', 260, '{"product":"signature"}'),
 --   ('base.bar', 'base_unit', 420, '{"product":"bar"}'),
 --
---   -- Add-on unit price per piece (chocolate type / emboss finish)
---   ('chocolate.mixed', 'addon_unit', 15, '{"group":"chocolate"}'),
---   ('emboss.emboss', 'addon_unit', 0, '{"group":"emboss"}'),
---   ('emboss.deboss', 'addon_unit', 0, '{"group":"emboss"}'),
---   ('emboss.gold', 'addon_unit', 40, '{"group":"emboss"}'),
---   ('emboss.silver', 'addon_unit', 35, '{"group":"emboss"}'),
+--   -- Add-on unit price per piece (chocolate type)
+--   ('chocolate.semidark', 'addon_unit', 15, '{"group":"chocolate"}'),
 --
 --   -- Packaging: price per box/wrapper, keyed to packagingOptions `type`
+--   -- X+1 signature boxes (assorted ring + center message bar), premium tins
+--   ('pkg.4+1', 'packaging', 750, '{"type":"4+1"}'),
+--   ('pkg.9+1', 'packaging', 900, '{"type":"9+1"}'),
+--   ('pkg.16+1', 'packaging', 1100, '{"type":"16+1"}'),
 --   ('pkg.individual', 'packaging', 25, '{"type":"individual"}'),
 --   ('pkg.box-2', 'packaging', 180, '{"type":"box-2"}'),
 --   ('pkg.box-4', 'packaging', 260, '{"type":"box-4"}'),
@@ -65,12 +65,12 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --   ('pkg.box-16', 'packaging', 700, '{"type":"box-16"}'),
 --   ('pkg.box-24', 'packaging', 950, '{"type":"box-24"}'),
 --   ('pkg.box-36', 'packaging', 1300, '{"type":"box-36"}'),
---   -- Premium boxes: base box price +40%
---   ('pkg.luxury-magnetic', 'packaging', 630, '{"type":"luxury-magnetic"}'),
---   ('pkg.drawer', 'packaging', 784, '{"type":"drawer"}'),
---   ('pkg.window', 'packaging', 476, '{"type":"window"}'),
---   ('pkg.corporate', 'packaging', 980, '{"type":"corporate"}'),
---   ('pkg.wedding', 'packaging', 364, '{"type":"wedding"}'),
+--
+--   -- Center message bar (one per X+1 box)
+--   ('bar.center', 'addon_unit', 450, '{"group":"bar","per":"box"}'),
+--
+--   -- Printed wrapper (per wrapped piece)
+--   ('extra.printedWrapper', 'addon_unit', 20, '{"group":"extra","per":"unit"}'),
 --
 --   -- Per-box extras (from DesignExtras)
 --   ('extra.ribbon', 'addon_unit', 60, '{"group":"extra","per":"box"}'),

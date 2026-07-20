@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Sparkles } from 'lucide-react';
-import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, STEP5_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, STEP4_COPY } from '../copy';
 import { PACKAGING_OPTIONS } from '../data/packagingOptions';
 import { useStudio } from '../state/StudioContext';
 
@@ -22,7 +21,7 @@ function GridGlyph({ rows, cols }: { rows: number; cols: number }) {
   );
 }
 
-export default function Step5Packaging() {
+export default function Step4Packaging() {
   const { design, dispatch } = useStudio();
   const [filter, setFilter] = useState<OccasionFilter>('all');
 
@@ -34,9 +33,9 @@ export default function Step5Packaging() {
   return (
     <div>
       <h2 className="text-3xl md:text-4xl font-black uppercase text-choco tracking-tighter mb-3">
-        {STEP_TITLES[5]}
+        {STEP_TITLES[4]}
       </h2>
-      <p className="text-clay font-medium mb-8 max-w-lg">{STEP_SUBTITLES[5]}</p>
+      <p className="text-clay font-medium mb-8 max-w-lg">{STEP_SUBTITLES[4]}</p>
 
       {/* Occasion filter chips */}
       <div className="flex flex-wrap gap-2 mb-8 font-sans">
@@ -48,7 +47,7 @@ export default function Step5Packaging() {
               : 'border-choco/20 text-choco hover:border-gold'
           }`}
         >
-          {STEP5_COPY.filterAll}
+          {STEP4_COPY.filterAll}
         </button>
         {OCCASION_FILTERS.map(o => (
           <button
@@ -82,16 +81,6 @@ export default function Step5Packaging() {
                 active ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
               }`}
             >
-              {option.premium && (
-                <span
-                  className={`absolute top-3 right-3 flex items-center gap-1 text-[9px] uppercase tracking-[0.15em] font-bold px-2 py-1 rounded-full ${
-                    active ? 'bg-gold text-choco' : 'bg-gold/15 text-gold'
-                  }`}
-                >
-                  <Sparkles size={10} /> {STEP5_COPY.premiumBadge}
-                </span>
-              )}
-
               <div
                 className={`mb-4 ${active ? 'text-cream/80' : 'text-choco/50'}`}
               >
@@ -104,12 +93,20 @@ export default function Step5Packaging() {
 
               <h3 className="font-black uppercase tracking-tight text-sm">{option.name}</h3>
               <p className={`text-xs mt-1 ${active ? 'text-cream/70' : 'text-clay'}`}>
-                {STEP5_COPY.piecesLabel(option.count)}
+                {option.centerBar
+                  ? STEP4_COPY.centerBarPiecesLabel(option.count)
+                  : STEP4_COPY.piecesLabel(option.count)}
               </p>
+
+              {option.centerBar && (
+                <p className={`text-[11px] mt-3 italic font-serif ${active ? 'text-cream/60' : 'text-clay/70'}`}>
+                  {STEP4_COPY.centerBarNote}
+                </p>
+              )}
 
               {isIndividual && (
                 <p className={`text-[11px] mt-3 italic font-serif ${active ? 'text-cream/60' : 'text-clay/70'}`}>
-                  {STEP5_COPY.individualNote}
+                  {STEP4_COPY.individualNote}
                 </p>
               )}
 
@@ -118,7 +115,7 @@ export default function Step5Packaging() {
                   active ? 'text-gold' : 'text-choco/40'
                 }`}
               >
-                {active ? STEP5_COPY.selectedCta : STEP5_COPY.selectCta}
+                {active ? STEP4_COPY.selectedCta : STEP4_COPY.selectCta}
               </span>
             </button>
           );
