@@ -142,7 +142,7 @@ export const QUOTE_COPY = {
 export const QUOTE_LINE_LABELS = {
   unitPrice: 'Unit price',
   chocolateSubtotal: 'Chocolates subtotal',
-  packaging: 'Packaging',
+  packaging: (blocks: number, perPcs: number) => `Packaging (${blocks} × ${perPcs}-pc)`,
   extraRibbon: 'Ribbon',
   extraSleevePrint: 'Sleeve print',
   extraGreetingCard: 'Greeting card',
@@ -151,8 +151,7 @@ export const QUOTE_LINE_LABELS = {
   extraInsideMessage: 'Butter-paper message',
   messageBar: 'Message bar',
   printedWrapper: 'Printed wrapper',
-  moldFee: 'Custom mold fee',
-  artworkFee: 'Artwork setup fee',
+  designMoldFee: 'Design & mold fee',
 };
 
 /* ---------------------------------------------------------------------- */
@@ -215,7 +214,7 @@ export const STEP5_COPY = {
 export const CENTER_BAR_COPY = {
   panelTitle: 'Center bar',
   assortedNote:
-    'Surrounding pieces come from our assorted collection — the center bar carries your mark.',
+    'Arrange each surrounding piece, and the center bar carries your featured mark.',
   markSizeLabel: 'Mark size on the bar',
   captionLabel: 'Caption line (optional)',
   captionHint: 'Embossed beneath your mark',

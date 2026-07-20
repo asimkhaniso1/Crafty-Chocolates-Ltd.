@@ -19,21 +19,9 @@ export const PRICING_FALLBACK: PricingRule[] = [
   // --- Add-on unit price per piece (chocolate type) ---
   { rule_key: 'chocolate.semidark', kind: 'addon_unit', value: 15, meta: { group: 'chocolate' } },
 
-  // --- Packaging: price per box/wrapper, keyed to packagingOptions `type` ---
-  // X+1 signature boxes (assorted ring + center message bar) are premium tins,
-  // priced above the box-16 level.
-  { rule_key: 'pkg.4+1', kind: 'packaging', value: 750, meta: { type: '4+1' } },
-  { rule_key: 'pkg.9+1', kind: 'packaging', value: 900, meta: { type: '9+1' } },
-  { rule_key: 'pkg.16+1', kind: 'packaging', value: 1100, meta: { type: '16+1' } },
-  { rule_key: 'pkg.individual', kind: 'packaging', value: 25, meta: { type: 'individual' } },
-  { rule_key: 'pkg.box-2', kind: 'packaging', value: 180, meta: { type: 'box-2' } },
-  { rule_key: 'pkg.box-4', kind: 'packaging', value: 260, meta: { type: 'box-4' } },
-  { rule_key: 'pkg.box-6', kind: 'packaging', value: 340, meta: { type: 'box-6' } },
-  { rule_key: 'pkg.box-9', kind: 'packaging', value: 450, meta: { type: 'box-9' } },
-  { rule_key: 'pkg.box-12', kind: 'packaging', value: 560, meta: { type: 'box-12' } },
-  { rule_key: 'pkg.box-16', kind: 'packaging', value: 700, meta: { type: 'box-16' } },
-  { rule_key: 'pkg.box-24', kind: 'packaging', value: 950, meta: { type: 'box-24' } },
-  { rule_key: 'pkg.box-36', kind: 'packaging', value: 1300, meta: { type: 'box-36' } },
+  // --- Packaging: one flat rule for every packaging type ---
+  // Rs 1000 per started block of `per_pcs` pieces, regardless of box type.
+  { rule_key: 'pkg.flat', kind: 'packaging', value: 1000, meta: { per_pcs: 50 } },
 
   // --- Center message bar (one per X+1 box) ---
   { rule_key: 'bar.center', kind: 'addon_unit', value: 450, meta: { group: 'bar', per: 'box' } },
@@ -61,8 +49,8 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'tier.500', kind: 'qty_tier', value: 0.8, meta: { min_qty: 500, multiplier: 0.8 } },
 
   // --- One-time fees ---
-  { rule_key: 'mold.custom_logo', kind: 'mold_fee', value: 15000, meta: { waive_above: 500 } },
-  { rule_key: 'artwork.setup', kind: 'artwork_fee', value: 3000, meta: { waive_above: 250 } },
+  // One combined fixed Design & mold fee, charged once per design at any quantity.
+  { rule_key: 'fee.designMold', kind: 'mold_fee', value: 18000, meta: {} },
 
   // --- Lead time (days) ---
   { rule_key: 'lead.base', kind: 'lead_time', value: 7, meta: {} },

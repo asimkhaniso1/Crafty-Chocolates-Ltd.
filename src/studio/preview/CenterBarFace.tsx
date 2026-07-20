@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import type { Design } from '../types';
 import { MARK_SCALE_MAX, MARK_SCALE_MIN } from '../constraints';
-import StudioDefs, { filterId } from './embossFilters';
+import StudioDefs, { embossFilterId } from './embossFilters';
 
 /**
  * The face of the large X+1 center message bar: a chocolate-toned slab
@@ -27,7 +27,7 @@ export interface CenterBarFaceProps {
 export default function CenterBarFace({ design, className = '' }: CenterBarFaceProps) {
   const rawUid = useId();
   const uid = rawUid.replace(/[^a-zA-Z0-9]/g, '');
-  const filter = filterId(design.emboss, uid);
+  const filter = embossFilterId(design.chocolate, uid);
   const scale = Math.min(
     MARK_SCALE_MAX,
     Math.max(MARK_SCALE_MIN, design.centerBarScale ?? 1)

@@ -124,7 +124,7 @@ export interface PackagingOption {
   count: number;
   grid: { rows: number; cols: number } | null;
   occasions: string[];
-  /** X+1 signature boxes: N assorted pieces around one large message bar. */
+  /** X+1 signature boxes: N individually arrangeable ring pieces around one large message bar. */
   centerBar?: true;
   /** Real product photo used as the box preview, when available. */
   photo?: string;

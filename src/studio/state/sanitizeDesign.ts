@@ -63,14 +63,22 @@ export function sanitizeDesign(design: Design): Design {
   const option = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const packagingStillExists = !design.packaging || Boolean(option);
 
+  // X+1 boxes have per-cell ring assignments too, same as standard boxes;
+  // clamp the count to the option's cell count either way.
+  const clampedCells =
+    packagingStillExists && option
+      ? cells.filter(c => c.index < option.count)
+      : packagingStillExists
+        ? cells
+        : [];
+
   return {
     ...design,
     chocolate,
     // Any legacy emboss/deboss/gold/silver value collapses to the only
     // finish the studio offers.
     emboss: 'emboss',
-    // X+1 boxes have no per-cell assignments (their ring is assorted stock).
-    cells: packagingStillExists && !option?.centerBar ? cells : [],
+    cells: clampedCells,
     packaging: packagingStillExists ? design.packaging : null,
     barCaption: sanitizeBarCaption(design.barCaption),
     centerBarScale: sanitizeCenterBarScale(design.centerBarScale),

@@ -1,13 +1,13 @@
 import type { PackagingOption } from '../types';
 
 /**
- * The X+1 signature boxes lead the list: N assorted molded pieces arranged in
- * a ring around one large embossed message bar (8.5 × 8.5 × 0.5 cm, 60g).
- * The surrounding pieces come from the assorted collection and are not
- * individually customizable — only the center bar carries the customer's mark.
+ * The X+1 signature boxes lead the list: N individually arrangeable ring
+ * pieces around one large embossed message bar (8.5 × 8.5 × 0.5 cm, 60g).
+ * Each ring piece can carry its own content/chocolate, same as a standard
+ * box; the center bar carries the customer's featured mark separately.
  *
- * `grid` on X+1 options describes the surrounding-piece layout for the drawn
- * preview fallback only; no per-cell assignments are created for them.
+ * `grid` on X+1 options describes the ring layout for both the per-cell
+ * arrange grid and the drawn preview fallback.
  */
 export const PACKAGING_OPTIONS: PackagingOption[] = [
   {

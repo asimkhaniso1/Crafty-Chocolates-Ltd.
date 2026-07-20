@@ -5,6 +5,7 @@ import { useStudio } from '../state/StudioContext';
 import { getStudioProduct } from '../data/studioProducts';
 import { getPackagingOption } from '../data/packagingOptions';
 import { activeRenderer } from './DesignRenderer';
+import PrintedWrapperPreview from './PrintedWrapperPreview';
 
 const CHOCOLATE_LABEL: Record<string, string> = {
   milk: 'Milk',
@@ -111,6 +112,10 @@ export default function PreviewPane({ compact = false }: PreviewPaneProps) {
       >
         <p className="font-serif text-sm italic tracking-normal text-gold not-italic">{caption}</p>
       </div>
+
+      {design.extras.printedWrapper?.enabled && (
+        <PrintedWrapperPreview wrapper={design.extras.printedWrapper} compact={compact} />
+      )}
     </div>
   );
 }
