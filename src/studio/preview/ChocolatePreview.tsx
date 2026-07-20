@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import type { CellAssignment, ChocolateType, Design } from '../types';
 import { isBarProduct } from '../data/studioProducts';
 import StudioDefs, { embossFilterId, gradientId, highlightId } from './embossFilters';
-import { BAR_PHOTO_CROP, PIECE_PHOTO_CROP, coverCropRect } from './photoCrop';
+import { BAR_PHOTO_CROP, BITE_PHOTO_CROP, PIECE_PHOTO_CROP, coverCropRect } from './photoCrop';
 
 export interface ChocolatePreviewProps {
   design: Design;
@@ -19,14 +19,18 @@ const RADIUS_RATIO = 0.12;
 const PHOTO_MIN_SIZE = 48;
 
 /**
- * The photo bases carry their own embossed border a short way in from the
- * edge. Marks/patterns must stay inside it, so every mark's max extent is
- * kept within this fraction of the face.
+ * The bordered photo bases (bar and piece faces) carry their own embossed
+ * border a short way in from the edge, so marks/patterns must stay inside
+ * it. The bite face has no border line — it's a plain domed pillow — so its
+ * safe area can extend closer to the edge.
  */
 const MARK_SAFE_RATIO = 0.78;
+const MARK_SAFE_RATIO_BITE = 0.85;
 
-function photoSrcFor(type: ChocolateType, isBar: boolean): string {
-  return isBar ? `/studio/bar-${type}.webp` : `/studio/piece-${type}.webp`;
+function photoSrcFor(type: ChocolateType, isBar: boolean, isBite: boolean): string {
+  if (isBar) return `/studio/bar-${type}.webp`;
+  if (isBite) return `/studio/bite-${type}.webp`;
+  return `/studio/piece-${type}.webp`;
 }
 
 /**
@@ -41,6 +45,7 @@ function PhotoBody({
   h,
   type,
   isBar,
+  isBite,
   uid,
   onError,
 }: {
@@ -48,14 +53,15 @@ function PhotoBody({
   h: number;
   type: ChocolateType;
   isBar: boolean;
+  isBite: boolean;
   uid: string;
   onError: () => void;
 }) {
-  const crop = (isBar ? BAR_PHOTO_CROP : PIECE_PHOTO_CROP)[type];
+  const crop = (isBar ? BAR_PHOTO_CROP : isBite ? BITE_PHOTO_CROP : PIECE_PHOTO_CROP)[type];
   const rect = coverCropRect(crop, w, h);
   return (
     <image
-      href={photoSrcFor(type, isBar)}
+      href={photoSrcFor(type, isBar, isBite)}
       x={rect.x}
       y={rect.y}
       width={rect.width}
@@ -93,7 +99,19 @@ function ChocolateBody({
 }
 
 /** Subtle built-in diamond/quilt pattern, embossed onto the surface. */
-function QuiltPattern({ w, h, uid, filter }: { w: number; h: number; uid: string; filter: string }) {
+function QuiltPattern({
+  w,
+  h,
+  uid,
+  filter,
+  safeRatio = MARK_SAFE_RATIO,
+}: {
+  w: number;
+  h: number;
+  uid: string;
+  filter: string;
+  safeRatio?: number;
+}) {
   const step = Math.min(w, h) / 5;
   const lines: ReactNode[] = [];
   for (let x = -h; x < w + h; x += step) {
@@ -102,9 +120,10 @@ function QuiltPattern({ w, h, uid, filter }: { w: number; h: number; uid: string
       <line key={`b-${x}`} x1={x} y1={h} x2={x + h} y2={0} stroke="#000" strokeWidth={1} />
     );
   }
-  // Keep the pattern inside the photo's embossed border.
-  const insetX = (w * (1 - MARK_SAFE_RATIO)) / 2;
-  const insetY = (h * (1 - MARK_SAFE_RATIO)) / 2;
+  // Keep the pattern inside the photo's embossed border (bordered faces) or
+  // the plainer inset used for the borderless bite face.
+  const insetX = (w * (1 - safeRatio)) / 2;
+  const insetY = (h * (1 - safeRatio)) / 2;
   return (
     <g filter={`url(#${filter})`} opacity={0.9}>
       <clipPath id={`studio-quilt-clip-${uid}`}>
@@ -128,6 +147,10 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   // it always renders via the SVG gradient body below, never a photo base.
   const isSlim = !shape && design.product === 'slim';
   const isBar = shape === 'rectangle' || (!shape && design.product === 'bar') || isSlim;
+  // The Crafty Bite's face — a thick, borderless, domed pillow — is a
+  // distinct object from the flat bordered piece face used by Signature and
+  // center bars, so it gets its own photo base and a relaxed mark inset.
+  const isBite = !isBar && (!shape || shape === 'square') && design.product === 'bite';
   const w = size;
   const h = isSlim ? size / 3 : isBar ? size * 0.5 : size;
   const r = Math.min(w, h) * RADIUS_RATIO;
@@ -141,8 +164,9 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   // photo asset exists yet — the gradient body underneath is then the whole
   // render, not just an instant fallback.
   const [failedPhotoSrc, setFailedPhotoSrc] = useState<string | null>(null);
-  const photoSrc = isSlim ? null : size >= PHOTO_MIN_SIZE ? photoSrcFor(type, isBar) : null;
+  const photoSrc = isSlim ? null : size >= PHOTO_MIN_SIZE ? photoSrcFor(type, isBar, isBite) : null;
   const showPhoto = Boolean(photoSrc) && photoSrc !== failedPhotoSrc;
+  const markSafeRatio = isBite ? MARK_SAFE_RATIO_BITE : MARK_SAFE_RATIO;
 
   // Bar caption: an embossed serif line beneath the mark on the bar/slim face.
   const caption = !cell && isBarProduct(design.product) ? design.barCaption?.trim() : undefined;
@@ -184,6 +208,7 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
                 h={h}
                 type={type}
                 isBar={isBar}
+                isBite={isBite}
                 uid={uid}
                 onError={() => setFailedPhotoSrc(photoSrc)}
               />
@@ -262,7 +287,9 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
           </text>
         )}
 
-        {content === 'pattern' && <QuiltPattern w={w} h={h} uid={uid} filter={filter} />}
+        {content === 'pattern' && (
+          <QuiltPattern w={w} h={h} uid={uid} filter={filter} safeRatio={markSafeRatio} />
+        )}
 
         {/* Boxed presentation: a subtle foil-colour sheen over pieces marked
             individually wrapped in step 3 ("Wrapped or unwrapped"). Mirrors
