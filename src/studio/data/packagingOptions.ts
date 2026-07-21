@@ -115,6 +115,23 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     boxEmptyWeightG: 100,
   },
   {
+    type: 'box-3',
+    name: '3-Piece Logo Box',
+    count: 3,
+    grid: { rows: 1, cols: 3 },
+    occasions: ['corporate', 'birthday'],
+    photo: '/studio/box-3.webp',
+    cellOverlays: [
+      { x: 15.0, y: 45.5, w: 16.5, h: 15.5 },
+      { x: 39.0, y: 45.5, w: 16.5, h: 15.5 },
+      { x: 62.5, y: 45.5, w: 16.5, h: 15.5 },
+    ],
+    // Small gold window tray. Dimensions/weight are estimates pending a spec sheet.
+    boxDims: '15 × 6 × 2.5 cm',
+    compatibleProducts: ['bite'],
+    boxEmptyWeightG: 45,
+  },
+  {
     type: 'box-15',
     name: 'Tin of 15',
     count: 15,

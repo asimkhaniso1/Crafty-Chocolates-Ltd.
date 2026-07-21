@@ -91,6 +91,16 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     section: 'classic',
   },
   {
+    key: 'box-of-3',
+    name: '3-Piece Logo Box',
+    photo: '/studio/card-3.webp',
+    contentsLine: '3 bites in a row, in a gold window tray.',
+    occasions: ['corporate', 'birthday'],
+    product: 'bite',
+    packagingType: 'box-3',
+    section: 'classic',
+  },
+  {
     key: 'box-of-6',
     name: 'Box of 6',
     contentsLine: '6 bites in a 12 × 9 cm box.',
