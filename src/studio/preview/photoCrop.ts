@@ -95,13 +95,14 @@ export const BAR_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
   semidark: { pw: 1264, ph: 848, left: 290, top: 249, right: 973, bottom: 598 },
 };
 
-// The bite's face is a thick, domed pillow with no embossed border line, so
+// The bite's face is a thick flat-topped square (crisp edges, tapered
+// sides) with no embossed border line, so
 // its bounding box is measured the same edge-detection way but stored
 // separately from PIECE_PHOTO_CROP (the flat bordered piece used for
 // Signature/center-bar faces).
 export const BITE_PHOTO_CROP: Record<ChocolateKey, PhotoCrop> = {
-  milk: { pw: 1024, ph: 1024, left: 260, top: 261, right: 763, bottom: 763 },
-  semidark: { pw: 1024, ph: 1024, left: 204, top: 203, right: 820, bottom: 819 },
+  milk: { pw: 1024, ph: 1024, left: 268, top: 267, right: 755, bottom: 756 },
+  semidark: { pw: 1024, ph: 1024, left: 268, top: 267, right: 755, bottom: 756 },
 };
 
 type FoilColour = 'silver' | 'gold';

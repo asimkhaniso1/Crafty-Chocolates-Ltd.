@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { STEP_TITLES, STEP_SUBTITLES, STEP3_WRAPPED_COPY, STEP6_COPY } from '../copy';
 import { WRAPPER_MESSAGE_MAX, WRAPPER_SCALE_MIN, WRAPPER_SCALE_MAX } from '../constraints';
@@ -6,6 +6,9 @@ import { useStudio } from '../state/StudioContext';
 import { getPackagingOption } from '../data/packagingOptions';
 import { isBarProduct } from '../data/studioProducts';
 import { processWrapperImage } from '../lib/logoProcessor';
+import ChocolatePreview from '../preview/ChocolatePreview';
+import { cssCoverCrop, FOIL_BAR_PHOTO_CROP, FOIL_BITE_PHOTO_CROP } from '../preview/photoCrop';
+import type { Design } from '../types';
 
 const FOIL_SWATCHES: { key: 'silver' | 'gold'; hex: string }[] = [
   { key: 'silver', hex: '#C0C0C4' },
@@ -64,12 +67,97 @@ function ToggleCard({
 }
 
 /**
+ * One visual option card for the wrapped/unwrapped choice: shows the real
+ * preview of that state (the customer's own piece face for "unwrapped", the
+ * real foil product photo for "wrapped"), plus a hover-revealed label and
+ * the shared step selected/unselected card styling.
+ */
+function WrapPreviewCard({
+  design,
+  isWrappedState,
+  active,
+  title,
+  body,
+  onSelect,
+}: {
+  design: Design;
+  isWrappedState: boolean;
+  active: boolean;
+  title: string;
+  body: string;
+  onSelect: () => void;
+}) {
+  const isBar = isBarProduct(design.product);
+  const foilColour = design.extras.foil ?? 'silver';
+  const crop = (isBar ? FOIL_BAR_PHOTO_CROP : FOIL_BITE_PHOTO_CROP)[foilColour];
+  const foilSrc = isBar ? `/studio/foil-${foilColour}.webp` : `/studio/foil-bite-${foilColour}.webp`;
+  const cover = cssCoverCrop(crop);
+  const hoverLabel = isWrappedState ? STEP3_WRAPPED_COPY.wrappedCardLabel : STEP3_WRAPPED_COPY.unwrappedCardLabel;
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group relative text-left p-6 border transition-all ${
+        active ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
+      }`}
+    >
+      <div className="flex items-center gap-4 mb-4">
+        <div className="relative w-24 h-24 flex-shrink-0 flex items-center justify-center rounded-sm border border-choco/10 bg-cream transition-transform group-hover:scale-105">
+          {isWrappedState ? (
+            /* The cover-crop percentages assume the container matches the
+               crop's aspect ratio, so letterbox a correctly-proportioned
+               inner box inside the square thumbnail (bars are ~2:1). */
+            <div
+              className="relative w-full overflow-hidden"
+              style={{ aspectRatio: cover.aspectRatio, maxHeight: '100%' }}
+            >
+              <img
+                src={foilSrc}
+                alt=""
+                className="absolute max-w-none"
+                style={{
+                  left: cover.imgStyle.left,
+                  top: cover.imgStyle.top,
+                  width: cover.imgStyle.width,
+                  height: cover.imgStyle.height,
+                }}
+              />
+            </div>
+          ) : (
+            <ChocolatePreview design={design} size={96} />
+          )}
+          <span
+            className={`absolute inset-0 flex items-center justify-center bg-choco/60 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase tracking-[0.2em] font-bold text-cream`}
+          >
+            {hoverLabel}
+          </span>
+        </div>
+        <div>
+          <h3 className="font-black uppercase tracking-tight text-lg mb-1">{title}</h3>
+          <p className={`text-sm ${active ? 'text-cream/70' : 'text-clay'}`}>{body}</p>
+        </div>
+      </div>
+      <span
+        className={`inline-block text-[10px] uppercase tracking-[0.2em] font-bold ${
+          active ? 'text-gold' : 'text-choco/40'
+        }`}
+      >
+        {active ? STEP3_WRAPPED_COPY.chosenCta : STEP3_WRAPPED_COPY.chooseCta}
+      </span>
+    </button>
+  );
+}
+
+/**
  * Wrapped/unwrapped choice + foil colour — merged in from the old standalone
  * "Wrapped or unwrapped" step. `isLoose` drives which extras field it writes
  * to: `extras.foil` alone for a loose pack, `extras.piecesWrapped` (plus
- * foil colour) for a boxed pack.
+ * foil colour) for a boxed pack. `assortedRing` (boxed only): the box's ring
+ * pieces are moulded assorted shapes, not the customer's flat canvas, so the
+ * choice is never offered — pieces always pack unwrapped in paper cups.
  */
-function WrappedSection({ isLoose }: { isLoose: boolean }) {
+function WrappedSection({ isLoose, assortedRing }: { isLoose: boolean; assortedRing?: boolean }) {
   const { design, dispatch } = useStudio();
   const wrapped = isLoose ? Boolean(design.extras.foil) : design.extras.piecesWrapped === true;
 
@@ -89,6 +177,21 @@ function WrappedSection({ isLoose }: { isLoose: boolean }) {
     }
   }
 
+  useEffect(() => {
+    if (!isLoose && assortedRing && design.extras.piecesWrapped !== false) {
+      dispatch({ type: 'SET_EXTRAS', extras: { piecesWrapped: false, foil: undefined } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoose, assortedRing, design.extras.piecesWrapped]);
+
+  if (!isLoose && assortedRing) {
+    return (
+      <section>
+        <p className="text-xs text-clay/70 italic font-serif">{STEP3_WRAPPED_COPY.assortedRingNote}</p>
+      </section>
+    );
+  }
+
   const wrappedTitle = isLoose ? STEP3_WRAPPED_COPY.looseWrappedTitle : STEP3_WRAPPED_COPY.boxedWrappedTitle;
   const wrappedBody = isLoose ? STEP3_WRAPPED_COPY.looseWrappedBody : STEP3_WRAPPED_COPY.boxedWrappedBody;
   const unwrappedTitle = isLoose ? STEP3_WRAPPED_COPY.looseUnwrappedTitle : STEP3_WRAPPED_COPY.boxedUnwrappedTitle;
@@ -97,38 +200,22 @@ function WrappedSection({ isLoose }: { isLoose: boolean }) {
   return (
     <section>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-        <button
-          onClick={chooseWrapped}
-          className={`relative text-left p-6 border transition-all ${
-            wrapped ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
-          }`}
-        >
-          <h3 className="font-black uppercase tracking-tight text-lg mb-1">{wrappedTitle}</h3>
-          <p className={`text-sm ${wrapped ? 'text-cream/70' : 'text-clay'}`}>{wrappedBody}</p>
-          <span
-            className={`inline-block mt-4 text-[10px] uppercase tracking-[0.2em] font-bold ${
-              wrapped ? 'text-gold' : 'text-choco/40'
-            }`}
-          >
-            {wrapped ? STEP3_WRAPPED_COPY.chosenCta : STEP3_WRAPPED_COPY.chooseCta}
-          </span>
-        </button>
-        <button
-          onClick={chooseUnwrapped}
-          className={`relative text-left p-6 border transition-all ${
-            !wrapped ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
-          }`}
-        >
-          <h3 className="font-black uppercase tracking-tight text-lg mb-1">{unwrappedTitle}</h3>
-          <p className={`text-sm ${!wrapped ? 'text-cream/70' : 'text-clay'}`}>{unwrappedBody}</p>
-          <span
-            className={`inline-block mt-4 text-[10px] uppercase tracking-[0.2em] font-bold ${
-              !wrapped ? 'text-gold' : 'text-choco/40'
-            }`}
-          >
-            {!wrapped ? STEP3_WRAPPED_COPY.chosenCta : STEP3_WRAPPED_COPY.chooseCta}
-          </span>
-        </button>
+        <WrapPreviewCard
+          design={design}
+          isWrappedState
+          active={wrapped}
+          title={wrappedTitle}
+          body={wrappedBody}
+          onSelect={chooseWrapped}
+        />
+        <WrapPreviewCard
+          design={design}
+          isWrappedState={false}
+          active={!wrapped}
+          title={unwrappedTitle}
+          body={unwrappedBody}
+          onSelect={chooseUnwrapped}
+        />
       </div>
 
       {wrapped && (
@@ -368,7 +455,7 @@ export default function Step3Finishing() {
         </div>
       ) : (
         <div className="space-y-10">
-          <WrappedSection isLoose={false} />
+          <WrappedSection isLoose={false} assortedRing={option?.assortedRing} />
 
           {/* Ribbon */}
           <section>

@@ -21,7 +21,7 @@ const PHOTO_MIN_SIZE = 48;
 /**
  * The bordered photo bases (bar and piece faces) carry their own embossed
  * border a short way in from the edge, so marks/patterns must stay inside
- * it. The bite face has no border line — it's a plain domed pillow — so its
+ * it. The bite face has no border line — a plain flat-topped square — so its
  * safe area can extend closer to the edge.
  */
 const MARK_SAFE_RATIO = 0.78;
@@ -147,7 +147,7 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   // it always renders via the SVG gradient body below, never a photo base.
   const isSlim = !shape && design.product === 'slim';
   const isBar = shape === 'rectangle' || (!shape && design.product === 'bar') || isSlim;
-  // The Crafty Bite's face — a thick, borderless, domed pillow — is a
+  // The Crafty Bite's face — a thick, borderless, flat-topped square — is a
   // distinct object from the flat bordered piece face used by Signature and
   // center bars, so it gets its own photo base and a relaxed mark inset.
   const isBite = !isBar && (!shape || shape === 'square') && design.product === 'bite';

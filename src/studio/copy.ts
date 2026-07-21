@@ -208,6 +208,7 @@ export const QUOTE_LINE_LABELS = {
   unitPrice: 'Unit price',
   chocolateSubtotal: 'Chocolates subtotal',
   packaging: (blocks: number, perPcs: number) => `Packaging (${blocks} × ${perPcs}-pc)`,
+  packagingPerBox: (boxes: number) => `Packaging (${boxes} ${boxes === 1 ? 'box' : 'boxes'})`,
   extraRibbon: 'Ribbon',
   extraSleevePrint: 'Sleeve print',
   extraGreetingCard: 'Greeting card',
@@ -255,6 +256,11 @@ export const STEP3_WRAPPED_COPY = {
   chosenCta: 'Chosen',
   chooseCta: 'Choose',
   foilPickerTitle: 'Foil colour',
+  wrappedCardLabel: 'Wrapped',
+  unwrappedCardLabel: 'Unwrapped',
+  // X+1 boxes: the ring pieces are moulded assorted shapes, not the
+  // customer's flat canvas, so they can never be individually foil-wrapped.
+  assortedRingNote: 'The assorted pieces around your message bar pack unwrapped, set in paper cups.',
 };
 
 /** Summary naming for X+1 boxes in WhatsApp / print output. */

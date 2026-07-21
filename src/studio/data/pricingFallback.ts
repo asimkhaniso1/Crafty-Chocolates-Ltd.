@@ -12,20 +12,26 @@ import type { PricingRule } from '../types';
 
 export const PRICING_FALLBACK: PricingRule[] = [
   // --- Base unit price per piece, by product ---
-  { rule_key: 'base.bite', kind: 'base_unit', value: 120, meta: { product: 'bite' } },
+  // Calibrated 2026-07-21 against the live shop's retail box prices: every
+  // boxed SKU fits piece ≈ Rs 182 + Rs 500/box + Rs 190 center bar within
+  // ~2% (4+1 = 1400, 9+1 = 2350, 16+1 = 3600, 9-box = 2100, 12-box = 2700,
+  // 25-box = 5200, 5-box = 1400).
+  { rule_key: 'base.bite', kind: 'base_unit', value: 190, meta: { product: 'bite' } },
   { rule_key: 'base.signature', kind: 'base_unit', value: 260, meta: { product: 'signature' } },
-  { rule_key: 'base.bar', kind: 'base_unit', value: 420, meta: { product: 'bar' } },
-  { rule_key: 'base.slim', kind: 'base_unit', value: 200, meta: { product: 'slim' } },
+  { rule_key: 'base.bar', kind: 'base_unit', value: 800, meta: { product: 'bar' } },
+  { rule_key: 'base.slim', kind: 'base_unit', value: 400, meta: { product: 'slim' } },
 
   // --- Add-on unit price per piece (chocolate type) ---
   { rule_key: 'chocolate.semidark', kind: 'addon_unit', value: 15, meta: { group: 'chocolate' } },
 
-  // --- Packaging: one flat rule for every packaging type ---
-  // Rs 1000 per started block of `per_pcs` pieces, regardless of box type.
+  // --- Packaging ---
+  // Boxed formats: per-box price (matches the shop's real box economics).
+  { rule_key: 'pkg.box', kind: 'packaging', value: 500, meta: { per: 'box' } },
+  // Loose/individual pieces: Rs 1000 per started block of `per_pcs` pieces.
   { rule_key: 'pkg.flat', kind: 'packaging', value: 1000, meta: { per_pcs: 50 } },
 
   // --- Center message bar (one per X+1 box) ---
-  { rule_key: 'bar.center', kind: 'addon_unit', value: 450, meta: { group: 'bar', per: 'box' } },
+  { rule_key: 'bar.center', kind: 'addon_unit', value: 190, meta: { group: 'bar', per: 'box' } },
 
   // --- Wedding favour box bar (one 60×60mm bar per box) ---
   { rule_key: 'bar.wedding', kind: 'addon_unit', value: 350, meta: { group: 'bar', per: 'box' } },

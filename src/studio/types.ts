@@ -145,6 +145,14 @@ export interface PackagingOption {
   occasions: string[];
   /** X+1 signature boxes: N individually arrangeable ring pieces around one large message bar. */
   centerBar?: true;
+  /**
+   * True when the surrounding ring pieces are moulded assorted shapes (not
+   * the customer's flat canvas) and therefore can never be individually
+   * foil-wrapped — they pack unwrapped in paper cups. Set on the X+1 boxes
+   * except 'wedding-favor', whose single piece is a flat bar and stays
+   * wrappable.
+   */
+  assortedRing?: boolean;
   /** Shape of the center bar's face; 'square' (85×85mm, 60g) unless noted. */
   centerBarShape?: 'square' | 'rectangle';
   /** Real product photo used as the box preview, when available. */
