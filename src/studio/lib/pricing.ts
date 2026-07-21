@@ -139,16 +139,28 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     const perBoxCount = option?.count ?? design.packaging.count ?? 1;
     boxCount = Math.max(1, Math.ceil(quantity / Math.max(1, perBoxCount)));
 
-    // Flat packaging rule: Rs `value` per started block of `meta.per_pcs` pieces,
-    // regardless of packaging type.
-    const pkgRule = findRule(rules, 'pkg.flat');
-    const perPcs = (pkgRule?.meta?.per_pcs as number | undefined) ?? 50;
-    const pkgBlockPrice = pkgRule?.value ?? 0;
-    const pkgBlocks = Math.max(1, Math.ceil(quantity / Math.max(1, perPcs)));
-    packagingCost = pkgBlockPrice * pkgBlocks;
-
-    if (packagingCost > 0) {
-      lines.push({ label: QUOTE_LINE_LABELS.packaging(pkgBlocks, perPcs), amount: round(packagingCost) });
+    // Boxed formats: Rs `pkg.box` per box (calibrated so studio totals match
+    // the shop's real per-box prices). Loose/individual pieces instead use
+    // the flat `pkg.flat` rule: Rs `value` per started block of
+    // `meta.per_pcs` pieces.
+    const pkgBoxRule = findRule(rules, 'pkg.box');
+    // "Boxed" = anything with a physical box (multi-piece boxes and the
+    // single-piece wedding favour box); loose foil-wrapped pieces are not.
+    const isBoxed = Boolean(option && (option.count > 1 || option.boxDims));
+    if (isBoxed && pkgBoxRule) {
+      packagingCost = pkgBoxRule.value * boxCount;
+      if (packagingCost > 0) {
+        lines.push({ label: QUOTE_LINE_LABELS.packagingPerBox(boxCount), amount: round(packagingCost) });
+      }
+    } else {
+      const pkgRule = findRule(rules, 'pkg.flat');
+      const perPcs = (pkgRule?.meta?.per_pcs as number | undefined) ?? 50;
+      const pkgBlockPrice = pkgRule?.value ?? 0;
+      const pkgBlocks = Math.max(1, Math.ceil(quantity / Math.max(1, perPcs)));
+      packagingCost = pkgBlockPrice * pkgBlocks;
+      if (packagingCost > 0) {
+        lines.push({ label: QUOTE_LINE_LABELS.packaging(pkgBlocks, perPcs), amount: round(packagingCost) });
+      }
     }
 
     // X+1 / wedding-favour boxes: one large embossed bar per box, its own

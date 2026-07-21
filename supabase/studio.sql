@@ -44,20 +44,21 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 
 -- insert into public.pricing_rules (rule_key, kind, value, meta) values
 --   -- Base unit price per piece, by product
---   ('base.bite', 'base_unit', 120, '{"product":"bite"}'),
+--   ('base.bite', 'base_unit', 190, '{"product":"bite"}'),
 --   ('base.signature', 'base_unit', 260, '{"product":"signature"}'),
---   ('base.bar', 'base_unit', 420, '{"product":"bar"}'),
---   ('base.slim', 'base_unit', 200, '{"product":"slim"}'),
+--   ('base.bar', 'base_unit', 800, '{"product":"bar"}'),
+--   ('base.slim', 'base_unit', 400, '{"product":"slim"}'),
 --
 --   -- Add-on unit price per piece (chocolate type)
 --   ('chocolate.semidark', 'addon_unit', 15, '{"group":"chocolate"}'),
 --
 --   -- Packaging: one flat rule for every packaging type — Rs 1000 per
 --   -- started block of 50 pieces, regardless of box type
+--   ('pkg.box', 'packaging', 500, '{"per":"box"}'),
 --   ('pkg.flat', 'packaging', 1000, '{"per_pcs":50}'),
 --
 --   -- Center message bar (one per X+1 box)
---   ('bar.center', 'addon_unit', 450, '{"group":"bar","per":"box"}'),
+--   ('bar.center', 'addon_unit', 190, '{"group":"bar","per":"box"}'),
 --
 --   -- Wedding favour box bar (one 60x60mm bar per box)
 --   ('bar.wedding', 'addon_unit', 350, '{"group":"bar","per":"box"}'),

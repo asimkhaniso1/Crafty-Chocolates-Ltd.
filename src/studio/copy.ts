@@ -208,6 +208,7 @@ export const QUOTE_LINE_LABELS = {
   unitPrice: 'Unit price',
   chocolateSubtotal: 'Chocolates subtotal',
   packaging: (blocks: number, perPcs: number) => `Packaging (${blocks} × ${perPcs}-pc)`,
+  packagingPerBox: (boxes: number) => `Packaging (${boxes} ${boxes === 1 ? 'box' : 'boxes'})`,
   extraRibbon: 'Ribbon',
   extraSleevePrint: 'Sleeve print',
   extraGreetingCard: 'Greeting card',
