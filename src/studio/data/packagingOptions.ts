@@ -32,7 +32,7 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     centerBar: true,
     centerBarShape: 'square',
     photo: '/studio/box-9p1.webp',
-    overlay: { x: 33.9, y: 35.8, w: 32.9, h: 31.4 },
+    overlay: { x: 34.5, y: 32.5, w: 31.8, h: 31.5 },
     boxDims: '11 × 11 × 5.5 cm',
     boxEmptyWeightG: 105,
   },
