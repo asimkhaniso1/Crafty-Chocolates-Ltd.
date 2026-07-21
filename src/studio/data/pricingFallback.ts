@@ -56,8 +56,8 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'tier.500', kind: 'qty_tier', value: 0.8, meta: { min_qty: 500, multiplier: 0.8 } },
 
   // --- One-time fees ---
-  // One combined fixed Design & mold fee, charged once per design at any quantity.
-  { rule_key: 'fee.designMold', kind: 'mold_fee', value: 18000, meta: {} },
+  // One combined fixed Design & mold fee, charged once per custom order at any quantity.
+  { rule_key: 'fee.designMold', kind: 'mold_fee', value: 5000, meta: {} },
 
   // --- Lead time (days) ---
   { rule_key: 'lead.base', kind: 'lead_time', value: 7, meta: {} },
