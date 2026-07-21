@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, CATALOG_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, CATALOG_COPY, CAPABILITY_BAND_COPY } from '../copy';
 import { CATALOG_ITEMS, type CatalogItem, type CatalogSection } from '../data/catalog';
 import { getPackagingOption } from '../data/packagingOptions';
 import { useStudio } from '../state/StudioContext';
@@ -150,6 +150,27 @@ export default function Step1Catalog() {
             {PACKAGING_OCCASION_LABELS[o]}
           </button>
         ))}
+      </div>
+
+      {/* Bespoke capability band — routes into the custom-shape brief */}
+      <div className="bg-choco text-cream rounded-sm p-6 md:p-8 mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <span className="text-gold text-[11px] uppercase tracking-[0.3em] font-bold">
+            {CAPABILITY_BAND_COPY.eyebrow}
+          </span>
+          <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight mt-1">
+            {CAPABILITY_BAND_COPY.heading}
+          </h3>
+          <p className="text-cream/70 text-sm mt-1 max-w-xl">{CAPABILITY_BAND_COPY.body}</p>
+          <p className="text-cream/50 text-xs mt-1">{CAPABILITY_BAND_COPY.sizeNote}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'SELECT_CATALOG_ITEM', product: 'custom', packaging: null })}
+          className="bg-gold text-choco px-6 py-3 uppercase font-sans text-xs tracking-widest font-black hover:bg-cream transition-all whitespace-nowrap self-start md:self-auto"
+        >
+          {CAPABILITY_BAND_COPY.cta}
+        </button>
       </div>
 
       <div className="space-y-12">

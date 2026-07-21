@@ -135,7 +135,7 @@ export default function App() {
                   Crafting the <span className="text-gold italic font-serif lowercase font-normal">extraordinary.</span>
                 </h2>
                 <p className="text-clay text-lg leading-relaxed font-medium">
-                  Founded in 2020, Crafty Chocolates was born from a desire to merge the precision of modern engineering with the soul of artisanal confectionery. We believe that chocolate is not just a treat, but a medium for expression.
+                  Founded in 2020, Crafty Chocolates was born from a desire to merge the precision of modern engineering with the soul of artisanal confectionery. Every custom shape begins in our in-house mold studio, where we laser-cut and vacuum-form our own molds — letting us cast almost any design, at sizes up to A4, that no off-the-shelf mold could. To us, chocolate isn't just a treat; it's a medium for expression.
                 </p>
                 <div className="flex gap-12">
                   <div>

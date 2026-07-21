@@ -208,7 +208,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   },
   {
     key: 'custom-shape',
-    name: 'Custom Shape',
+    name: 'Your Own Shape',
     contentsLine: 'Bespoke shape and size, designed with our studio team.',
     occasions: [],
     product: 'custom',
