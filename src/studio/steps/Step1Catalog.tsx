@@ -41,13 +41,28 @@ function CatalogCard({
   return (
     <button
       onClick={onSelect}
-      className={`relative text-left border transition-all overflow-hidden ${
+      className={`group relative text-left border transition-all overflow-hidden ${
         active ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
       }`}
     >
       {item.photo ? (
-        <div className="aspect-[4/3] w-full overflow-hidden bg-choco/5">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-choco/5">
           <img src={item.photo} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          {item.wrappedPhoto && (
+            <>
+              <img
+                src={item.wrappedPhoto}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              />
+              <span className="absolute bottom-2 right-2 z-10 rounded-full bg-choco/70 px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] font-bold text-cream opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                Wrapped
+              </span>
+            </>
+          )}
         </div>
       ) : (
         <div className={`aspect-[4/3] w-full flex items-center justify-center ${active ? 'text-cream/60' : 'text-choco/30'}`}>

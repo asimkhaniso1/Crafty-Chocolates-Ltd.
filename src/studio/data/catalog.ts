@@ -18,6 +18,8 @@ export interface CatalogItem {
   key: string;
   name: string;
   photo?: string;
+  /** Optional foil-wrapped twin of `photo`, crossfaded in on card hover. */
+  wrappedPhoto?: string;
   /** Short line describing what's inside, in real sizes/counts. */
   contentsLine: string;
   occasions: string[];
@@ -33,6 +35,8 @@ interface RawCatalogEntry {
   name: string;
   /** Gallery lifestyle shot for this card; falls back to the packaging option's compositing photo. */
   photo?: string;
+  /** Optional foil-wrapped twin of `photo`, crossfaded in on card hover. */
+  wrappedPhoto?: string;
   contentsLine: string;
   occasions: string[];
   product: ProductKey;
@@ -85,6 +89,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'tin-of-18',
     name: 'Tin of 18',
     photo: '/studio/card-9.webp',
+    wrappedPhoto: '/studio/card-9-wrapped.webp',
     contentsLine: '18 bites, stacked two tiers deep in an 11 × 11 cm tin.',
     occasions: ['corporate', 'eid', 'birthday'],
     product: 'bite',
@@ -95,6 +100,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'box-of-2',
     name: '2-Piece Duo',
     photo: '/studio/card-2.webp',
+    wrappedPhoto: '/studio/card-2-wrapped.webp',
     contentsLine: '2 Signature squares (25 g each), side by side in a 15 × 6.5 cm box.',
     occasions: ['corporate', 'birthday'],
     product: 'signature',
@@ -105,6 +111,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'box-of-3',
     name: '3-Piece Logo Box',
     photo: '/studio/card-3.webp',
+    wrappedPhoto: '/studio/card-3-wrapped.webp',
     contentsLine: '3 bites in a row, in a gold window tray.',
     occasions: ['corporate', 'birthday'],
     product: 'bite',
@@ -124,6 +131,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'box-of-9',
     name: 'Box of 9',
     photo: '/studio/card-9.webp',
+    wrappedPhoto: '/studio/card-9-wrapped.webp',
     contentsLine: '9 bites, three rows of three, in an 11 × 11 cm box.',
     occasions: ['eid'],
     product: 'bite',
@@ -154,6 +162,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'box-of-25',
     name: 'Box of 25',
     photo: '/studio/card-25.webp',
+    wrappedPhoto: '/studio/card-25-wrapped.webp',
     contentsLine: '25 bites, five rows of five, in a 20 × 20 cm tin.',
     occasions: ['corporate', 'wedding'],
     product: 'bite',
@@ -164,6 +173,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'box-of-50',
     name: 'Box of 50',
     photo: '/studio/card-25.webp',
+    wrappedPhoto: '/studio/card-25-wrapped.webp',
     contentsLine: '50 bites, stacked two tiers deep, in a 20 × 20 cm tin.',
     occasions: ['corporate', 'wedding'],
     product: 'bite',
@@ -222,6 +232,7 @@ export const CATALOG_ITEMS: CatalogItem[] = RAW_ITEMS.map(item => {
     key: item.key,
     name: item.name,
     photo: item.photo ?? option?.photo,
+    wrappedPhoto: item.wrappedPhoto,
     contentsLine: item.contentsLine,
     occasions: item.occasions,
     product: item.product,
