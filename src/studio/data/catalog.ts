@@ -141,7 +141,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-12',
     name: 'Box of 12',
-    photo: '/studio/card-12.webp',
+    photo: '/studio/card-12-topdown.webp',
+    wrappedPhoto: '/studio/card-12-wrapped.webp',
     contentsLine: '12 bites, laid flat in a 16 × 20 cm box.',
     occasions: ['eid', 'wedding'],
     product: 'bite',
