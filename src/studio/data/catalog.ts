@@ -141,7 +141,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-25',
     name: 'Box of 25',
-    contentsLine: '25 bites, five rows of five, in a 20 × 20 cm box.',
+    photo: '/studio/card-25.webp',
+    contentsLine: '25 bites, five rows of five, in a 20 × 20 cm tin.',
     occasions: ['corporate', 'wedding'],
     product: 'bite',
     packagingType: 'box-25',
@@ -150,7 +151,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-50',
     name: 'Box of 50',
-    contentsLine: '50 bites, stacked two tiers deep, in a 20 × 20 cm box.',
+    photo: '/studio/card-25.webp',
+    contentsLine: '50 bites, stacked two tiers deep, in a 20 × 20 cm tin.',
     occasions: ['corporate', 'wedding'],
     product: 'bite',
     packagingType: 'box-50',
