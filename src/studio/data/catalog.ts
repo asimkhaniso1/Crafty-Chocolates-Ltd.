@@ -31,6 +31,8 @@ export interface CatalogItem {
 interface RawCatalogEntry {
   key: string;
   name: string;
+  /** Gallery lifestyle shot for this card; falls back to the packaging option's compositing photo. */
+  photo?: string;
   contentsLine: string;
   occasions: string[];
   product: ProductKey;
@@ -42,6 +44,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: '4+1-box',
     name: '4+1 Box',
+    photo: '/studio/catalog-4p1.webp',
     contentsLine: '4 bites arranged around your 120 × 60 mm message bar.',
     occasions: ['birthday', 'corporate'],
     product: 'bite',
@@ -51,6 +54,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: '9+1-tin',
     name: '9+1 Tin',
+    photo: '/studio/catalog-9p1.webp',
     contentsLine: '9 bites + square bar on top, in a two-tier tin.',
     occasions: ['wedding', 'eid', 'birthday'],
     product: 'bite',
@@ -132,6 +136,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-12',
     name: 'Box of 12',
+    photo: '/studio/catalog-12.webp',
     contentsLine: '12 bites, laid flat in a 16 × 20 cm box.',
     occasions: ['eid', 'wedding'],
     product: 'bite',
@@ -207,7 +212,7 @@ export const CATALOG_ITEMS: CatalogItem[] = RAW_ITEMS.map(item => {
   return {
     key: item.key,
     name: item.name,
-    photo: option?.photo,
+    photo: item.photo ?? option?.photo,
     contentsLine: item.contentsLine,
     occasions: item.occasions,
     product: item.product,
