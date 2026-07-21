@@ -47,7 +47,15 @@ function CatalogCard({
     >
       {item.photo ? (
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-choco/5">
-          <img src={item.photo} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          <img
+            src={item.photo}
+            alt={item.name}
+            loading="lazy"
+            decoding="async"
+            className={`h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              item.wrappedPhoto ? 'group-hover:scale-110' : ''
+            }`}
+          />
           {item.wrappedPhoto && (
             <>
               <img
@@ -56,9 +64,9 @@ function CatalogCard({
                 aria-hidden="true"
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-0 blur-md transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 group-hover:blur-none"
               />
-              <span className="absolute bottom-2 right-2 z-10 rounded-full bg-choco/70 px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] font-bold text-cream opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <span className="absolute bottom-2 right-2 z-10 -translate-y-1 rounded-full bg-choco/70 px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] font-bold text-cream opacity-0 transition-all duration-500 delay-150 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                 Wrapped
               </span>
             </>
