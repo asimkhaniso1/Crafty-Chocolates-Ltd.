@@ -84,6 +84,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'tin-of-18',
     name: 'Tin of 18',
+    photo: '/studio/card-9.webp',
     contentsLine: '18 bites, stacked two tiers deep in an 11 × 11 cm tin.',
     occasions: ['corporate', 'eid', 'birthday'],
     product: 'bite',
@@ -122,6 +123,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-9',
     name: 'Box of 9',
+    photo: '/studio/card-9.webp',
     contentsLine: '9 bites, three rows of three, in an 11 × 11 cm box.',
     occasions: ['eid'],
     product: 'bite',
