@@ -115,6 +115,21 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     boxEmptyWeightG: 100,
   },
   {
+    type: 'box-2',
+    name: '2-Piece Duo',
+    count: 2,
+    grid: { rows: 1, cols: 2 },
+    occasions: ['corporate', 'birthday'],
+    photo: '/studio/box-2.webp',
+    cellOverlays: [
+      { x: 26.19, y: 37.5, w: 16.77, h: 25 },
+      { x: 57.12, y: 37.5, w: 16.77, h: 25 },
+    ],
+    boxDims: '15 × 6.5 × 2.5 cm',
+    compatibleProducts: ['signature'],
+    boxEmptyWeightG: 40,
+  },
+  {
     type: 'box-3',
     name: '3-Piece Logo Box',
     count: 3,

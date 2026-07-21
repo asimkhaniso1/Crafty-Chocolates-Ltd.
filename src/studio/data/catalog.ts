@@ -91,6 +91,16 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     section: 'classic',
   },
   {
+    key: 'box-of-2',
+    name: '2-Piece Duo',
+    photo: '/studio/card-2.webp',
+    contentsLine: '2 Signature squares (25 g each), side by side in a 15 × 6.5 cm box.',
+    occasions: ['corporate', 'birthday'],
+    product: 'signature',
+    packagingType: 'box-2',
+    section: 'classic',
+  },
+  {
     key: 'box-of-3',
     name: '3-Piece Logo Box',
     photo: '/studio/card-3.webp',
