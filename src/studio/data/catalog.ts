@@ -147,6 +147,16 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     section: 'classic',
   },
   {
+    key: 'tin-of-15',
+    name: 'Tin of 15',
+    photo: '/studio/card-tin15.webp',
+    contentsLine: '15 bites, five across and three deep, in a rectangular purple tin.',
+    occasions: ['eid', 'corporate', 'birthday'],
+    product: 'bite',
+    packagingType: 'box-15',
+    section: 'classic',
+  },
+  {
     key: 'box-of-25',
     name: 'Box of 25',
     contentsLine: '25 bites, five rows of five, in a 20 × 20 cm box.',

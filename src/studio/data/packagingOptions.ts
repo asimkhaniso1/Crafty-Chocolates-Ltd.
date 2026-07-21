@@ -150,6 +150,18 @@ export const PACKAGING_OPTIONS: PackagingOption[] = [
     boxEmptyWeightG: 100,
   },
   {
+    type: 'box-15',
+    name: 'Tin of 15',
+    count: 15,
+    grid: { rows: 3, cols: 5 },
+    occasions: ['eid', 'corporate', 'birthday'],
+    // Rectangular purple tin. Dimensions/weight are estimates pending an
+    // owner spec sheet.
+    boxDims: '18 × 11 × 4 cm',
+    compatibleProducts: ['bite'],
+    boxEmptyWeightG: 95,
+  },
+  {
     type: 'box-25',
     name: 'Box of 25',
     count: 25,
