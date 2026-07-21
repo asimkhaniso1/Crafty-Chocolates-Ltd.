@@ -47,7 +47,7 @@ function CatalogCard({
     >
       {item.photo ? (
         <div className="aspect-[4/3] w-full overflow-hidden bg-choco/5">
-          <img src={item.photo} alt={item.name} className="h-full w-full object-cover" />
+          <img src={item.photo} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         </div>
       ) : (
         <div className={`aspect-[4/3] w-full flex items-center justify-center ${active ? 'text-cream/60' : 'text-choco/30'}`}>

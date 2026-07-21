@@ -44,7 +44,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: '4+1-box',
     name: '4+1 Box',
-    photo: '/studio/catalog-4p1.webp',
+    photo: '/studio/card-4p1.webp',
     contentsLine: '4 bites arranged around your 120 × 60 mm message bar.',
     occasions: ['birthday', 'corporate'],
     product: 'bite',
@@ -54,7 +54,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: '9+1-tin',
     name: '9+1 Tin',
-    photo: '/studio/catalog-9p1.webp',
+    photo: '/studio/card-9p1.webp',
     contentsLine: '9 bites + square bar on top, in a two-tier tin.',
     occasions: ['wedding', 'eid', 'birthday'],
     product: 'bite',
@@ -64,6 +64,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: '16+1-box',
     name: '16+1 Box',
+    photo: '/studio/card-16p1.webp',
     contentsLine: '16 bites + your 85 × 85 mm message bar.',
     occasions: ['corporate', 'wedding', 'eid'],
     product: 'bite',
@@ -73,6 +74,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'wedding-favor-box',
     name: 'Wedding Favour Box',
+    photo: '/studio/card-wedding.webp',
     contentsLine: 'One 60 × 60 mm favour bar, individually boxed at 8 × 8 cm.',
     occasions: ['wedding'],
     product: 'signature',
@@ -91,6 +93,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-2',
     name: 'Box of 2',
+    photo: '/studio/card-2.webp',
     contentsLine: '2 Signature pieces side by side, in a 15 × 6.5 cm box.',
     occasions: [],
     product: 'signature',
@@ -136,7 +139,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'box-of-12',
     name: 'Box of 12',
-    photo: '/studio/catalog-12.webp',
+    photo: '/studio/card-12.webp',
     contentsLine: '12 bites, laid flat in a 16 × 20 cm box.',
     occasions: ['eid', 'wedding'],
     product: 'bite',
