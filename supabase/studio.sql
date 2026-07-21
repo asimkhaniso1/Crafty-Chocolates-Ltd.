@@ -88,7 +88,7 @@ create policy "auth write pricing" on public.pricing_rules for all to authentica
 --
 --   -- One-time fees: single combined Design & mold fee, charged once per
 --   -- design at any quantity, no waivers
---   ('fee.designMold', 'mold_fee', 18000, '{}'),
+--   ('fee.designMold', 'mold_fee', 5000, '{}'),
 --
 --   -- Lead time (days)
 --   ('lead.base', 'lead_time', 7, '{}'),
