@@ -118,15 +118,10 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     packagingType: 'box-3',
     section: 'classic',
   },
-  {
-    key: 'box-of-6',
-    name: 'Box of 6',
-    contentsLine: '6 bites in a 12 × 9 cm box.',
-    occasions: ['birthday'],
-    product: 'bite',
-    packagingType: 'box-6',
-    section: 'classic',
-  },
+  // 'Box of 6' hidden (2026-07-22): no real reference photo yet, was
+  // showing a plain drawn grid. Re-add once a real box-6 photo exists —
+  // the packagingOptions.ts 'box-6' entry is untouched, so this is a
+  // one-block re-add when ready.
   {
     key: 'box-of-9',
     name: 'Box of 9',
@@ -184,6 +179,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'foil-bites-loose',
     name: 'Foil-Wrapped Bites (loose)',
+    photo: '/studio/foil-bite-gold.webp',
     contentsLine: 'Foil-wrapped bites, packed loose — ready for your own presentation.',
     occasions: ['corporate', 'birthday'],
     product: 'bite',
@@ -193,6 +189,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'signature-loose',
     name: 'Crafty Signature (loose)',
+    photo: '/studio/foil-bite-gold.webp',
     contentsLine: 'One 45 × 45 mm Signature piece, foil-wrapped and packed loose.',
     occasions: ['wedding', 'birthday'],
     product: 'signature',
