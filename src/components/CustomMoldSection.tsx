@@ -5,23 +5,23 @@ export default function CustomMoldSection() {
   const steps = [
     {
       icon: <PenTool className="text-gold" />,
-      title: "Design Concepts",
-      desc: "Our artists work with you to sketch unique reliefs and patterns."
+      title: "Design & Sketch",
+      desc: "We turn your idea — a logo, monogram, letter, or organic form — into a clean chocolate relief."
     },
     {
       icon: <Cpu className="text-gold" />,
-      title: "Digital Sculpting",
-      desc: "We transform sketches into 3D models with precision engineering."
+      title: "Precision Laser-Cutting",
+      desc: "Every mold is laser-cut in-house for razor-sharp edges and the finest engraved detail."
     },
     {
       icon: <Layers className="text-gold" />,
-      title: "In-House Casting",
-      desc: "Molds are fabricated in our food-grade silicone studio."
+      title: "In-House Vacuum-Forming",
+      desc: "We vacuum-form each mold in our own studio — bespoke shapes at sizes up to A4, no outsourcing."
     },
     {
       icon: <Sparkles className="text-gold" />,
       title: "Final Pour",
-      desc: "Your vision, cast in premium single-origin chocolate."
+      desc: "Your vision, cast in premium chocolate and finished by hand."
     }
   ];
 
@@ -37,10 +37,10 @@ export default function CustomMoldSection() {
           >
             <span className="text-gold text-xs uppercase tracking-[0.3em] font-bold mb-4 block">Bespoke Production</span>
             <h2 className="text-[50px] md:text-[70px] font-black uppercase text-choco mb-10 leading-[0.9] tracking-tighter">
-              A Studio Where Design Meets <span className="text-gold italic font-serif lowercase font-normal">decoherence.</span>
+              A Studio Where Design Meets <span className="text-gold italic font-serif lowercase font-normal">craft.</span>
             </h2>
             <p className="text-clay text-lg mb-16 leading-relaxed font-medium">
-              We aren't just chocolatiers; we are designers. Unlike traditional shops, we house a fully-equipped manufacturing studio where every custom chocolate mold is designed in-house. From corporate logos embossed in chocolate to architectural miniatures, we cast your wildest ideas into velvet chocolate.
+              We aren't just chocolatiers; we are makers. In our own studio we design, laser-cut, and vacuum-form every custom chocolate mold in-house — so we can shape almost anything, from a corporate logo embossed in chocolate to bespoke organic forms and large plaques up to A4 size. Your idea, engineered into a mold, then cast in velvet chocolate.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-10">

@@ -5,6 +5,10 @@
  * or sheet-size names, anywhere in public copy.
  */
 import type { BoxMix, ChocolateType, StudioProduct } from './types';
+import { MAX_MOLD_MM } from './constraints';
+
+/** Max custom mold size as a customer-facing cm string, e.g. "28 × 19 cm". */
+export const maxMoldSizeCm = `${MAX_MOLD_MM.w / 10} × ${MAX_MOLD_MM.h / 10} cm`;
 
 export const STUDIO_TITLE = 'The Design Studio';
 export const STUDIO_SUBTITLE =
@@ -45,11 +49,32 @@ export const NAV_LABELS = {
 };
 
 export const CUSTOM_BRIEF_COPY = {
-  title: 'Tell us your vision',
+  title: 'Your own shape',
   body:
-    "Fully custom shapes are handled by our design team directly. Share a brief and reference images, and we'll follow up with a tailored quote.",
+    "Beyond our standard shapes, we design, laser-cut, and vacuum-form custom molds in-house — so we can make almost any silhouette: a logo, a monogram, a letter or number, a heart, or a freeform organic form, at sizes up to A4. Tell us your idea and share a reference, and we'll follow up with a tailored quote.",
+  shapeLabel: 'What kind of shape?',
+  shapeTypes: [
+    { key: 'logo', label: 'Logo / Monogram' },
+    { key: 'letter', label: 'Letter or Number' },
+    { key: 'heart', label: 'Heart' },
+    { key: 'organic', label: 'Organic / Freeform' },
+    { key: 'other', label: 'Something else' },
+  ] as const,
+  sizeLabel: 'Approximate size',
+  sizeHint: `Our molds are laser-cut and vacuum-formed in-house, up to A4 (about ${maxMoldSizeCm}).`,
+  detailsLabel: 'Tell us your idea',
+  detailsPlaceholder: 'e.g. our company logo, about 5 cm wide, milk chocolate…',
   cta: 'Send your brief via WhatsApp',
   backCta: 'Back to products',
+};
+
+export const CAPABILITY_BAND_COPY = {
+  eyebrow: 'Bespoke · made in-house',
+  heading: "Don't see your shape?",
+  body:
+    'We design, laser-cut, and vacuum-form custom molds in-house — any silhouette, logo, monogram, or organic form.',
+  sizeNote: `Made to your design, at sizes up to A4 (about ${maxMoldSizeCm}).`,
+  cta: 'Design a custom shape',
 };
 
 export const PRODUCT_CARD_COPY: Record<string, { blurb: string }> = {

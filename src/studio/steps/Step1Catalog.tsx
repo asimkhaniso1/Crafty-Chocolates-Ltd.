@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, CATALOG_COPY } from '../copy';
+import { STEP_TITLES, STEP_SUBTITLES, PACKAGING_OCCASION_LABELS, CATALOG_COPY, CAPABILITY_BAND_COPY } from '../copy';
 import { CATALOG_ITEMS, type CatalogItem, type CatalogSection } from '../data/catalog';
 import { getPackagingOption } from '../data/packagingOptions';
 import { useStudio } from '../state/StudioContext';
@@ -41,13 +41,36 @@ function CatalogCard({
   return (
     <button
       onClick={onSelect}
-      className={`relative text-left border transition-all overflow-hidden ${
+      className={`group relative text-left border transition-all overflow-hidden ${
         active ? 'border-choco bg-choco text-cream' : 'border-choco/15 hover:border-gold bg-cream'
       }`}
     >
       {item.photo ? (
-        <div className="aspect-[4/3] w-full overflow-hidden bg-choco/5">
-          <img src={item.photo} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-choco/5">
+          <img
+            src={item.photo}
+            alt={item.name}
+            loading="lazy"
+            decoding="async"
+            className={`h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              item.wrappedPhoto ? 'group-hover:scale-110' : ''
+            }`}
+          />
+          {item.wrappedPhoto && (
+            <>
+              <img
+                src={item.wrappedPhoto}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-0 blur-md transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-100 group-hover:opacity-100 group-hover:blur-none"
+              />
+              <span className="absolute bottom-2 right-2 z-10 -translate-y-1 rounded-full bg-choco/70 px-2 py-0.5 text-[9px] uppercase tracking-[0.15em] font-bold text-cream opacity-0 transition-all duration-500 delay-150 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+                Wrapped
+              </span>
+            </>
+          )}
         </div>
       ) : (
         <div className={`aspect-[4/3] w-full flex items-center justify-center ${active ? 'text-cream/60' : 'text-choco/30'}`}>
@@ -150,6 +173,27 @@ export default function Step1Catalog() {
             {PACKAGING_OCCASION_LABELS[o]}
           </button>
         ))}
+      </div>
+
+      {/* Bespoke capability band — routes into the custom-shape brief */}
+      <div className="bg-choco text-cream rounded-sm p-6 md:p-8 mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <span className="text-gold text-[11px] uppercase tracking-[0.3em] font-bold">
+            {CAPABILITY_BAND_COPY.eyebrow}
+          </span>
+          <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight mt-1">
+            {CAPABILITY_BAND_COPY.heading}
+          </h3>
+          <p className="text-cream/70 text-sm mt-1 max-w-xl">{CAPABILITY_BAND_COPY.body}</p>
+          <p className="text-cream/50 text-xs mt-1">{CAPABILITY_BAND_COPY.sizeNote}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'SELECT_CATALOG_ITEM', product: 'custom', packaging: null })}
+          className="bg-gold text-choco px-6 py-3 uppercase font-sans text-xs tracking-widest font-black hover:bg-cream transition-all whitespace-nowrap self-start md:self-auto"
+        >
+          {CAPABILITY_BAND_COPY.cta}
+        </button>
       </div>
 
       <div className="space-y-12">
