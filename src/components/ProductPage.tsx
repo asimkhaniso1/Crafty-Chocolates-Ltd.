@@ -45,7 +45,7 @@ export default function ProductPage({ products, onAddToCart }: ProductPageProps)
     <div className="bg-cream min-h-screen pt-32 pb-24">
       <div className="container mx-auto px-6 md:px-12">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => (window.history.length > 2 ? navigate(-1) : navigate('/'))}
           className="mb-12 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-clay hover:text-gold transition-colors"
         >
           <ArrowLeft size={14} /> Back

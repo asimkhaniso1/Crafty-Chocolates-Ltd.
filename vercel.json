@@ -2,5 +2,13 @@
   "rewrites": [
     { "source": "/r/wa", "destination": "/api/r/wa" },
     { "source": "/((?!api/|products/|assets/|logo\\.png|favicon\\.ico).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/studio/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, no-cache, must-revalidate" }
+      ]
+    }
   ]
 }

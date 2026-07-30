@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   cartCount: number;
@@ -26,9 +27,12 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
         : 'bg-transparent py-8 border-transparent'
         }`}
     >
+      <div className={`overflow-hidden bg-choco text-cream text-center px-4 font-sans font-semibold uppercase tracking-[0.15em] text-[10px] transition-all duration-500 ${isScrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-10 py-1.5 opacity-100 -mt-8 mb-6'}`}>
+        Karachi delivery &amp; cash on delivery&nbsp;&nbsp;·&nbsp;&nbsp;Nationwide shipping&nbsp;&nbsp;·&nbsp;&nbsp;Custom orders ready in 6 days
+      </div>
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-12">
-          <div className="flex items-center gap-4">
+          <a href="/" className="flex items-center gap-4">
             <img
               src="/logo.png"
               alt="Crafty Chocolates Logo"
@@ -39,14 +43,15 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 Crafty<br />Chocolates
               </span>
             </div>
-          </div>
+          </a>
 
           <nav className="hidden md:flex items-center gap-10">
             {[
-              { name: 'Collections', href: '#collections' },
-              { name: 'Custom Molds', href: '#custom-molds' },
-              { name: 'Our Story', href: '#our-story' },
-              { name: 'Shop', href: '#collections' }
+              { name: 'Collections', href: '/#collections' },
+              { name: 'Custom Molds', href: '/#custom-molds' },
+              { name: 'Corporate', href: '/#corporate' },
+              { name: 'Our Story', href: '/#our-story' },
+              { name: 'Shop', href: '/#collections' }
             ].map((item) => (
               <a
                 key={item.name}
@@ -56,6 +61,12 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 {item.name}
               </a>
             ))}
+            <Link
+              to="/studio"
+              className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
+            >
+              Design Studio
+            </Link>
           </nav>
         </div>
 
@@ -97,10 +108,11 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           >
             <nav className="flex flex-col p-8 gap-6 text-center">
               {[
-                { name: 'Collections', href: '#collections' },
-                { name: 'Custom Molds', href: '#custom-molds' },
-                { name: 'Our Story', href: '#our-story' },
-                { name: 'Shop', href: '#collections' }
+                { name: 'Collections', href: '/#collections' },
+                { name: 'Custom Molds', href: '/#custom-molds' },
+                { name: 'Corporate', href: '/#corporate' },
+                { name: 'Our Story', href: '/#our-story' },
+                { name: 'Shop', href: '/#collections' }
               ].map((item) => (
                 <a
                   key={item.name}
@@ -111,6 +123,13 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                   {item.name}
                 </a>
               ))}
+              <Link
+                to="/studio"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="font-serif text-2xl text-choco hover:text-gold italic"
+              >
+                Design Studio
+              </Link>
             </nav>
           </motion.div>
         )}

@@ -10,6 +10,8 @@ import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
 import ProductPage from './components/ProductPage';
 import CustomMoldSection from './components/CustomMoldSection';
+import CorporateSection from './components/CorporateSection';
+import ProductMarquee from './components/ProductMarquee';
 import Testimonials from './components/Testimonials';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
@@ -17,11 +19,23 @@ import WhatsAppFloat from './components/WhatsAppFloat';
 import { CartItem, Product } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useProducts, deriveFacets } from './lib/products';
+import { WHATSAPP_NUMBER } from './constants';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
+import OccasionPage, { occasionSlug } from './pages/OccasionPage';
+import StudioPage from './studio/StudioPage';
+import { Link } from 'react-router-dom';
 
 export default function App() {
-  const { products, loading } = useProducts();
+  const { products: allProducts, loading } = useProducts();
+  // Hidden storewide: leather homeware (spinning off to its own brand),
+  // the nut-butter pantry line, and discontinued keto/cooking SKUs.
+  const DISCONTINUED_SKUS = new Set(['MilkBlock250g', 'BAR50DAIRYFREE', 'KETOP50', 'DatesSugar250g', 'PANDA 16 INDP', '6BARBUNDLE-MIX', '1+8SWL']);
+  const products = allProducts.filter(p =>
+    p.category !== 'Homeware' &&
+    !p.productType.includes('Dietary Butter') &&
+    !DISCONTINUED_SKUS.has(p.sku)
+  );
   const { formats, events } = deriveFacets(products);
   const FORMAT_TABS_LOCAL = ['All', ...formats];
 
@@ -38,6 +52,15 @@ export default function App() {
       return true;
     })
     .sort((a, b) => {
+      // Proven bestsellers surface first, in this order.
+      const POPULAR_ORDER = ['BAR50DARK', 'BDAY|5PBox', '1+4SWL', 'WED-5G', '3PC-LB-MW', '1+9Bday', '16+1 Birthday Box', '12PCS-CGold', 'RAMZ-6D', 'BDAYBITE|5W'];
+      const pa = POPULAR_ORDER.indexOf(a.sku);
+      const pb = POPULAR_ORDER.indexOf(b.sku);
+      if (pa !== -1 || pb !== -1) {
+        if (pa === -1) return 1;
+        if (pb === -1) return -1;
+        return pa - pb;
+      }
       const ca = CATEGORY_ORDER[a.category] ?? 99;
       const cb = CATEGORY_ORDER[b.category] ?? 99;
       if (ca !== cb) return ca - cb;
@@ -92,11 +115,15 @@ export default function App() {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/product/:sku" element={<ProductPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/occasion/:slug" element={<OccasionPage products={products} onAddToCart={addToCart} />} />
+        <Route path="/studio/*" element={<StudioPage />} />
         <Route path="/" element={
       <main>
         <div id="home">
           <Hero />
         </div>
+
+        <ProductMarquee />
 
         {/* Our Story Section */}
         <section id="our-story" className="py-24 bg-stone-50 overflow-hidden border-b border-choco/10">
@@ -108,7 +135,7 @@ export default function App() {
                   Crafting the <span className="text-gold italic font-serif lowercase font-normal">extraordinary.</span>
                 </h2>
                 <p className="text-clay text-lg leading-relaxed font-medium">
-                  Founded in 2020, Crafty Chocolates was born from a desire to merge the precision of modern engineering with the soul of artisanal confectionery. We believe that chocolate is not just a treat, but a medium for expression.
+                  Founded in 2020, Crafty Chocolates was born from a desire to merge the precision of modern engineering with the soul of artisanal confectionery. Every custom shape begins in our in-house mold studio, where we laser-cut and vacuum-form our own molds — letting us cast almost any design, at sizes up to A4, that no off-the-shelf mold could. To us, chocolate isn't just a treat; it's a medium for expression.
                 </p>
                 <div className="flex gap-12">
                   <div>
@@ -124,10 +151,9 @@ export default function App() {
               <div className="flex-1">
                 <div className="relative aspect-video bg-choco overflow-hidden rounded-sm shadow-2xl">
                   <img
-                    src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&q=80&w=1200"
-                    alt="Our studio"
+                    src="/products/choc.jpg"
+                    alt="Our handcrafted chocolate"
                     className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
               </div>
@@ -188,6 +214,15 @@ export default function App() {
               )}
             </div>
 
+            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.2em] font-bold">
+              <span className="text-gold">Popular:</span>
+              {events.filter(e => ['Birthday', 'Anniversary', 'Eid', 'Wedding & Engagement', 'Baby Announcement'].includes(e)).map(e => (
+                <Link key={e} to={`/occasion/${occasionSlug(e)}`} className="text-choco hover:text-gold underline underline-offset-4 decoration-choco/20">
+                  {e}
+                </Link>
+              ))}
+            </div>
+
             <div className="mb-8 text-[11px] uppercase tracking-[0.2em] text-clay font-bold">
               {filteredProducts.length} {filteredProducts.length === 1 ? 'piece' : 'pieces'}
             </div>
@@ -219,6 +254,8 @@ export default function App() {
 
         <CustomMoldSection />
 
+        <CorporateSection />
+
         <Testimonials />
 
         {/* Newsletter / CTA Section */}
@@ -237,9 +274,19 @@ export default function App() {
               <p className="text-cream/50 mb-12 text-lg font-medium leading-relaxed italic">
                 Receive invitations to private tasting events and early access to our seasonal bespoke collections.
               </p>
-              <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+              <form
+                className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = new FormData(e.currentTarget).get('email');
+                  const msg = `Hello Crafty Chocolates, please add me to the Inner Circle for tasting events and seasonal collections. Email: ${email}`;
+                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+                }}
+              >
                 <input
                   type="email"
+                  name="email"
+                  required
                   placeholder="DIGITAL ADDRESS"
                   className="flex-1 bg-white/5 border border-white/10 px-8 py-5 text-cream placeholder:text-cream/20 focus:outline-none focus:bg-white/10 transition-all font-sans text-xs tracking-widest"
                 />

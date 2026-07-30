@@ -1,4 +1,4 @@
-import { Instagram, Facebook, Twitter, MapPin, Phone, Mail, MessageCircle } from 'lucide-react';
+import { Instagram, Facebook, MapPin, Phone, Mail, MessageCircle } from 'lucide-react';
 import { WHATSAPP_URL, WHATSAPP_DISPLAY, PHONE_DISPLAY, PHONE_TEL } from '../constants';
 
 export default function Footer() {
@@ -21,7 +21,7 @@ export default function Footer() {
             </div>
             <div className="space-y-4">
               <p className="text-xs uppercase tracking-widest leading-loose font-bold">
-                Engineering the world's most sophisticated chocolate experiences since 2020.
+                Personalized chocolate gifts, engineered in Karachi since 2020. Send chocolates anywhere in Pakistan.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <div className="group relative">
@@ -41,9 +41,12 @@ export default function Footer() {
               </div>
             </div>
             <div className="flex gap-6">
-              <Instagram className="hover:text-gold cursor-pointer transition-colors" size={18} />
-              <Facebook className="hover:text-gold cursor-pointer transition-colors" size={18} />
-              <Twitter className="hover:text-gold cursor-pointer transition-colors" size={18} />
+              <a href="https://www.instagram.com/craftychocolates._com/" target="_blank" rel="noopener noreferrer" aria-label="Crafty Chocolates on Instagram">
+                <Instagram className="hover:text-gold cursor-pointer transition-colors" size={18} />
+              </a>
+              <a href="https://www.facebook.com/craftychoc/" target="_blank" rel="noopener noreferrer" aria-label="Crafty Chocolates on Facebook">
+                <Facebook className="hover:text-gold cursor-pointer transition-colors" size={18} />
+              </a>
             </div>
           </div>
 
