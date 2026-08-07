@@ -179,7 +179,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'foil-bites-loose',
     name: 'Foil-Wrapped Bites (loose)',
-    photo: '/studio/foil-bite-gold.webp',
+    photo: '/studio/bite-milk.webp',
+    wrappedPhoto: '/studio/foil-bite-gold.webp',
     contentsLine: 'Foil-wrapped bites, packed loose — ready for your own presentation.',
     occasions: ['corporate', 'birthday'],
     product: 'bite',
@@ -189,7 +190,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'signature-loose',
     name: 'Crafty Signature (loose)',
-    photo: '/studio/foil-bite-gold.webp',
+    photo: '/studio/piece-milk.webp',
+    wrappedPhoto: '/studio/foil-bite-gold.webp',
     contentsLine: 'One 45 × 45 mm Signature piece, foil-wrapped and packed loose.',
     occasions: ['wedding', 'birthday'],
     product: 'signature',
