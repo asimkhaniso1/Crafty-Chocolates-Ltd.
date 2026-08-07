@@ -102,8 +102,13 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
         : [];
       const isBoxed = Boolean(action.packaging) && action.packaging?.type !== 'individual';
       const extras = isBoxed ? state.design.extras : clearBoxOnlyExtras(state.design.extras);
+      // 'custom' swaps the whole shell over to the brief form, so it stays on
+      // step 1; a catalog pick moves straight into Design — the Next button
+      // sits below the full catalog and reads as "nothing happened".
+      const step: StudioStep = action.product === 'custom' ? state.step : 2;
       return {
         ...state,
+        step,
         design: {
           ...state.design,
           product: action.product,

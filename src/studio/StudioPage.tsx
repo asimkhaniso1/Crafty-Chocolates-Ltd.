@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import {
   STUDIO_TITLE,
@@ -28,8 +28,13 @@ const STEP_COMPONENTS: Record<StudioStep, ComponentType> = {
 
 const ALL_STEPS: StudioStep[] = [1, 2, 3, 4];
 
+/** Height of the fixed site header, so a step change doesn't scroll under it. */
+const HEADER_CLEARANCE_PX = 160;
+
 function StudioShell() {
   const { design, step, dispatch } = useStudio();
+  const stepHeadingRef = useRef<HTMLDivElement | null>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     document.title = `${STUDIO_TITLE} | Crafty Chocolates`;
@@ -37,6 +42,21 @@ function StudioShell() {
       document.title = 'Crafty Chocolates — Custom Logo & Gift Chocolates, Handcrafted in Karachi, Pakistan';
     };
   }, []);
+
+  // Each step is a tall page; without this a step change leaves the viewport
+  // parked wherever the last one was scrolled to and looks like a dead click.
+  // 'instant' overrides the global `html { scroll-behavior: smooth }` — an
+  // animated scroll here gets cancelled partway by the incoming step's reflow.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const anchor = stepHeadingRef.current;
+    if (!anchor) return;
+    const top = anchor.getBoundingClientRect().top + window.scrollY - HEADER_CLEARANCE_PX;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+  }, [step]);
 
   const isCustom = design.product === 'custom';
   const maxVisitedStep = step;
@@ -61,6 +81,9 @@ function StudioShell() {
             {STUDIO_BULK_BADGE}
           </span>
         </div>
+
+        {/* Scroll anchor for step changes. */}
+        <div ref={stepHeadingRef} />
 
         {/* Stepper */}
         {!isCustom && (
