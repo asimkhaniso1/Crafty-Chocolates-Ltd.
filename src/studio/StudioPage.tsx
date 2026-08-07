@@ -123,7 +123,9 @@ function StudioShell() {
         {isCustom ? (
           <div className="grid lg:grid-cols-[1fr_380px] gap-16">
             <CustomBriefStep />
-            <div className="hidden lg:block sticky top-40 self-start h-[420px] rounded-sm overflow-hidden">
+            {/* min-h + flex (not a fixed height): the pane grows when the
+                printed-wrapper cards render below the chocolate preview. */}
+            <div className="hidden lg:flex sticky top-40 self-start min-h-[420px] rounded-sm overflow-hidden">
               <PreviewPane registerRef />
             </div>
           </div>
@@ -150,7 +152,7 @@ function StudioShell() {
               </div>
             </div>
 
-            <div className="hidden lg:block sticky top-40 self-start h-[420px] rounded-sm overflow-hidden">
+            <div className="hidden lg:flex sticky top-40 self-start min-h-[420px] rounded-sm overflow-hidden">
               <PreviewPane registerRef />
             </div>
           </div>
