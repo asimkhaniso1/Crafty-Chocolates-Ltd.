@@ -148,6 +148,7 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     key: 'tin-of-15',
     name: 'Tin of 15',
     photo: '/studio/card-tin15.webp',
+    wrappedPhoto: '/studio/card-tin15-wrapped.webp',
     contentsLine: '15 bites, five across and three deep, in a rectangular purple tin.',
     occasions: ['eid', 'corporate', 'birthday'],
     product: 'bite',
@@ -201,6 +202,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'crafty-bar',
     name: 'Crafty Bar',
+    photo: '/studio/bar-milk.webp',
+    wrappedPhoto: '/studio/foil-gold.webp',
     contentsLine: 'One 120 × 60 mm bar, foil-wrapped.',
     occasions: ['corporate'],
     product: 'bar',
@@ -210,6 +213,8 @@ const RAW_ITEMS: RawCatalogEntry[] = [
   {
     key: 'crafty-slim',
     name: 'Crafty Slim',
+    photo: '/studio/slim-milk.webp',
+    wrappedPhoto: '/studio/slim-foil-silver.webp',
     contentsLine: 'One 90 × 30 mm slim bar, foil-wrapped.',
     occasions: ['corporate'],
     product: 'slim',
