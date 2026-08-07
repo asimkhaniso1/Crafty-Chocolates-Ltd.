@@ -1,18 +1,32 @@
 import { useState } from 'react';
-import { ArrowLeft, Scale } from 'lucide-react';
-import { CUSTOM_BRIEF_COPY, CHOCOLATE_NAMES, formatEstimatedWeight } from '../copy';
-import { WHATSAPP_NUMBER } from '../../constants';
+import { ArrowLeft, Scale, Wrench } from 'lucide-react';
+import { CUSTOM_BRIEF_COPY, CHOCOLATE_NAMES, STEP6_COPY, formatEstimatedWeight } from '../copy';
+import { WRAPPER_MESSAGE_MAX } from '../constraints';
+import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
 import { useStudio } from '../state/StudioContext';
 import type { ChocolateType } from '../types';
 
 const INPUT_CLASS =
   'w-full border border-choco/20 bg-cream px-4 py-3 text-choco text-sm outline-none focus:border-gold transition-colors';
 
+const CHIP_CLASS = (active: boolean) =>
+  `px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border transition-all ${
+    active ? 'bg-choco text-cream border-choco' : 'border-choco/20 text-choco hover:border-gold'
+  }`;
+
 /** Largest mold: a piece must fit within A4 (either orientation). */
 const MOLD_MAX_LONG_CM = 28;
 const MOLD_MAX_SHORT_CM = 19;
 const THICKNESS_MIN_MM = 4;
 const THICKNESS_MAX_MM = 25;
+/** Custom shapes are made to order from a new mold — they start at 100 pieces. */
+const CUSTOM_MIN_QTY = 100;
+/**
+ * One-time tooling for a bespoke shape (design + laser-cut + vacuum-form),
+ * separate from the standard studio's fee.designMold pricing rule, which
+ * stays on standard-canvas quotes.
+ */
+const CUSTOM_TOOLING_FEE_PKR = 20000;
 
 /**
  * Matches the real Crafty Bite: 10 g at 3 × 3 × 1 cm. Kept consistent with
@@ -32,24 +46,62 @@ const SHAPE_FILL_FACTORS: Record<string, number> = {
   other: 0.65,
 };
 
+type WrapMode = 'none' | 'foil' | 'printed';
+
 function parsePositive(value: string): number | null {
   const n = Number(value.replace(',', '.'));
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 export default function CustomBriefStep() {
-  const { dispatch } = useStudio();
-  const [shapeType, setShapeType] = useState<string>('');
-  const [width, setWidth] = useState('');
-  const [height, setHeight] = useState('');
-  const [thickness, setThickness] = useState('');
-  const [chocolate, setChocolate] = useState<ChocolateType>('milk');
+  const { design, dispatch } = useStudio();
+  const spec = design.customSpec ?? {};
+
+  const [width, setWidth] = useState(spec.widthCm?.toString() ?? '');
+  const [height, setHeight] = useState(spec.heightCm?.toString() ?? '');
+  const [thickness, setThickness] = useState(spec.thicknessMm?.toString() ?? '');
   const [quantity, setQuantity] = useState('');
   const [details, setDetails] = useState('');
+
+  const shapeType = spec.shapeType ?? '';
+  const chocolate = design.chocolate;
+  const wrapMode: WrapMode = design.extras.printedWrapper?.enabled
+    ? 'printed'
+    : design.extras.foil
+      ? 'foil'
+      : 'none';
+  const foil = design.extras.foil ?? 'silver';
+  const wrapperMessage = design.extras.printedWrapper?.message ?? '';
 
   const widthCm = parsePositive(width);
   const heightCm = parsePositive(height);
   const thicknessMm = parsePositive(thickness);
+
+  function updateDim(field: 'widthCm' | 'heightCm' | 'thicknessMm', raw: string) {
+    if (field === 'widthCm') setWidth(raw);
+    if (field === 'heightCm') setHeight(raw);
+    if (field === 'thicknessMm') setThickness(raw);
+    dispatch({ type: 'SET_CUSTOM_SPEC', spec: { [field]: parsePositive(raw) ?? undefined } });
+  }
+
+  function setWrapMode(mode: WrapMode) {
+    if (mode === 'none') {
+      dispatch({ type: 'SET_EXTRAS', extras: { foil: undefined, printedWrapper: undefined } });
+    } else if (mode === 'foil') {
+      dispatch({
+        type: 'SET_EXTRAS',
+        extras: { foil: design.extras.foil ?? 'silver', printedWrapper: undefined },
+      });
+    } else {
+      dispatch({
+        type: 'SET_EXTRAS',
+        extras: {
+          foil: design.extras.foil ?? 'silver',
+          printedWrapper: { enabled: true, ...design.extras.printedWrapper },
+        },
+      });
+    }
+  }
 
   const fitsMold =
     widthCm !== null &&
@@ -71,9 +123,10 @@ export default function CustomBriefStep() {
       : null;
 
   const quantityN = parsePositive(quantity);
+  const quantityBelowMoq = quantityN !== null && quantityN < CUSTOM_MIN_QTY;
   const batchWeightG = pieceWeightG !== null && quantityN !== null ? pieceWeightG * quantityN : null;
 
-  const briefReady = Boolean(shapeType) && fitsMold && thicknessOk;
+  const briefReady = Boolean(shapeType) && fitsMold && thicknessOk && !quantityBelowMoq;
 
   const shapeLabel = CUSTOM_BRIEF_COPY.shapeTypes.find(s => s.key === shapeType)?.label;
   const lines = ['Hello Crafty Chocolates, I would like a brief for a custom shape.'];
@@ -82,11 +135,18 @@ export default function CustomBriefStep() {
   if (thicknessMm !== null) lines.push(`Thickness: ${thicknessMm} mm`);
   if (pieceWeightG !== null) lines.push(`Est. piece weight: ${formatEstimatedWeight(pieceWeightG)}`);
   lines.push(`Chocolate: ${CHOCOLATE_NAMES[chocolate]}`);
-  if (quantityN !== null) {
+  if (wrapMode === 'foil') {
+    lines.push(`Wrapping: Foil-wrapped (${STEP6_COPY.foilNames[foil]})`);
+  } else if (wrapMode === 'printed') {
+    lines.push(`Wrapping: Printed wrapper (${STEP6_COPY.foilNames[foil]} foil ends)`);
+    if (wrapperMessage.trim()) lines.push(`Wrapper message: ${wrapperMessage.trim()}`);
+  }
+  if (quantityN !== null && !quantityBelowMoq) {
     lines.push(`Quantity: ${quantityN} pcs`);
     if (batchWeightG !== null) lines.push(`Est. batch weight: ${formatEstimatedWeight(batchWeightG)}`);
   }
   if (details.trim()) lines.push(`Idea: ${details.trim()}`);
+  lines.push(`Mold tooling (one-time): ${formatPrice(CUSTOM_TOOLING_FEE_PKR)}`);
   const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
 
   return (
@@ -115,12 +175,10 @@ export default function CustomBriefStep() {
               <button
                 key={s.key}
                 type="button"
-                onClick={() => setShapeType(active ? '' : s.key)}
-                className={`px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border transition-all ${
-                  active
-                    ? 'bg-choco text-cream border-choco'
-                    : 'border-choco/20 text-choco hover:border-gold'
-                }`}
+                onClick={() =>
+                  dispatch({ type: 'SET_CUSTOM_SPEC', spec: { shapeType: active ? undefined : s.key } })
+                }
+                className={CHIP_CLASS(active)}
               >
                 {s.label}
               </button>
@@ -144,7 +202,7 @@ export default function CustomBriefStep() {
               inputMode="decimal"
               min={1}
               value={width}
-              onChange={e => setWidth(e.target.value)}
+              onChange={e => updateDim('widthCm', e.target.value)}
               placeholder="e.g. 5"
               className={INPUT_CLASS}
             />
@@ -158,7 +216,7 @@ export default function CustomBriefStep() {
               inputMode="decimal"
               min={1}
               value={height}
-              onChange={e => setHeight(e.target.value)}
+              onChange={e => updateDim('heightCm', e.target.value)}
               placeholder="e.g. 5"
               className={INPUT_CLASS}
             />
@@ -173,7 +231,7 @@ export default function CustomBriefStep() {
               min={THICKNESS_MIN_MM}
               max={THICKNESS_MAX_MM}
               value={thickness}
-              onChange={e => setThickness(e.target.value)}
+              onChange={e => updateDim('thicknessMm', e.target.value)}
               placeholder="e.g. 10"
               className={INPUT_CLASS}
             />
@@ -217,24 +275,104 @@ export default function CustomBriefStep() {
           {CUSTOM_BRIEF_COPY.chocolateLabel}
         </h3>
         <div className="flex flex-wrap gap-2 font-sans">
-          {(['milk', 'semidark'] as ChocolateType[]).map(c => {
-            const active = chocolate === c;
-            return (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setChocolate(c)}
-                className={`px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border transition-all ${
-                  active
-                    ? 'bg-choco text-cream border-choco'
-                    : 'border-choco/20 text-choco hover:border-gold'
-                }`}
-              >
-                {CHOCOLATE_NAMES[c]}
-              </button>
-            );
-          })}
+          {(['milk', 'semidark'] as ChocolateType[]).map(c => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => dispatch({ type: 'SET_CHOCOLATE', chocolate: c })}
+              className={CHIP_CLASS(chocolate === c)}
+            >
+              {CHOCOLATE_NAMES[c]}
+            </button>
+          ))}
         </div>
+      </div>
+
+      {/* Wrapping */}
+      <div className="mb-8">
+        <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-choco mb-3">
+          {CUSTOM_BRIEF_COPY.wrapLabel}
+        </h3>
+        <div className="flex flex-wrap gap-2 font-sans">
+          {(
+            [
+              ['none', CUSTOM_BRIEF_COPY.wrapNone],
+              ['foil', CUSTOM_BRIEF_COPY.wrapFoil],
+              ['printed', CUSTOM_BRIEF_COPY.wrapPrinted],
+            ] as [WrapMode, string][]
+          ).map(([mode, label]) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setWrapMode(mode)}
+              className={CHIP_CLASS(wrapMode === mode)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {wrapMode !== 'none' && (
+          <div className="mt-4">
+            <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+              {CUSTOM_BRIEF_COPY.foilColourLabel}
+            </label>
+            <div className="flex gap-2 font-sans">
+              {(['silver', 'gold'] as const).map(c => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => dispatch({ type: 'SET_EXTRAS', extras: { foil: c } })}
+                  className={CHIP_CLASS(foil === c)}
+                >
+                  {STEP6_COPY.foilNames[c]}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {wrapMode === 'printed' && (
+          <div className="mt-4 max-w-md">
+            <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+              {CUSTOM_BRIEF_COPY.wrapperMessageLabel}
+            </label>
+            <input
+              type="text"
+              value={wrapperMessage}
+              maxLength={WRAPPER_MESSAGE_MAX}
+              onChange={e =>
+                dispatch({
+                  type: 'SET_EXTRAS',
+                  extras: {
+                    printedWrapper: {
+                      enabled: true,
+                      ...design.extras.printedWrapper,
+                      message: e.target.value || undefined,
+                    },
+                  },
+                })
+              }
+              placeholder={CUSTOM_BRIEF_COPY.wrapperMessagePlaceholder}
+              className={INPUT_CLASS}
+            />
+            <p className="text-clay text-xs mt-2">{CUSTOM_BRIEF_COPY.wrapperArtworkNote}</p>
+          </div>
+        )}
+      </div>
+
+      {/* One-time tooling */}
+      <div className="mb-8 max-w-md border border-choco/15 bg-choco/5 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <Wrench size={18} className="text-choco/60 shrink-0" />
+          <div>
+            <span className="block text-[10px] uppercase tracking-[0.2em] font-bold text-choco">
+              {CUSTOM_BRIEF_COPY.toolingLabel}
+            </span>
+            <span className="text-choco font-black text-lg">{formatPrice(CUSTOM_TOOLING_FEE_PKR)}</span>
+          </div>
+        </div>
+        <p className="text-clay text-xs mt-2">{CUSTOM_BRIEF_COPY.toolingNote}</p>
       </div>
 
       {/* Quantity */}
@@ -245,12 +383,17 @@ export default function CustomBriefStep() {
         <input
           type="number"
           inputMode="numeric"
-          min={1}
+          min={CUSTOM_MIN_QTY}
           value={quantity}
           onChange={e => setQuantity(e.target.value)}
-          placeholder="e.g. 100"
+          placeholder={`e.g. ${CUSTOM_MIN_QTY}`}
           className={INPUT_CLASS}
         />
+        {quantityBelowMoq ? (
+          <p className="text-red-700 text-xs mt-2 font-semibold">{CUSTOM_BRIEF_COPY.moqError}</p>
+        ) : (
+          <p className="text-clay text-xs mt-2">{CUSTOM_BRIEF_COPY.moqNote}</p>
+        )}
       </div>
 
       {/* Details */}
@@ -281,7 +424,9 @@ export default function CustomBriefStep() {
           <span className="inline-block bg-gold/40 text-white px-10 py-5 uppercase font-sans text-xs tracking-widest font-black cursor-not-allowed select-none">
             {CUSTOM_BRIEF_COPY.cta}
           </span>
-          <p className="text-clay text-xs mt-3">{CUSTOM_BRIEF_COPY.ctaLockedNote}</p>
+          <p className="text-clay text-xs mt-3">
+            {quantityBelowMoq ? CUSTOM_BRIEF_COPY.moqError : CUSTOM_BRIEF_COPY.ctaLockedNote}
+          </p>
         </div>
       )}
     </div>

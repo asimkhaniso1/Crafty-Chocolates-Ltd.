@@ -151,8 +151,22 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   // distinct object from the flat bordered piece face used by Signature and
   // center bars, so it gets its own photo base and a relaxed mark inset.
   const isBite = !isBar && (!shape || shape === 'square') && design.product === 'bite';
-  const w = size;
-  const h = isSlim ? size / 3 : isBar ? size * 0.5 : size;
+  // Custom-shape brief: proportion the piece to the entered width × height
+  // (longest side pinned to `size`), so the preview tracks the spec live.
+  const customSpec = !shape && design.product === 'custom' ? design.customSpec : undefined;
+  const customAspect =
+    customSpec?.widthCm && customSpec?.heightCm ? customSpec.widthCm / customSpec.heightCm : null;
+  const w = customAspect !== null && customAspect < 1 ? size * customAspect : size;
+  const h =
+    customAspect !== null
+      ? customAspect < 1
+        ? size
+        : size / customAspect
+      : isSlim
+        ? size / 3
+        : isBar
+          ? size * 0.5
+          : size;
   const r = Math.min(w, h) * RADIUS_RATIO;
   const type = bodyFor(design, cell);
   const filter = embossFilterId(type, uid);

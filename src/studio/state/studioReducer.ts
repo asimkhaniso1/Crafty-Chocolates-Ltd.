@@ -2,6 +2,7 @@ import type {
   BoxMix,
   CellAssignment,
   ChocolateType,
+  CustomSpec,
   Design,
   DesignExtras,
   LogoState,
@@ -46,6 +47,7 @@ export type StudioAction =
   | { type: 'SET_BOX_MIX'; boxMix: BoxMix }
   | { type: 'SET_ALL_CELLS'; cells: CellAssignment[] }
   | { type: 'SET_EXTRAS'; extras: Partial<DesignExtras> }
+  | { type: 'SET_CUSTOM_SPEC'; spec: Partial<CustomSpec> }
   | { type: 'SET_BAR_CAPTION'; barCaption?: string }
   | { type: 'SET_CENTER_BAR_SCALE'; scale: number }
   | { type: 'SET_QUANTITY'; quantity: number }
@@ -148,6 +150,15 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
       return {
         ...state,
         design: { ...state.design, extras: { ...state.design.extras, ...action.extras } },
+      };
+
+    case 'SET_CUSTOM_SPEC':
+      return {
+        ...state,
+        design: {
+          ...state.design,
+          customSpec: { ...state.design.customSpec, ...action.spec },
+        },
       };
 
     case 'SET_BAR_CAPTION': {

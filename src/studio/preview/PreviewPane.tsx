@@ -47,8 +47,12 @@ export default function PreviewPane({ compact = false, registerRef = false }: Pr
   const boxEligible = isMultiPiece;
   const isBar = isBarProduct(design.product);
   const printedWrapperEnabled = Boolean(design.extras.printedWrapper?.enabled);
+  // Loose packs and the custom-shape brief (packaging null) both wrap a
+  // single piece, so both get the foil-only preview card.
   const showFoilOnlyPreview =
-    !printedWrapperEnabled && Boolean(design.extras.foil) && design.packaging?.type === 'individual';
+    !printedWrapperEnabled &&
+    Boolean(design.extras.foil) &&
+    (design.packaging?.type === 'individual' || design.product === 'custom');
 
   const [manualMode, setManualMode] = useState<ViewMode | null>(null);
   const mode: ViewMode = manualMode ?? (boxEligible ? 'box' : 'piece');
@@ -57,13 +61,19 @@ export default function PreviewPane({ compact = false, registerRef = false }: Pr
   const { PieceView, BoxView } = activeRenderer;
 
   const caption = useMemo(() => {
+    const spec = design.product === 'custom' ? design.customSpec : undefined;
+    const dims =
+      spec?.widthCm && spec?.heightCm
+        ? `${spec.widthCm} × ${spec.heightCm} cm${spec.thicknessMm ? ` × ${spec.thicknessMm} mm` : ''}`
+        : null;
     const parts = [
       product ? product.name : 'No canvas selected',
+      ...(dims ? [dims] : []),
       CHOCOLATE_LABEL[design.chocolate] ?? design.chocolate,
       EMBOSS_LABEL[design.emboss] ?? design.emboss,
     ];
     return parts.join(' · ');
-  }, [product, design.chocolate, design.emboss]);
+  }, [product, design.product, design.customSpec, design.chocolate, design.emboss]);
 
   return (
     <div

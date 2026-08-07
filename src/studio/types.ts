@@ -64,6 +64,18 @@ export interface DesignExtras {
   piecesWrapped?: boolean;
 }
 
+/**
+ * Custom-shape brief specs (product 'custom' only). Drives the live piece
+ * preview's proportions and the WhatsApp brief; all fields optional while
+ * the shopper is still filling the form.
+ */
+export interface CustomSpec {
+  shapeType?: string;
+  widthCm?: number;
+  heightCm?: number;
+  thicknessMm?: number;
+}
+
 export interface Design {
   v: 1;
   product: ProductKey | null;
@@ -80,6 +92,8 @@ export interface Design {
   barCaption?: string;
   /** Mark scale on the X+1 center bar (0.5–1.4, default 1). */
   centerBarScale?: number;
+  /** Custom-shape brief specs; only meaningful while product is 'custom'. */
+  customSpec?: CustomSpec;
 }
 
 export type StudioStep = 1 | 2 | 3 | 4;

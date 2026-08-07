@@ -6,7 +6,7 @@
  * Used both when loading a shared/saved design (LOAD_DESIGN) and when
  * hydrating from localStorage on first mount.
  */
-import type { BoxMix, CellAssignment, ChocolateType, Design, PrintedWrapper } from '../types';
+import type { BoxMix, CellAssignment, ChocolateType, CustomSpec, Design, PrintedWrapper } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
 import {
   BAR_CAPTION_MAX,
@@ -70,6 +70,18 @@ function sanitizePrintedWrapper(value: unknown): PrintedWrapper | undefined {
   return wrapper;
 }
 
+function sanitizeCustomSpec(value: unknown): CustomSpec | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const raw = value as Partial<CustomSpec>;
+  const spec: CustomSpec = {};
+  if (typeof raw.shapeType === 'string' && raw.shapeType) spec.shapeType = raw.shapeType;
+  const dim = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? n : undefined);
+  spec.widthCm = dim(raw.widthCm);
+  spec.heightCm = dim(raw.heightCm);
+  spec.thicknessMm = dim(raw.thicknessMm);
+  return Object.values(spec).some(v => v !== undefined) ? spec : undefined;
+}
+
 export function sanitizeDesign(design: Design): Design {
   const chocolate = sanitizeChocolate(design.chocolate);
   const cells = (design.cells ?? []).map(sanitizeCell);
@@ -97,6 +109,7 @@ export function sanitizeDesign(design: Design): Design {
     cells: clampedCells,
     packaging: packagingStillExists ? design.packaging : null,
     barCaption: sanitizeBarCaption(design.barCaption),
+    customSpec: sanitizeCustomSpec(design.customSpec),
     centerBarScale: sanitizeCenterBarScale(design.centerBarScale),
     boxMix: sanitizeBoxMix(design.boxMix),
     extras: {
