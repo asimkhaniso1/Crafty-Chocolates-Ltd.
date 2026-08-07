@@ -1,6 +1,5 @@
-import { Phone } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { WHATSAPP_URL, PHONE_TEL, PHONE_DISPLAY } from '../constants';
+import { WHATSAPP_URL } from '../constants';
 
 export default function WhatsAppFloat() {
   // The Design Studio has its own WhatsApp CTA in the quote step, and the
@@ -10,19 +9,6 @@ export default function WhatsAppFloat() {
 
   return (
     <div className="fixed bottom-6 right-6 z-[55] flex flex-col items-end gap-3">
-      <a
-        href={`tel:${PHONE_TEL}`}
-        aria-label={`Call us at ${PHONE_DISPLAY}`}
-        className="group flex items-center gap-3"
-      >
-        <span className="hidden md:inline-block bg-choco text-cream text-[10px] uppercase tracking-[0.25em] font-black px-4 py-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-          Call {PHONE_DISPLAY}
-        </span>
-        <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-choco shadow-xl shadow-black/20 hover:scale-110 transition-transform">
-          <Phone size={22} strokeWidth={2.5} className="text-cream" />
-        </span>
-      </a>
-
       <a
         href={WHATSAPP_URL}
         target="_blank"

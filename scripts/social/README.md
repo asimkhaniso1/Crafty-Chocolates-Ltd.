@@ -1,7 +1,7 @@
 # Crafty Chocolates — Social Auto-Publisher
 
 Autonomous Facebook + Instagram + TikTok publisher that drives leads to
-the brand's WhatsApp number (**0333-2527370** / wa.me `923332527370`) with
+the brand's WhatsApp number (**0335-2426629** / wa.me `923352426629`) with
 per-post click attribution stored in Supabase.
 
 ## How it works

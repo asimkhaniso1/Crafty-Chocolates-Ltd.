@@ -14,7 +14,7 @@ the API secrets are missing. Add the secrets below at:
 | `META_IG_BUSINESS_ID` | IG business account ID (@craftychocolates._com must be a Business/Creator account linked to the FB page) | Graph API explorer: `GET me/accounts?fields=instagram_business_account` |
 | `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` | Post logging + media hosting | Supabase project → Settings → API (same project the site's admin uses) |
 | `SITE_URL` | `https://craftychocolates.com` | — |
-| `WA_NUMBER` | `923332527370` | — |
+| `WA_NUMBER` | `923352426629` | — |
 | `GEMINI_API_KEY` | Caption generation | aistudio.google.com → Get API key (free tier is enough) |
 
 Optional (TikTok — can wait until FB/IG is proven):

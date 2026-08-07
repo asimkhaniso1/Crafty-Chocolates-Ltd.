@@ -21,7 +21,7 @@ interface VercelRes {
   end(body?: string): void;
 }
 
-const WA_NUMBER = process.env.WA_NUMBER ?? '923332527370';
+const WA_NUMBER = process.env.WA_NUMBER ?? '923352426629';
 const FALLBACK_MSG = "Hello Crafty Chocolates, I'd like to enquire about your products.";
 
 let cachedClient: ReturnType<typeof createClient> | null = null;

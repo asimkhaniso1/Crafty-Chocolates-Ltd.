@@ -10,7 +10,7 @@ API access (developer apps, tokens, IDs) and the Supabase + Vercel wiring.
 | Facebook  | <https://www.facebook.com/profile.php?id=61584240309480>                    | `61584240309480`             |
 | Instagram | <https://www.instagram.com/craftychocolates._com/>                          | (look up — see step 4 below) |
 | TikTok    | <https://www.tiktok.com/@craftychocolates.com>                              | n/a — handle is the id       |
-| WhatsApp  | **0333-2527370** — international format `923332527370` used in wa.me links | n/a                          |
+| WhatsApp  | **0335-2426629** — international format `923352426629` used in wa.me links | n/a                          |
 
 ---
 
@@ -98,7 +98,7 @@ Repo Settings → Secrets and variables → Actions → New repository secret.
 | `SUPABASE_URL` | Supabase → Settings → API |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → **service_role** |
 | `SITE_URL` | `https://craftychocolates.pk` |
-| `WA_NUMBER` | `923332527370` |
+| `WA_NUMBER` | `923352426629` |
 | `GH_PAT_FOR_SECRETS` | a GH PAT with `actions:write` scope — used by the workflow to rotate `TIKTOK_REFRESH_TOKEN` automatically each run (optional but recommended) |
 
 ## 9. Vercel Environment Variables
@@ -109,7 +109,7 @@ The redirect endpoint `/api/r/wa` runs on Vercel and needs:
 |---|---|
 | `SUPABASE_URL` | same as §8 |
 | `SUPABASE_SERVICE_ROLE_KEY` | same as §8 |
-| `WA_NUMBER` | `923332527370` |
+| `WA_NUMBER` | `923352426629` |
 
 Set in Vercel → Project → Settings → Environment Variables. Apply to **Production** and **Preview**.
 
