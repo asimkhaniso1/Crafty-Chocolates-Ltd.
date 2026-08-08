@@ -12,6 +12,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  // The alternate shot revealed on hover: the first gallery image that isn't
+  // already the primary. Undefined when a product has only one photo.
+  const secondaryImage = product.gallery?.find(g => g && g !== product.image);
+
   const handleShare = async (e: MouseEvent) => {
     e.stopPropagation();
     const shareData = {
@@ -49,9 +53,24 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:rotate-1"
+          className={`w-full h-full object-cover transition-[transform,opacity] duration-700 ${
+            secondaryImage ? 'group-hover:opacity-0' : 'duration-1000 group-hover:scale-110 group-hover:rotate-1'
+          }`}
         />
-        
+
+        {/* Second product shot crossfaded in on hover — the pack shot behind
+            the close-up, or vice versa. Falls back to the zoom above when a
+            product only has the one photo. */}
+        {secondaryImage && (
+          <img
+            src={secondaryImage}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 scale-[1.03] transition-[opacity,transform] duration-700 ease-out group-hover:opacity-100 group-hover:scale-100"
+          />
+        )}
+
         {/* Subtle Overlay Tint */}
         <div className="absolute inset-0 bg-choco/0 group-hover:bg-choco/10 transition-colors duration-700 pointer-events-none" />
 
