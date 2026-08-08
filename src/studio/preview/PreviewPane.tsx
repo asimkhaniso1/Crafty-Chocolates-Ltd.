@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Box, Gem } from 'lucide-react';
 import { useStudio } from '../state/StudioContext';
 import { getStudioProduct, isBarProduct } from '../data/studioProducts';
@@ -42,9 +42,10 @@ export default function PreviewPane({ compact = false, registerRef = false }: Pr
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPiece = !!packagingOption?.grid && packagingOption.count > 1;
   // The catalog selection (step 1) sets product and packaging together, so
-  // the box view is eligible as soon as a multi-piece box is chosen — no
-  // step gate needed.
-  const boxEligible = isMultiPiece;
+  // the box view is eligible as soon as a boxed packaging is chosen — no
+  // step gate needed. Center-bar boxes (e.g. the single-piece Wedding
+  // Favour Box) render via BoxPreview's photo composite even at count 1.
+  const boxEligible = isMultiPiece || Boolean(packagingOption?.centerBar);
   const isBar = isBarProduct(design.product);
   const printedWrapperEnabled = Boolean(design.extras.printedWrapper?.enabled);
   // Loose packs and the custom-shape brief (packaging null) both wrap a
@@ -56,7 +57,7 @@ export default function PreviewPane({ compact = false, registerRef = false }: Pr
 
   const [manualMode, setManualMode] = useState<ViewMode | null>(null);
   const mode: ViewMode = manualMode ?? (boxEligible ? 'box' : 'piece');
-  const canToggle = isMultiPiece;
+  const canToggle = boxEligible;
 
   const { PieceView, BoxView } = activeRenderer;
 
@@ -111,25 +112,25 @@ export default function PreviewPane({ compact = false, registerRef = false }: Pr
         </div>
       )}
 
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={mode}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          className={`flex w-full flex-1 items-center justify-center ${compact ? 'min-h-0' : ''}`}
-          style={{ maxWidth: compact ? 220 : 340 }}
-        >
-          {mode === 'box' ? (
-            <BoxView design={design} />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <PieceView design={design} size={compact ? 120 : 260} />
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
+      {/* Keyed remount animates each view in; no AnimatePresence — its
+          mode="wait" child swap wedges under React StrictMode's double
+          mount in dev, leaving the old view stuck on screen. */}
+      <motion.div
+        key={mode}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className={`flex w-full flex-1 items-center justify-center ${compact ? 'min-h-0' : ''}`}
+        style={{ maxWidth: compact ? 220 : 340 }}
+      >
+        {mode === 'box' ? (
+          <BoxView design={design} />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <PieceView design={design} size={compact ? 120 : 260} />
+          </div>
+        )}
+      </motion.div>
 
       <div
         className={`font-sans text-center uppercase tracking-[0.2em] ${

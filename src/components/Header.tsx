@@ -31,7 +31,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
         Karachi delivery &amp; cash on delivery&nbsp;&nbsp;·&nbsp;&nbsp;Nationwide shipping&nbsp;&nbsp;·&nbsp;&nbsp;Custom orders ready in 6 days
       </div>
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-6 xl:gap-12">
           <a href="/" className="flex items-center gap-4">
             <img
               src="/logo.png"
@@ -45,7 +45,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-10">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-10">
             {[
               { name: 'Collections', href: '/#collections' },
               { name: 'Custom Molds', href: '/#custom-molds' },
@@ -56,14 +56,14 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               <a
                 key={item.name}
                 href={item.href}
-                className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
+                className="whitespace-nowrap font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
               >
                 {item.name}
               </a>
             ))}
             <Link
               to="/studio"
-              className="font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
+              className="whitespace-nowrap font-sans text-[10px] uppercase tracking-[0.2em] font-semibold text-choco hover:text-gold transition-colors underline-offset-8 hover:underline decoration-gold"
             >
               Design Studio
             </Link>
@@ -71,8 +71,8 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="hidden lg:flex flex-col items-end mr-4">
-            <span className="text-[9px] font-sans font-bold uppercase tracking-[0.3em] text-gold">Est. 2020</span>
+          <div className="hidden xl:flex flex-col items-end mr-4">
+            <span className="whitespace-nowrap text-[9px] font-sans font-bold uppercase tracking-[0.3em] text-gold">Est. 2020</span>
           </div>
 
           <button className="text-choco hover:text-gold transition-colors">
@@ -90,7 +90,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           </button>
 
           <button
-            className="md:hidden p-2 text-choco"
+            className="lg:hidden p-2 text-choco"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -104,7 +104,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-cream border-t border-choco/10 overflow-hidden md:hidden"
+            className="bg-cream border-t border-choco/10 overflow-hidden lg:hidden"
           >
             <nav className="flex flex-col p-8 gap-6 text-center">
               {[
