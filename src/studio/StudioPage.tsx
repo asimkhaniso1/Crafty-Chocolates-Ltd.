@@ -159,9 +159,10 @@ function StudioShell() {
         )}
       </div>
 
-      {/* Mobile preview strip */}
+      {/* Mobile preview strip — min-height (not a fixed 160px) so the
+          artwork and any wrapper cards render whole instead of cropped. */}
       <div className="lg:hidden container mx-auto px-6 md:px-12 mt-12">
-        <div className="h-40 rounded-sm overflow-hidden">
+        <div className="flex min-h-[280px] rounded-sm overflow-hidden">
           <PreviewPane />
         </div>
       </div>

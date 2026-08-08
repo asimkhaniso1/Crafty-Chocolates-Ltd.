@@ -3,7 +3,7 @@
  * Downstream agents (steps, preview, pricing) build on these types.
  */
 
-export type ProductKey = 'bite' | 'signature' | 'bar' | 'custom' | 'slim';
+export type ProductKey = 'bite' | 'signature' | 'bar' | 'square-bar' | 'custom' | 'slim';
 export type ChocolateType = 'milk' | 'semidark';
 /**
  * Box-size step (multi-piece boxes only): whether every cell uses the

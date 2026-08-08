@@ -91,13 +91,15 @@ export default function App() {
     setIsCartOpen(true);
   };
 
+  // Decrementing past 1 drops the line entirely — the minus button doubles as
+  // "remove" once there's a single unit left.
   const updateQuantity = (productId: string, delta: number) => {
     setCart((prev) =>
-      prev.map((item) =>
-        item.product.id === productId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
+      prev.flatMap((item) => {
+        if (item.product.id !== productId) return [item];
+        const quantity = item.quantity + delta;
+        return quantity < 1 ? [] : [{ ...item, quantity }];
+      })
     );
   };
 

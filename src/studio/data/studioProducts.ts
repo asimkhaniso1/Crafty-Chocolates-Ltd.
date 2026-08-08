@@ -29,6 +29,16 @@ export const STUDIO_PRODUCTS: StudioProduct[] = [
     thicknessMm: 5,
   },
   {
+    key: 'square-bar',
+    name: 'Crafty Square Bar',
+    tagline: PRODUCT_CARD_COPY['square-bar'].blurb,
+    // 85 x 85 x 4.5 mm against the 3x3x1cm = 10g reference bite.
+    weightG: 36,
+    dims: '85 × 85 mm',
+    shape: 'square',
+    thicknessMm: 4.5,
+  },
+  {
     key: 'slim',
     name: 'Crafty Slim',
     tagline: PRODUCT_CARD_COPY.slim.blurb,

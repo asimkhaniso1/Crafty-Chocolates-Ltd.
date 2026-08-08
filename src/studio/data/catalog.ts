@@ -211,6 +211,17 @@ const RAW_ITEMS: RawCatalogEntry[] = [
     section: 'loose',
   },
   {
+    key: 'crafty-square-bar',
+    name: 'Crafty Square Bar',
+    photo: '/studio/piece-milk.webp',
+    wrappedPhoto: '/studio/foil-bite-gold.webp',
+    contentsLine: 'One 85 × 85 mm square bar, 4.5 mm thick (≈36 g), foil-wrapped.',
+    occasions: ['corporate', 'wedding'],
+    product: 'square-bar',
+    packagingType: 'individual',
+    section: 'loose',
+  },
+  {
     key: 'crafty-slim',
     name: 'Crafty Slim',
     photo: '/studio/slim-milk.webp',

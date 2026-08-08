@@ -19,6 +19,7 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'base.bite', kind: 'base_unit', value: 190, meta: { product: 'bite' } },
   { rule_key: 'base.signature', kind: 'base_unit', value: 260, meta: { product: 'signature' } },
   { rule_key: 'base.bar', kind: 'base_unit', value: 800, meta: { product: 'bar' } },
+  { rule_key: 'base.squareBar', kind: 'base_unit', value: 700, meta: { product: 'square-bar' } },
   { rule_key: 'base.slim', kind: 'base_unit', value: 400, meta: { product: 'slim' } },
 
   // --- Add-on unit price per piece (chocolate type) ---
@@ -53,6 +54,7 @@ export const PRICING_FALLBACK: PricingRule[] = [
   { rule_key: 'moq.bite', kind: 'moq', value: 50, meta: { product: 'bite' } },
   { rule_key: 'moq.signature', kind: 'moq', value: 50, meta: { product: 'signature' } },
   { rule_key: 'moq.bar', kind: 'moq', value: 50, meta: { product: 'bar' } },
+  { rule_key: 'moq.squareBar', kind: 'moq', value: 50, meta: { product: 'square-bar' } },
   { rule_key: 'moq.slim', kind: 'moq', value: 50, meta: { product: 'slim' } },
 
   // --- Quantity discount tiers (best applicable multiplier applies) ---

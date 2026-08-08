@@ -131,6 +131,7 @@ export const PRODUCT_CARD_COPY: Record<string, { blurb: string }> = {
   bite: { blurb: 'A single, elegant bite — the simplest way to carry a mark.' },
   signature: { blurb: 'Our most-loved silhouette, finished to a premium standard.' },
   bar: { blurb: 'A generous rectangle, ideal for bold logos and long messages.' },
+  'square-bar': { blurb: 'A broad square canvas — our largest single face for a logo.' },
   slim: { blurb: 'A slender bar with room for a single elegant line.' },
   custom: { blurb: 'A fully bespoke shape, designed with our studio team.' },
 };
@@ -487,7 +488,7 @@ export const STEP6_COPY = {
   printedWrapperImageReplaceCta: 'Replace image',
   printedWrapperImageRemoveCta: 'Remove image',
   printedWrapperScaleLabel: 'Image size',
-  printedWrapperMessageLabel: 'Wrapper message (optional)',
+  printedWrapperMessageLabel: 'Back-of-wrapper message (optional)',
   printedWrapperMessagePlaceholder: 'e.g. Thank you for celebrating with us',
   qrTitle: 'QR code',
   qrPlaceholder: 'https://your-link.com',

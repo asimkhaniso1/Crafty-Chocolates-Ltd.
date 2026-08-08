@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { CartItem } from '../types';
-import { formatPrice } from '../constants';
+import { formatPrice, WHATSAPP_NUMBER } from '../constants';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -13,6 +13,34 @@ interface CartDrawerProps {
 
 export default function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, onRemove }: CartDrawerProps) {
   const subtotal = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+
+  /**
+   * Checkout hands the basket to WhatsApp — the same channel every other CTA
+   * on the site uses, since orders are confirmed and paid for in chat (cash
+   * on delivery / bank transfer), not through an online gateway.
+   */
+  const handleCheckout = () => {
+    const lines = [
+      'Hello Crafty Chocolates! I would like to order:',
+      '',
+      ...items.map(
+        item =>
+          `• ${item.product.name} × ${item.quantity} — ${formatPrice(
+            item.product.price * item.quantity,
+            item.product.currency
+          )}`
+      ),
+      '',
+      `Subtotal: ${formatPrice(subtotal, items[0]?.product.currency || 'PKR')}`,
+      '',
+      'Please confirm availability and delivery.',
+    ];
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
+  };
 
   return (
     <AnimatePresence>
@@ -109,9 +137,15 @@ export default function CartDrawer({ isOpen, onClose, items, onUpdateQuantity, o
                   <span className="text-clay uppercase tracking-[0.2em] text-[10px] font-black">Archive Subtotal</span>
                   <span className="text-2xl font-black tracking-tighter text-choco">{formatPrice(subtotal, items[0]?.product.currency || 'PKR')}</span>
                 </div>
-                <button className="w-full bg-choco text-white py-5 font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-choco/10">
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-choco text-white py-5 font-black uppercase tracking-widest text-xs hover:bg-gold transition-all shadow-xl shadow-choco/10"
+                >
                   Begin Checkout
                 </button>
+                <p className="mt-3 text-center text-[10px] uppercase tracking-[0.15em] text-clay">
+                  We confirm your order and delivery on WhatsApp
+                </p>
                 <div className="mt-6 flex justify-center">
                    <img
                      src="/logo.png"

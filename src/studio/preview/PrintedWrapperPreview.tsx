@@ -48,15 +48,18 @@ function WrapperFace({
   isBar,
   compact,
   showContent,
+  showMessage = false,
 }: {
   wrapper?: PrintedWrapper;
   foil?: 'silver' | 'gold';
   isBar: boolean;
   compact: boolean;
   showContent: boolean;
+  /** Back panel: carries the wrapper message (the front carries the artwork). */
+  showMessage?: boolean;
 }) {
   const hasImage = showContent && Boolean(wrapper?.imageDataUrl);
-  const hasMessage = showContent && Boolean(wrapper?.message?.trim());
+  const hasMessage = showMessage && Boolean(wrapper?.message?.trim());
   const foilColour = FOIL_HEX[foil ?? 'silver'];
   const imageScale = Math.min(WRAPPER_SCALE_MAX, Math.max(WRAPPER_SCALE_MIN, wrapper?.scale ?? 1));
 
@@ -190,11 +193,12 @@ export default function PrintedWrapperPreview({
         </div>
         <div>
           <WrapperFace
-            wrapper={wrapper ? { enabled: true } : undefined}
+            wrapper={wrapper}
             foil={foil}
             isBar={isBar}
             compact={compact}
             showContent={false}
+            showMessage
           />
           <p
             className={`mt-1 text-center font-sans uppercase tracking-[0.2em] text-cream/40 ${

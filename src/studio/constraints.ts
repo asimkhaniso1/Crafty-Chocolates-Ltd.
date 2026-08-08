@@ -33,6 +33,7 @@ export const MOQ_DEFAULTS: Record<ProductKey, number> = {
   bite: 50,
   signature: 50,
   bar: 50,
+  'square-bar': 50,
   slim: 50,
   custom: 50,
 };
