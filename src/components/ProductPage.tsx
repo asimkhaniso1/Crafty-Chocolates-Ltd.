@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowLeft, ShoppingCart, Check } from 'lucide-react';
 import { formatPrice } from '../constants';
+import RelatedProducts from './RelatedProducts';
 import { Product } from '../types';
 
 interface ProductPageProps {
@@ -18,6 +19,13 @@ export default function ProductPage({ products, onAddToCart }: ProductPageProps)
     [sku, products]
   );
   const [activeImage, setActiveImage] = useState<string | null>(null);
+
+  // Jumping between products (e.g. from the "You may also like" row) keeps
+  // the old scroll position otherwise, landing the shopper mid-page.
+  useEffect(() => {
+    setActiveImage(null);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [sku]);
 
   if (!product) {
     return (
@@ -148,6 +156,8 @@ export default function ProductPage({ products, onAddToCart }: ProductPageProps)
             </button>
           </div>
         </div>
+
+        <RelatedProducts current={product} products={products} onAddToCart={onAddToCart} />
       </div>
     </div>
   );

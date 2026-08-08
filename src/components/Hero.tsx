@@ -136,12 +136,17 @@ export default function Hero() {
 
             {/* Background: molded-chocolate reveal loop */}
             <div className="absolute inset-0 z-0 overflow-hidden opacity-30 transition-opacity hover:opacity-40">
+              {/* Decorative loop: the poster paints immediately so the panel
+                  is never empty while the (silent, audio-stripped) clip
+                  streams in behind it. */}
               <video
                 src="/hero-mold.mp4"
+                poster="/hero-mold-poster.jpg"
                 autoPlay
                 muted
                 loop
                 playsInline
+                preload="metadata"
                 className="w-full h-full object-cover mix-blend-overlay"
                 aria-hidden="true"
               />
