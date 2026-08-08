@@ -309,7 +309,7 @@ function PrintedWrapperSection() {
             <input
               ref={inputRef}
               type="file"
-              accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+              accept="image/png,image/jpeg,image/jpg,image/svg+xml,application/pdf,.pdf"
               className="hidden"
               onChange={e => {
                 const file = e.target.files?.[0];

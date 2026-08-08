@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { ArrowLeft, Loader2, Scale, UploadCloud, Wrench, X } from 'lucide-react';
 import {
+  BORDER_COPY,
   CUSTOM_BRIEF_COPY,
   CHOCOLATE_NAMES,
   STEP6_COPY,
   STUDIO_COPY_STEP3,
   formatEstimatedWeight,
 } from '../copy';
+import BorderControl from './BorderControl';
 import { WRAPPER_MESSAGE_MAX } from '../constraints';
 import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
 import { initialsToMask, processLogoFile, processWrapperImage } from '../lib/logoProcessor';
@@ -181,6 +183,10 @@ export default function CustomBriefStep() {
   if (pieceWeightG !== null) lines.push(`Est. piece weight: ${formatEstimatedWeight(pieceWeightG)}`);
   lines.push(`Chocolate: ${CHOCOLATE_NAMES[chocolate]}`);
   if (design.logo) lines.push(`Embossed mark: ${design.logo.originalName}`);
+  if (design.border)
+    lines.push(
+      `Embossed border: ${design.border.thicknessMm} mm line, ${design.border.insetPct}% in from the edge`
+    );
   if (wrapMode === 'foil') {
     lines.push(`Wrapping: Foil-wrapped (${STEP6_COPY.foilNames[foil]})`);
   } else if (wrapMode === 'printed') {
@@ -344,7 +350,7 @@ export default function CustomBriefStep() {
         <input
           ref={markInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+          accept="image/png,image/jpeg,image/jpg,image/svg+xml,application/pdf,.pdf"
           className="hidden"
           onChange={e => {
             const file = e.target.files?.[0];
@@ -408,6 +414,14 @@ export default function CustomBriefStep() {
         {markError && <p className="text-red-700 text-xs mt-2 font-semibold">{markError}</p>}
       </div>
 
+      {/* Embossed border */}
+      <div className="mb-8 max-w-md">
+        <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-choco mb-3">
+          {BORDER_COPY.title}
+        </h3>
+        <BorderControl />
+      </div>
+
       {/* Wrapping */}
       <div className="mb-8">
         <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-choco mb-3">
@@ -460,7 +474,7 @@ export default function CustomBriefStep() {
             <input
               ref={artworkInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+              accept="image/png,image/jpeg,image/jpg,image/svg+xml,application/pdf,.pdf"
               className="hidden"
               onChange={e => {
                 const file = e.target.files?.[0];

@@ -15,8 +15,12 @@ import {
 } from '../constraints';
 import { WARNINGS, STUDIO_COPY_STEP3 } from '../copy';
 
-const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
-const REJECTED_TYPES = ['application/pdf', 'application/postscript', 'application/illustrator'];
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'application/pdf'];
+const REJECTED_TYPES = ['application/postscript', 'application/illustrator'];
+
+function isPdfFile(file: File): boolean {
+  return (file.type || '').toLowerCase() === 'application/pdf' || /\.pdf$/i.test(file.name);
+}
 
 const CORNER_TOLERANCE = 12; // corners must agree within this RGB distance to be treated as background
 const FLOOD_TOLERANCE = 40; // flood-fill color distance tolerance
@@ -131,16 +135,59 @@ function validateFile(file: File): string | null {
     return WARNINGS.fileTooLarge;
   }
   const type = (file.type || '').toLowerCase();
-  if (REJECTED_TYPES.includes(type) || /\.(pdf|ai|eps)$/i.test(file.name)) {
+  if (REJECTED_TYPES.includes(type) || /\.(ai|eps)$/i.test(file.name)) {
     return STUDIO_COPY_STEP3.sendViaWhatsApp;
   }
-  if (!ACCEPTED_TYPES.includes(type)) {
+  if (!ACCEPTED_TYPES.includes(type) && !isPdfFile(file)) {
     return WARNINGS.unsupportedFormat;
   }
   return null;
 }
 
+/**
+ * Rasterize page 1 of an uploaded PDF onto a white-backed canvas, sized to
+ * the mask budget. pdf.js is loaded on demand so the (large) library only
+ * ships to customers who actually upload a PDF.
+ */
+async function decodePdfToCanvas(file: File): Promise<PipelineResult<HTMLCanvasElement>> {
+  try {
+    const pdfjs = await import('pdfjs-dist');
+    // Registers globalThis.pdfjsWorker so pdf.js parses on the main thread —
+    // deterministic in dev and prod, no worker spawn to go wrong, and a
+    // one-page logo raster doesn't need a thread.
+    await import('pdfjs-dist/build/pdf.worker.min.mjs');
+
+    const data = await file.arrayBuffer();
+    const loadingTask = pdfjs.getDocument({ data });
+    try {
+      const doc = await loadingTask.promise;
+      const page = await doc.getPage(1);
+      const base = page.getViewport({ scale: 1 });
+      const scale = Math.min(MAX_MASK_PX / base.width, MAX_MASK_PX / base.height, 4);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(viewport.width));
+      canvas.height = Math.max(1, Math.round(viewport.height));
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return { ok: false, error: STUDIO_COPY_STEP3.genericError };
+      // White backing: PDFs are usually transparent-backed, and the mask
+      // pipeline's corner-based background removal expects a solid ground.
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 'print' intent renders in one pass without requestAnimationFrame
+      // scheduling — full quality, and immune to hidden-tab rAF throttling.
+      await page.render({ canvas, viewport, intent: 'print' }).promise;
+      return { ok: true, value: canvas };
+    } finally {
+      void loadingTask.destroy();
+    }
+  } catch {
+    return { ok: false, error: STUDIO_COPY_STEP3.genericError };
+  }
+}
+
 async function decodeFileToCanvas(file: File): Promise<PipelineResult<HTMLCanvasElement>> {
+  if (isPdfFile(file)) return decodePdfToCanvas(file);
   try {
     const objectUrl = URL.createObjectURL(file);
     try {

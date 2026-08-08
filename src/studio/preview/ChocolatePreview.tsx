@@ -186,6 +186,23 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   const caption = !cell && isBarProduct(design.product) ? design.barCaption?.trim() : undefined;
   const logoCenterY = caption ? h * 0.42 : h / 2;
 
+  // Customer-adjustable embossed border ring. Thickness is specified in mm
+  // on the real piece, so convert via the piece's real width; inset moves
+  // the ring between the edge and the centre.
+  const border = design.border;
+  const pieceWidthMm =
+    design.product === 'custom'
+      ? (design.customSpec?.widthCm ?? 4.5) * 10
+      : design.product === 'bar'
+        ? 120
+        : design.product === 'slim'
+          ? 90
+          : design.product === 'bite'
+            ? 30
+            : 45;
+  const borderStrokeW = border ? Math.max(0.75, border.thicknessMm * (w / pieceWidthMm)) : 0;
+  const borderInset = border ? (Math.min(w, h) * border.insetPct) / 100 : 0;
+
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
@@ -253,6 +270,21 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
           stroke="rgba(0,0,0,0.25)"
           strokeWidth={1.2}
         />
+
+        {border && (
+          <rect
+            x={borderInset}
+            y={borderInset}
+            width={w - borderInset * 2}
+            height={h - borderInset * 2}
+            rx={Math.max(r - borderInset * 0.6, 2)}
+            ry={Math.max(r - borderInset * 0.6, 2)}
+            fill="none"
+            stroke="#000"
+            strokeWidth={borderStrokeW}
+            filter={`url(#${filter})`}
+          />
+        )}
 
         {content === 'logo' && design.logo?.maskDataUrl && (
           <image

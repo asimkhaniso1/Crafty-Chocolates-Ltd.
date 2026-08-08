@@ -9,7 +9,9 @@ import {
   CHOCOLATE_DESCRIPTIONS,
   STEP4_COPY,
   MIXED_CHOCOLATE_LABEL,
+  BORDER_COPY,
 } from '../copy';
+import BorderControl from './BorderControl';
 import { BAR_CAPTION_MAX, MARK_SCALE_MIN, MARK_SCALE_MAX } from '../constraints';
 import { useStudio } from '../state/StudioContext';
 import { isBarProduct } from '../data/studioProducts';
@@ -125,7 +127,7 @@ function MarkSection() {
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+            accept="image/png,image/jpeg,image/jpg,image/svg+xml,application/pdf,.pdf"
             className="hidden"
             onChange={handleInputChange}
           />
@@ -424,6 +426,12 @@ export default function Step2Design() {
       <p className="text-clay font-medium mb-10 max-w-lg">{STEP_SUBTITLES[2]}</p>
 
       <MarkSection />
+      <section className="mt-12 pt-10 border-t border-choco/10">
+        <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-4">
+          {BORDER_COPY.title}
+        </h3>
+        <BorderControl />
+      </section>
       <ChocolateSection />
       <CenterBarPanel />
     </div>

@@ -73,6 +73,12 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
     lines.push(`Bar caption: "${design.barCaption.trim()}"`);
   }
 
+  if (design.border) {
+    lines.push(
+      `Embossed border: ${design.border.thicknessMm} mm line, ${design.border.insetPct}% in from the edge`
+    );
+  }
+
   const wrapStatus = piecesWrapStatus(design);
   if (wrapStatus) lines.push(`Pieces: ${wrapStatus}`);
 

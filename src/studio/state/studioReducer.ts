@@ -1,4 +1,5 @@
 import type {
+  BorderState,
   BoxMix,
   CellAssignment,
   ChocolateType,
@@ -48,6 +49,7 @@ export type StudioAction =
   | { type: 'SET_ALL_CELLS'; cells: CellAssignment[] }
   | { type: 'SET_EXTRAS'; extras: Partial<DesignExtras> }
   | { type: 'SET_CUSTOM_SPEC'; spec: Partial<CustomSpec> }
+  | { type: 'SET_BORDER'; border?: BorderState }
   | { type: 'SET_BAR_CAPTION'; barCaption?: string }
   | { type: 'SET_CENTER_BAR_SCALE'; scale: number }
   | { type: 'SET_QUANTITY'; quantity: number }
@@ -168,6 +170,9 @@ export function studioReducer(state: StudioState, action: StudioAction): StudioS
 
     case 'SET_CENTER_BAR_SCALE':
       return { ...state, design: { ...state.design, centerBarScale: action.scale } };
+
+    case 'SET_BORDER':
+      return { ...state, design: { ...state.design, border: action.border } };
 
     case 'SET_QUANTITY':
       return { ...state, design: { ...state.design, quantity: action.quantity } };

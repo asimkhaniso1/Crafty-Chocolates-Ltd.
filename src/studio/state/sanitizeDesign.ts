@@ -6,10 +6,14 @@
  * Used both when loading a shared/saved design (LOAD_DESIGN) and when
  * hydrating from localStorage on first mount.
  */
-import type { BoxMix, CellAssignment, ChocolateType, CustomSpec, Design, PrintedWrapper } from '../types';
+import type { BorderState, BoxMix, CellAssignment, ChocolateType, CustomSpec, Design, PrintedWrapper } from '../types';
 import { getPackagingOption } from '../data/packagingOptions';
 import {
   BAR_CAPTION_MAX,
+  BORDER_INSET_MAX_PCT,
+  BORDER_INSET_MIN_PCT,
+  BORDER_THICKNESS_MAX_MM,
+  BORDER_THICKNESS_MIN_MM,
   MARK_SCALE_MAX,
   MARK_SCALE_MIN,
   WRAPPER_MESSAGE_MAX,
@@ -52,6 +56,18 @@ function sanitizeCenterBarScale(value: unknown): number | undefined {
 function sanitizePiecesWrapped(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined;
 }
+
+function sanitizeBorder(value: unknown): BorderState | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const raw = value as Partial<BorderState>;
+  if (typeof raw.thicknessMm !== 'number' || !Number.isFinite(raw.thicknessMm)) return undefined;
+  const insetRaw = typeof raw.insetPct === 'number' && Number.isFinite(raw.insetPct) ? raw.insetPct : BORDER_INSET_MIN_PCT;
+  return {
+    thicknessMm: Math.min(BORDER_THICKNESS_MAX_MM, Math.max(BORDER_THICKNESS_MIN_MM, raw.thicknessMm)),
+    insetPct: Math.min(BORDER_INSET_MAX_PCT, Math.max(BORDER_INSET_MIN_PCT, insetRaw)),
+  };
+}
+
 
 function sanitizePrintedWrapper(value: unknown): PrintedWrapper | undefined {
   if (!value || typeof value !== 'object') return undefined;
@@ -110,6 +126,7 @@ export function sanitizeDesign(design: Design): Design {
     packaging: packagingStillExists ? design.packaging : null,
     barCaption: sanitizeBarCaption(design.barCaption),
     customSpec: sanitizeCustomSpec(design.customSpec),
+    border: sanitizeBorder(design.border),
     centerBarScale: sanitizeCenterBarScale(design.centerBarScale),
     boxMix: sanitizeBoxMix(design.boxMix),
     extras: {

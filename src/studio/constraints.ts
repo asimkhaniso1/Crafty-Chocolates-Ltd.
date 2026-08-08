@@ -54,3 +54,12 @@ export const MARK_SCALE_MAX = 1.4;
 // Printed wrapper image scale range (Step 6 "Image size" slider).
 export const WRAPPER_SCALE_MIN = 0.5;
 export const WRAPPER_SCALE_MAX = 1.5;
+
+// Embossed border ring: line thickness (mm on the real piece) and how far
+// in from the edge it sits (% of the shorter side).
+export const BORDER_THICKNESS_MIN_MM = 0.5;
+export const BORDER_THICKNESS_MAX_MM = 4;
+export const BORDER_THICKNESS_DEFAULT_MM = 1.5;
+export const BORDER_INSET_MIN_PCT = 4;
+export const BORDER_INSET_MAX_PCT = 24;
+export const BORDER_INSET_DEFAULT_PCT = 8;

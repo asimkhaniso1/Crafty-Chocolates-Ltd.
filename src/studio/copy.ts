@@ -97,6 +97,18 @@ export const CUSTOM_BRIEF_COPY = {
   backCta: 'Back to products',
 };
 
+/** Embossed border ring controls — shared by Step 2 (Design it) and the custom-shape brief. */
+export const BORDER_COPY = {
+  title: 'Embossed border',
+  toggleOn: 'Border',
+  toggleOff: 'No border',
+  thicknessLabel: 'Border thickness',
+  thicknessHints: ['Thin', 'Thick'] as [string, string],
+  insetLabel: 'Border position',
+  insetHints: ['Near edge', 'Inward'] as [string, string],
+  note: 'A raised border line moulded into the chocolate face, matching your mark’s emboss.',
+};
+
 export const CAPABILITY_BAND_COPY = {
   eyebrow: 'Bespoke · made in-house',
   heading: "Don't see your shape?",
@@ -178,7 +190,7 @@ export const WARNINGS = {
   fineDetail:
     'This design has very fine detail that may not translate cleanly onto chocolate. Consider simplifying it for the cleanest result.',
   fileTooLarge: 'That file is larger than we can accept. Please upload something under 5MB.',
-  unsupportedFormat: 'We can’t read that file format. Please upload a PNG, JPG, or SVG.',
+  unsupportedFormat: 'We can’t read that file format. Please upload a PNG, JPG, SVG, or PDF.',
   sizeExceeded:
     'Your design exceeds our in-house mold size. Please scale it down or split it across multiple pieces.',
 };
@@ -203,7 +215,7 @@ export const PACKAGING_OCCASION_LABELS: Record<string, string> = {
 
 export const STUDIO_COPY_STEP3 = {
   dropzoneTitle: 'Drop your logo or artwork here',
-  dropzoneBody: 'PNG, JPG, or SVG, up to 5MB. We\'ll clean it up automatically.',
+  dropzoneBody: 'PNG, JPG, SVG, or PDF, up to 5MB. We\'ll clean it up automatically.',
   browseButton: 'Browse files',
   processing: 'Reading your artwork…',
   removeButton: 'Remove',

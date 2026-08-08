@@ -34,6 +34,18 @@ export interface PackagingSelection {
   count: number;
 }
 
+/**
+ * Optional embossed border ring moulded into the piece face. Thickness is
+ * the line weight on the real piece; inset moves the ring between the edge
+ * and the centre.
+ */
+export interface BorderState {
+  /** Line thickness in mm on the real piece. */
+  thicknessMm: number;
+  /** Distance from the piece edge to the ring, as % of the shorter side. */
+  insetPct: number;
+}
+
 export interface PrintedWrapper {
   enabled: true;
   /** Full-colour artwork, downscaled to a compact data URL. */
@@ -94,6 +106,8 @@ export interface Design {
   centerBarScale?: number;
   /** Custom-shape brief specs; only meaningful while product is 'custom'. */
   customSpec?: CustomSpec;
+  /** Embossed border ring on the piece face; undefined = no border. */
+  border?: BorderState;
 }
 
 export type StudioStep = 1 | 2 | 3 | 4;
