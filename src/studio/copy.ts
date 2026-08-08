@@ -51,7 +51,7 @@ export const NAV_LABELS = {
 export const CUSTOM_BRIEF_COPY = {
   title: 'Your own shape',
   body:
-    "Beyond our standard shapes, we design, laser-cut, and vacuum-form custom molds in-house — so we can make almost any silhouette: a logo, a monogram, a letter or number, a heart, or a freeform organic form, at sizes up to A4. Tell us your idea and share a reference, and we'll follow up with a tailored quote.",
+    "Beyond our standard shapes, we make custom molds in-house — so we can make almost any silhouette: a logo, a monogram, a letter or number, a heart, or a freeform organic form, at sizes up to A4. Tell us your idea and share a reference, and we'll follow up with a tailored quote.",
   shapeLabel: 'What kind of shape?',
   shapeTypes: [
     { key: 'logo', label: 'Logo / Monogram' },
@@ -61,7 +61,7 @@ export const CUSTOM_BRIEF_COPY = {
     { key: 'other', label: 'Something else' },
   ] as const,
   sizeLabel: 'Piece size',
-  sizeHint: `Our molds are laser-cut and vacuum-formed in-house, up to A4 (about ${maxMoldSizeCm}).`,
+  sizeHint: `Our custom molds are made in-house, at sizes up to A4 (about ${maxMoldSizeCm}).`,
   widthLabel: 'Width (cm)',
   heightLabel: 'Height (cm)',
   thicknessLabel: 'Thickness (mm)',
@@ -75,17 +75,21 @@ export const CUSTOM_BRIEF_COPY = {
   foilColourLabel: 'Foil colour',
   wrapperMessageLabel: 'Wrapper message (optional)',
   wrapperMessagePlaceholder: 'e.g. Eid Mubarak from the Khan family…',
-  wrapperArtworkNote: 'Have artwork for the wrapper? Attach it in the WhatsApp chat after sending your brief.',
+  markLabel: 'Your mark (embossed on the chocolate)',
+  markUploadCta: 'Upload logo / artwork',
+  markInitialsLabel: 'Or emboss initials (up to 4 characters)',
+  markInitialsApply: 'Apply',
+  markRemove: 'Remove',
   quantityLabel: 'Quantity (pieces)',
   moqNote: 'Custom shapes start at 100 pieces.',
   moqError: 'Custom shapes have a minimum order of 100 pieces.',
   toolingLabel: 'One-time mold tooling',
   toolingNote:
-    'Designing, laser-cutting, and vacuum-forming your custom mold — charged once per design, at any quantity. The mold stays in our studio for your reorders; molds themselves are not for sale.',
+    'Your custom mold, designed and made in-house — charged once per design, at any quantity. The mold stays in our studio for your reorders; molds themselves are not for sale. Prefer one of our standard shapes and sizes? Then only the regular Rs. 5,000 design fee applies — pick any catalogue product to design on.',
   weightLabel: 'Estimated piece weight',
   weightTotalLabel: 'Estimated batch weight',
   weightNote:
-    'A working estimate from your size, thickness, and shape — we confirm the exact weight with your quote.',
+    'Estimated from your size and thickness against our reference bite (3 × 3 cm × 1 cm ≈ 10 g) — we confirm the exact weight with your quote.',
   detailsLabel: 'Tell us your idea',
   detailsPlaceholder: 'e.g. our company logo, about 5 cm wide, milk chocolate…',
   cta: 'Send your brief via WhatsApp',
@@ -97,7 +101,7 @@ export const CAPABILITY_BAND_COPY = {
   eyebrow: 'Bespoke · made in-house',
   heading: "Don't see your shape?",
   body:
-    'We design, laser-cut, and vacuum-form custom molds in-house — any silhouette, logo, monogram, or organic form.',
+    'We make custom molds in-house — any silhouette, logo, monogram, or organic form.',
   sizeNote: `Made to your design, at sizes up to A4 (about ${maxMoldSizeCm}).`,
   cta: 'Design a custom shape',
 };

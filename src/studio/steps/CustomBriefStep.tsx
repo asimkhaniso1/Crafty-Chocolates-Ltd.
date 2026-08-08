@@ -1,8 +1,15 @@
-import { useState } from 'react';
-import { ArrowLeft, Scale, Wrench } from 'lucide-react';
-import { CUSTOM_BRIEF_COPY, CHOCOLATE_NAMES, STEP6_COPY, formatEstimatedWeight } from '../copy';
+import { useRef, useState } from 'react';
+import { ArrowLeft, Loader2, Scale, UploadCloud, Wrench, X } from 'lucide-react';
+import {
+  CUSTOM_BRIEF_COPY,
+  CHOCOLATE_NAMES,
+  STEP6_COPY,
+  STUDIO_COPY_STEP3,
+  formatEstimatedWeight,
+} from '../copy';
 import { WRAPPER_MESSAGE_MAX } from '../constraints';
 import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
+import { initialsToMask, processLogoFile, processWrapperImage } from '../lib/logoProcessor';
 import { useStudio } from '../state/StudioContext';
 import type { ChocolateType } from '../types';
 
@@ -22,29 +29,18 @@ const THICKNESS_MAX_MM = 25;
 /** Custom shapes are made to order from a new mold — they start at 100 pieces. */
 const CUSTOM_MIN_QTY = 100;
 /**
- * One-time tooling for a bespoke shape (design + laser-cut + vacuum-form),
+ * One-time tooling for a bespoke shape (design + mold-making),
  * separate from the standard studio's fee.designMold pricing rule, which
  * stays on standard-canvas quotes.
  */
 const CUSTOM_TOOLING_FEE_PKR = 20000;
 
 /**
- * Matches the real Crafty Bite: 10 g at 3 × 3 × 1 cm. Kept consistent with
- * studioProducts.ts weights rather than textbook chocolate density.
+ * Base reference set by the owner: the real Crafty Bite averages 10 g at
+ * 3 × 3 cm × 1 cm, so estimated weight is volume scaled straight off that —
+ * no silhouette discount.
  */
 const CHOCOLATE_DENSITY_G_PER_CM3 = 10 / 9;
-
-/**
- * How much of the width × height bounding box a silhouette typically fills.
- * A letter is mostly negative space; a heart nearly fills its box.
- */
-const SHAPE_FILL_FACTORS: Record<string, number> = {
-  logo: 0.6,
-  letter: 0.45,
-  heart: 0.75,
-  organic: 0.7,
-  other: 0.65,
-};
 
 type WrapMode = 'none' | 'foil' | 'printed';
 
@@ -62,6 +58,59 @@ export default function CustomBriefStep() {
   const [thickness, setThickness] = useState(spec.thicknessMm?.toString() ?? '');
   const [quantity, setQuantity] = useState('');
   const [details, setDetails] = useState('');
+  const [initials, setInitials] = useState('');
+  const [markProcessing, setMarkProcessing] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
+  const [artworkProcessing, setArtworkProcessing] = useState(false);
+  const [artworkError, setArtworkError] = useState<string | null>(null);
+  const markInputRef = useRef<HTMLInputElement>(null);
+  const artworkInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleMarkFile(file: File) {
+    setMarkError(null);
+    setMarkProcessing(true);
+    try {
+      const result = await processLogoFile(file);
+      if ('error' in result) setMarkError(result.error);
+      else dispatch({ type: 'SET_LOGO', logo: result.logo });
+    } finally {
+      setMarkProcessing(false);
+    }
+  }
+
+  async function handleApplyInitials() {
+    if (!initials.trim()) return;
+    setMarkError(null);
+    setMarkProcessing(true);
+    try {
+      const logoState = await initialsToMask(initials);
+      if (!logoState.maskDataUrl) {
+        setMarkError(STUDIO_COPY_STEP3.genericError);
+        return;
+      }
+      dispatch({ type: 'SET_LOGO', logo: logoState });
+    } finally {
+      setMarkProcessing(false);
+    }
+  }
+
+  async function handleArtworkFile(file: File) {
+    setArtworkError(null);
+    setArtworkProcessing(true);
+    try {
+      const result = await processWrapperImage(file);
+      if ('error' in result) setArtworkError(result.error);
+      else
+        dispatch({
+          type: 'SET_EXTRAS',
+          extras: {
+            printedWrapper: { enabled: true, ...design.extras.printedWrapper, imageDataUrl: result.imageDataUrl },
+          },
+        });
+    } finally {
+      setArtworkProcessing(false);
+    }
+  }
 
   const shapeType = spec.shapeType ?? '';
   const chocolate = design.chocolate;
@@ -115,11 +164,7 @@ export default function CustomBriefStep() {
 
   const pieceWeightG =
     widthCm !== null && heightCm !== null && thicknessMm !== null && fitsMold
-      ? widthCm *
-        heightCm *
-        (thicknessMm / 10) *
-        CHOCOLATE_DENSITY_G_PER_CM3 *
-        (SHAPE_FILL_FACTORS[shapeType] ?? 0.65)
+      ? widthCm * heightCm * (thicknessMm / 10) * CHOCOLATE_DENSITY_G_PER_CM3
       : null;
 
   const quantityN = parsePositive(quantity);
@@ -135,11 +180,14 @@ export default function CustomBriefStep() {
   if (thicknessMm !== null) lines.push(`Thickness: ${thicknessMm} mm`);
   if (pieceWeightG !== null) lines.push(`Est. piece weight: ${formatEstimatedWeight(pieceWeightG)}`);
   lines.push(`Chocolate: ${CHOCOLATE_NAMES[chocolate]}`);
+  if (design.logo) lines.push(`Embossed mark: ${design.logo.originalName}`);
   if (wrapMode === 'foil') {
     lines.push(`Wrapping: Foil-wrapped (${STEP6_COPY.foilNames[foil]})`);
   } else if (wrapMode === 'printed') {
     lines.push(`Wrapping: Printed wrapper (${STEP6_COPY.foilNames[foil]} foil ends)`);
     if (wrapperMessage.trim()) lines.push(`Wrapper message: ${wrapperMessage.trim()}`);
+    if (design.extras.printedWrapper?.imageDataUrl)
+      lines.push('Wrapper artwork: uploaded in the studio — I will share the file in this chat.');
   }
   if (quantityN !== null && !quantityBelowMoq) {
     lines.push(`Quantity: ${quantityN} pcs`);
@@ -288,6 +336,78 @@ export default function CustomBriefStep() {
         </div>
       </div>
 
+      {/* Embossed mark: logo/artwork upload or initials, same pipeline as the standard studio */}
+      <div className="mb-8 max-w-md">
+        <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-choco mb-3">
+          {CUSTOM_BRIEF_COPY.markLabel}
+        </h3>
+        <input
+          ref={markInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0];
+            if (file) void handleMarkFile(file);
+            e.target.value = '';
+          }}
+        />
+        {design.logo ? (
+          <div className="flex items-center gap-4 border border-choco/15 bg-cream px-4 py-3">
+            <img
+              src={design.logo.maskDataUrl}
+              alt={design.logo.originalName}
+              className="h-12 w-12 object-contain bg-white/60 rounded-sm"
+            />
+            <span className="flex-1 text-sm text-choco font-medium truncate">{design.logo.originalName}</span>
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'CLEAR_LOGO' })}
+              className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.15em] font-bold text-clay hover:text-choco transition-colors"
+            >
+              <X size={12} /> {CUSTOM_BRIEF_COPY.markRemove}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <button
+              type="button"
+              onClick={() => markInputRef.current?.click()}
+              disabled={markProcessing}
+              className="inline-flex items-center gap-2 border border-choco/20 px-5 py-3 text-[11px] uppercase tracking-[0.15em] font-bold text-choco hover:border-gold transition-colors disabled:opacity-50"
+            >
+              {markProcessing ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+              {markProcessing ? STUDIO_COPY_STEP3.processing : CUSTOM_BRIEF_COPY.markUploadCta}
+            </button>
+            <p className="text-clay text-xs mt-2">{STUDIO_COPY_STEP3.dropzoneBody}</p>
+            <div className="mt-3">
+              <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+                {CUSTOM_BRIEF_COPY.markInitialsLabel}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={initials}
+                  maxLength={4}
+                  onChange={e => setInitials(e.target.value)}
+                  placeholder={STUDIO_COPY_STEP3.initialsPlaceholder}
+                  className={`${INPUT_CLASS} max-w-[140px]`}
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleApplyInitials()}
+                  disabled={markProcessing || !initials.trim()}
+                  className="px-5 py-2 text-[11px] uppercase tracking-[0.15em] font-bold border border-choco/20 text-choco hover:border-gold transition-colors disabled:opacity-40"
+                >
+                  {CUSTOM_BRIEF_COPY.markInitialsApply}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {markError && <p className="text-red-700 text-xs mt-2 font-semibold">{markError}</p>}
+      </div>
+
       {/* Wrapping */}
       <div className="mb-8">
         <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-choco mb-3">
@@ -335,6 +455,62 @@ export default function CustomBriefStep() {
         {wrapMode === 'printed' && (
           <div className="mt-4 max-w-md">
             <label className="block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+              {STEP6_COPY.printedWrapperImageLabel}
+            </label>
+            <input
+              ref={artworkInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) void handleArtworkFile(file);
+                e.target.value = '';
+              }}
+            />
+            {design.extras.printedWrapper?.imageDataUrl ? (
+              <div className="flex items-center gap-4 border border-choco/15 bg-cream px-4 py-3">
+                <img
+                  src={design.extras.printedWrapper.imageDataUrl}
+                  alt={STEP6_COPY.printedWrapperImageLabel}
+                  className="h-12 w-12 object-cover rounded-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => artworkInputRef.current?.click()}
+                  className="flex-1 text-left text-[10px] uppercase tracking-[0.15em] font-bold text-choco hover:text-gold transition-colors"
+                >
+                  {STEP6_COPY.printedWrapperImageReplaceCta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    dispatch({
+                      type: 'SET_EXTRAS',
+                      extras: {
+                        printedWrapper: { enabled: true, ...design.extras.printedWrapper, imageDataUrl: undefined },
+                      },
+                    })
+                  }
+                  className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.15em] font-bold text-clay hover:text-choco transition-colors"
+                >
+                  <X size={12} /> {CUSTOM_BRIEF_COPY.markRemove}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => artworkInputRef.current?.click()}
+                disabled={artworkProcessing}
+                className="inline-flex items-center gap-2 border border-choco/20 px-5 py-3 text-[11px] uppercase tracking-[0.15em] font-bold text-choco hover:border-gold transition-colors disabled:opacity-50"
+              >
+                {artworkProcessing ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
+                {artworkProcessing ? STUDIO_COPY_STEP3.processing : STEP6_COPY.printedWrapperImageCta}
+              </button>
+            )}
+            {artworkError && <p className="text-red-700 text-xs mt-2 font-semibold">{artworkError}</p>}
+
+            <label className="mt-4 block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
               {CUSTOM_BRIEF_COPY.wrapperMessageLabel}
             </label>
             <input
@@ -356,7 +532,6 @@ export default function CustomBriefStep() {
               placeholder={CUSTOM_BRIEF_COPY.wrapperMessagePlaceholder}
               className={INPUT_CLASS}
             />
-            <p className="text-clay text-xs mt-2">{CUSTOM_BRIEF_COPY.wrapperArtworkNote}</p>
           </div>
         )}
       </div>
