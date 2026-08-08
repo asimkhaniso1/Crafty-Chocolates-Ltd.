@@ -371,8 +371,6 @@ function CenterBarPanel() {
   if (!option?.centerBar) return null;
 
   const hasRing = Boolean(option.grid && option.count > 1);
-  const scale = Math.min(MARK_SCALE_MAX, Math.max(MARK_SCALE_MIN, design.centerBarScale ?? 1));
-
   return (
     <section className="mt-12 pt-10 border-t border-choco/10">
       <h3 className="text-[11px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
@@ -382,20 +380,9 @@ function CenterBarPanel() {
         {hasRing ? CENTER_BAR_COPY.assortedNote : CENTER_BAR_COPY.singleBarNote}
       </p>
 
-      <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-clay mb-2">
-        {CENTER_BAR_COPY.markSizeLabel}
-      </label>
-      <input
-        type="range"
-        min={MARK_SCALE_MIN}
-        max={MARK_SCALE_MAX}
-        step={0.01}
-        value={scale}
-        onChange={e => dispatch({ type: 'SET_CENTER_BAR_SCALE', scale: parseFloat(e.target.value) })}
-        className="w-full accent-gold"
-      />
-
-      <div className="mt-6">
+      {/* Mark-size slider removed (2026-08): the mark section's own "Size on
+          chocolate" slider already covers scaling — one control, one truth. */}
+      <div className="mt-2">
         <label
           className="block text-[10px] uppercase tracking-[0.2em] font-bold text-clay mb-2"
           htmlFor="studio-centerbar-caption"

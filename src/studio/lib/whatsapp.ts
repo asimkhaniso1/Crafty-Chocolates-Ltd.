@@ -2,6 +2,8 @@ import { WHATSAPP_NUMBER, formatPrice } from '../../constants';
 import {
   EMBOSS_NAMES,
   STEP6_COPY,
+  WEDDING_FAVOR_BAR_LINE,
+  centerBarRowLabel,
   centerBarSpec,
   chocolateSummaryLabel,
   packagingSummaryName,
@@ -43,9 +45,14 @@ export function piecesWrapStatus(design: Design): string | undefined {
  * Kept under ~900 characters once encoded.
  */
 export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: string): string {
-  const productName = design.product
-    ? productSpecLine(getStudioProduct(design.product)) || design.product
-    : 'Custom piece';
+  // Wedding favour box: the customer's design lands on the favour bar itself,
+  // so the bar (not the abstract canvas product) is the product line.
+  const productName =
+    design.packaging?.type === 'wedding-favor'
+      ? WEDDING_FAVOR_BAR_LINE
+      : design.product
+        ? productSpecLine(getStudioProduct(design.product)) || design.product
+        : 'Custom piece';
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPieceBox = Boolean(packagingOption?.grid && packagingOption.count > 1);
@@ -65,9 +72,11 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
     `Packaging: ${packagingName}`,
   ];
 
-  if (packagingOption?.centerBar) {
+  // Wedding favour box: the product line above already IS the favour bar —
+  // repeating it as a second bar row is what made the summary read wrong.
+  if (packagingOption?.centerBar && design.packaging?.type !== 'wedding-favor') {
     const spec = centerBarSpec(design.packaging?.type);
-    if (spec) lines.push(`Message bar: ${spec}`);
+    if (spec) lines.push(`${centerBarRowLabel(design.packaging?.type)}: ${spec}`);
   }
 
   if (design.barCaption?.trim()) {

@@ -91,7 +91,9 @@ function WrapperFace({
           style={{
             left: `${FOIL_MARGIN_PCT}%`,
             right: `${FOIL_MARGIN_PCT}%`,
-            background: 'linear-gradient(180deg, #FDFBF7 0%, #F2ECE0 50%, #FDFBF7 100%)',
+            background: wrapper.bgColour
+              ? `linear-gradient(180deg, ${wrapper.bgColour} 0%, ${wrapper.bgColour}E6 50%, ${wrapper.bgColour} 100%)`
+              : 'linear-gradient(180deg, #FDFBF7 0%, #F2ECE0 50%, #FDFBF7 100%)',
           }}
         >
           {hasImage && (
@@ -117,15 +119,18 @@ function WrapperFace({
           />
 
           {hasMessage && (
-            <div className="absolute inset-0 flex items-center justify-center px-[8%]">
+            /* Message sits at the wrapper's footer, like the real printed
+               band — never over the centre of the artwork. */
+            <div className="absolute inset-x-0 bottom-[5%] flex justify-center px-[8%]">
               <p
                 className={`text-center font-serif italic leading-tight ${
                   compact ? 'text-[12px]' : 'text-lg'
                 }`}
                 style={{
-                  color: hasImage ? '#FDFBF7' : '#2D1E17',
-                  paintOrder: hasImage ? 'stroke' : undefined,
-                  WebkitTextStroke: hasImage ? '1.2px rgba(45,30,23,0.65)' : undefined,
+                  color: wrapper!.textColour ?? (hasImage ? '#FDFBF7' : '#2D1E17'),
+                  paintOrder: hasImage && !wrapper!.textColour ? 'stroke' : undefined,
+                  WebkitTextStroke:
+                    hasImage && !wrapper!.textColour ? '1.2px rgba(45,30,23,0.65)' : undefined,
                 }}
               >
                 {wrapper!.message}

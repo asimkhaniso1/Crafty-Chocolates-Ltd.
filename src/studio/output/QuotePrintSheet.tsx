@@ -4,6 +4,8 @@ import {
   ORDER_VISUALS_COPY,
   PRINT_SHEET_COPY,
   STEP6_COPY,
+  WEDDING_FAVOR_BAR_LINE,
+  centerBarRowLabel,
   centerBarSpec,
   chocolateSummaryLabel,
   packagingSummaryName,
@@ -30,9 +32,14 @@ interface QuotePrintSheetProps {
  * printing simply hides #root and shows the sheet (see the <style> block).
  */
 export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps) {
-  const productName = design.product
-    ? productSpecLine(getStudioProduct(design.product)) || design.product
-    : 'Custom piece';
+  // Wedding favour box: the design lands on the favour bar itself — show the
+  // bar as the product, and skip the duplicate bar row below.
+  const productName =
+    design.packaging?.type === 'wedding-favor'
+      ? WEDDING_FAVOR_BAR_LINE
+      : design.product
+        ? productSpecLine(getStudioProduct(design.product)) || design.product
+        : 'Custom piece';
   const embossName = EMBOSS_NAMES[design.emboss] ?? design.emboss;
   const packagingOption = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
   const isMultiPieceBox = Boolean(packagingOption?.grid && packagingOption.count > 1);
@@ -42,7 +49,10 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
       ? packagingSummaryName(packagingOption.name, packagingOption.count, packagingOption.centerBar)
       : design.packaging.type
     : 'Not selected';
-  const messageBarSpec = packagingOption?.centerBar ? centerBarSpec(design.packaging?.type) : undefined;
+  const messageBarSpec =
+    packagingOption?.centerBar && design.packaging?.type !== 'wedding-favor'
+      ? centerBarSpec(design.packaging?.type)
+      : undefined;
   const wrapStatus = piecesWrapStatus(design);
   const wrapper = design.extras.printedWrapper;
   const wrapperSummary = wrapper?.enabled
@@ -111,7 +121,7 @@ export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps)
             </tr>
             {messageBarSpec && (
               <tr>
-                <td className="py-1 text-clay">Message bar</td>
+                <td className="py-1 text-clay">{centerBarRowLabel(design.packaging?.type)}</td>
                 <td className="py-1 text-right font-semibold text-choco">{messageBarSpec}</td>
               </tr>
             )}

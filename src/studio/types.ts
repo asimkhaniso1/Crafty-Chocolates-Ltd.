@@ -53,6 +53,10 @@ export interface PrintedWrapper {
   message?: string;
   /** Image size within the wrapper band (0.5–1.5, default 1). */
   scale?: number;
+  /** Wrapper paper background colour (hex); default ivory paper. */
+  bgColour?: string;
+  /** Wrapper message font colour (hex); default resolves against the background. */
+  textColour?: string;
 }
 
 export interface DesignExtras {

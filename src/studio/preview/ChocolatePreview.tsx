@@ -182,8 +182,10 @@ export default function ChocolatePreview({ design, cell, size = 220, shape }: Ch
   const showPhoto = Boolean(photoSrc) && photoSrc !== failedPhotoSrc;
   const markSafeRatio = isBite ? MARK_SAFE_RATIO_BITE : MARK_SAFE_RATIO;
 
-  // Bar caption: an embossed serif line beneath the mark on the bar/slim face.
-  const caption = !cell && isBarProduct(design.product) ? design.barCaption?.trim() : undefined;
+  // Embossed serif caption beneath the mark. Shown on any single-piece view
+  // whenever a caption is typed (bar faces and the X+1 center-bar flows both
+  // reach here), so the piece view never hides a caption the box view shows.
+  const caption = !cell ? design.barCaption?.trim() : undefined;
   const logoCenterY = caption ? h * 0.42 : h / 2;
 
   // Customer-adjustable embossed border ring. Thickness is specified in mm

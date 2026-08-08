@@ -76,6 +76,7 @@ function ToggleCard({
 function WrapPreviewCard({
   design,
   isWrappedState,
+  printed = false,
   active,
   title,
   body,
@@ -83,6 +84,8 @@ function WrapPreviewCard({
 }: {
   design: Design;
   isWrappedState: boolean;
+  /** Printed-wrapper variant: foil thumb with a paper band overlay. */
+  printed?: boolean;
   active: boolean;
   title: string;
   body: string;
@@ -93,7 +96,11 @@ function WrapPreviewCard({
   const crop = (isBar ? FOIL_BAR_PHOTO_CROP : FOIL_BITE_PHOTO_CROP)[foilColour];
   const foilSrc = isBar ? `/studio/foil-${foilColour}.webp` : `/studio/foil-bite-${foilColour}.webp`;
   const cover = cssCoverCrop(crop);
-  const hoverLabel = isWrappedState ? STEP3_WRAPPED_COPY.wrappedCardLabel : STEP3_WRAPPED_COPY.unwrappedCardLabel;
+  const hoverLabel = printed
+    ? STEP3_WRAPPED_COPY.printedCardLabel
+    : isWrappedState
+      ? STEP3_WRAPPED_COPY.wrappedCardLabel
+      : STEP3_WRAPPED_COPY.unwrappedCardLabel;
 
   return (
     <button
@@ -124,6 +131,23 @@ function WrapPreviewCard({
                   height: cover.imgStyle.height,
                 }}
               />
+              {printed && (
+                /* Paper band over the foil — the printed-wrapper look in miniature. */
+                <div
+                  className="absolute inset-y-0 left-[12%] right-[12%] flex items-end justify-center pb-[6%]"
+                  style={{
+                    background:
+                      design.extras.printedWrapper?.bgColour
+                        ? `linear-gradient(180deg, ${design.extras.printedWrapper.bgColour} 0%, ${design.extras.printedWrapper.bgColour}E6 100%)`
+                        : 'linear-gradient(180deg, #FDFBF7 0%, #F2ECE0 100%)',
+                    boxShadow: '0 0 0 1px rgba(45,30,23,0.18)',
+                  }}
+                >
+                  <span className="text-[7px] uppercase tracking-[0.2em] font-bold text-choco/40">
+                    Abc
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <ChocolatePreview design={design} size={96} />
@@ -158,24 +182,45 @@ function WrapPreviewCard({
  * pieces are moulded assorted shapes, not the customer's flat canvas, so the
  * choice is never offered — pieces always pack unwrapped in paper cups.
  */
-function WrappedSection({ isLoose, assortedRing }: { isLoose: boolean; assortedRing?: boolean }) {
+function WrappedSection({
+  isLoose,
+  assortedRing,
+  wrapperEligible = false,
+}: {
+  isLoose: boolean;
+  assortedRing?: boolean;
+  wrapperEligible?: boolean;
+}) {
   const { design, dispatch } = useStudio();
-  const wrapped = isLoose ? Boolean(design.extras.foil) : design.extras.piecesWrapped === true;
+  const printed = Boolean(design.extras.printedWrapper?.enabled);
+  const foiled = isLoose ? Boolean(design.extras.foil) : design.extras.piecesWrapped === true;
+  const wrapped = foiled || printed;
 
   function chooseWrapped() {
-    if (isLoose) {
-      dispatch({ type: 'SET_EXTRAS', extras: { foil: design.extras.foil ?? 'silver' } });
-    } else {
-      dispatch({ type: 'SET_EXTRAS', extras: { piecesWrapped: true, foil: design.extras.foil ?? 'silver' } });
-    }
+    const extras = { foil: design.extras.foil ?? ('silver' as const), printedWrapper: undefined };
+    dispatch({
+      type: 'SET_EXTRAS',
+      extras: isLoose ? extras : { ...extras, piecesWrapped: true },
+    });
   }
 
   function chooseUnwrapped() {
-    if (isLoose) {
-      dispatch({ type: 'SET_EXTRAS', extras: { foil: undefined } });
-    } else {
-      dispatch({ type: 'SET_EXTRAS', extras: { piecesWrapped: false, foil: undefined } });
-    }
+    const extras = { foil: undefined, printedWrapper: undefined };
+    dispatch({
+      type: 'SET_EXTRAS',
+      extras: isLoose ? extras : { ...extras, piecesWrapped: false },
+    });
+  }
+
+  function choosePrinted() {
+    const extras = {
+      foil: design.extras.foil ?? ('silver' as const),
+      printedWrapper: { enabled: true as const, ...design.extras.printedWrapper },
+    };
+    dispatch({
+      type: 'SET_EXTRAS',
+      extras: isLoose ? extras : { ...extras, piecesWrapped: true },
+    });
   }
 
   useEffect(() => {
@@ -200,11 +245,15 @@ function WrappedSection({ isLoose, assortedRing }: { isLoose: boolean; assortedR
 
   return (
     <section>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+      <div
+        className={`grid grid-cols-1 gap-5 mb-6 ${
+          wrapperEligible ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+        }`}
+      >
         <WrapPreviewCard
           design={design}
           isWrappedState
-          active={wrapped}
+          active={foiled && !printed}
           title={wrappedTitle}
           body={wrappedBody}
           onSelect={chooseWrapped}
@@ -217,6 +266,17 @@ function WrappedSection({ isLoose, assortedRing }: { isLoose: boolean; assortedR
           body={unwrappedBody}
           onSelect={chooseUnwrapped}
         />
+        {wrapperEligible && (
+          <WrapPreviewCard
+            design={design}
+            isWrappedState
+            printed
+            active={printed}
+            title={STEP3_WRAPPED_COPY.printedTitle}
+            body={STEP3_WRAPPED_COPY.printedBody}
+            onSelect={choosePrinted}
+          />
+        )}
       </div>
 
       {wrapped && (
@@ -410,6 +470,66 @@ function PrintedWrapperSection() {
               className="w-full border border-choco/15 bg-cream px-3 py-2 text-sm text-choco focus:border-gold outline-none"
             />
           </div>
+
+          {/* Wrapper paper + message colours */}
+          <div className="mt-5 flex flex-wrap gap-8">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+                {STEP3_WRAPPED_COPY.wrapperBgTitle}
+              </p>
+              <div className="flex gap-2">
+                {Object.entries(STEP3_WRAPPED_COPY.wrapperBgNames).map(([hex, name]) => {
+                  const active = (wrapper?.bgColour ?? '#FDFBF7') === hex;
+                  return (
+                    <button
+                      key={hex}
+                      type="button"
+                      title={name}
+                      onClick={() =>
+                        dispatch({
+                          type: 'SET_EXTRAS',
+                          extras: { printedWrapper: { enabled: true, ...wrapper, bgColour: hex } },
+                        })
+                      }
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        active ? 'border-gold scale-110' : 'border-choco/15 hover:border-gold'
+                      }`}
+                      style={{ background: hex }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            {Boolean(wrapper?.message?.trim()) && (
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+                  {STEP3_WRAPPED_COPY.wrapperTextTitle}
+                </p>
+                <div className="flex gap-2">
+                  {Object.entries(STEP3_WRAPPED_COPY.wrapperTextNames).map(([hex, name]) => {
+                    const active = wrapper?.textColour === hex;
+                    return (
+                      <button
+                        key={hex}
+                        type="button"
+                        title={name}
+                        onClick={() =>
+                          dispatch({
+                            type: 'SET_EXTRAS',
+                            extras: { printedWrapper: { enabled: true, ...wrapper, textColour: hex } },
+                          })
+                        }
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          active ? 'border-gold scale-110' : 'border-choco/15 hover:border-gold'
+                        }`}
+                        style={{ background: hex }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </section>
@@ -453,12 +573,12 @@ export default function Step3Finishing() {
 
       {isIndividual ? (
         <div className="space-y-10">
-          <WrappedSection isLoose />
+          <WrappedSection isLoose wrapperEligible={wrapperEligible} />
           {wrapperEligible && <PrintedWrapperSection />}
         </div>
       ) : (
         <div className="space-y-10">
-          <WrappedSection isLoose={false} assortedRing={option?.assortedRing} />
+          <WrappedSection isLoose={false} assortedRing={option?.assortedRing} wrapperEligible={wrapperEligible} />
 
           {/* Ribbon */}
           <section>

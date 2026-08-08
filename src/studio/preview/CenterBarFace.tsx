@@ -31,9 +31,12 @@ export default function CenterBarFace({ design, className = '', shape }: CenterB
   const rawUid = useId();
   const uid = rawUid.replace(/[^a-zA-Z0-9]/g, '');
   const filter = embossFilterId(design.chocolate, uid);
+  // The bar's mark follows the mark section's "Size on chocolate" slider —
+  // the old dedicated bar slider is retired (centerBarScale kept only for
+  // previously saved designs).
   const scale = Math.min(
     MARK_SCALE_MAX,
-    Math.max(MARK_SCALE_MIN, design.centerBarScale ?? 1)
+    Math.max(MARK_SCALE_MIN, design.centerBarScale ?? design.logo?.scale ?? 1)
   );
   const caption = design.barCaption?.trim();
   const hasLogo = Boolean(design.logo?.maskDataUrl);

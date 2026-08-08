@@ -295,7 +295,7 @@ export const QUOTE_LINE_LABELS = {
   extraQr: 'QR code',
   extraInsideMessage: 'Butter-paper message',
   messageBar: 'Message bar',
-  weddingBar: 'Wedding bar',
+  weddingBar: 'Wedding favour bar (60 × 60 mm)',
   printedWrapper: 'Printed wrapper',
   designMoldFee: 'Design & mold fee',
 };
@@ -337,14 +337,47 @@ export const STEP3_WRAPPED_COPY = {
   foilPickerTitle: 'Foil colour',
   wrappedCardLabel: 'Wrapped',
   unwrappedCardLabel: 'Unwrapped',
+  printedTitle: 'Printed wrapper',
+  printedBody: 'Fully wrapped — foil underneath, a printed paper wrapper on top with your art or message.',
+  printedCardLabel: 'Printed',
+  wrapperBgTitle: 'Wrapper colour',
+  wrapperTextTitle: 'Message colour',
+  wrapperBgNames: {
+    '#FDFBF7': 'Ivory',
+    '#2D1E17': 'Deep Chocolate',
+    '#C9A24B': 'Gold',
+    '#5B3A8E': 'Royal Purple',
+    '#8E2F3C': 'Crimson',
+  } as Record<string, string>,
+  wrapperTextNames: {
+    '#2D1E17': 'Chocolate',
+    '#FDFBF7': 'Ivory',
+    '#C9A24B': 'Gold',
+  } as Record<string, string>,
   // X+1 boxes: the ring pieces are moulded assorted shapes, not the
   // customer's flat canvas, so they can never be individually foil-wrapped.
   assortedRingNote: 'The assorted pieces around your message bar pack unwrapped, set in paper cups.',
 };
 
 /** Summary naming for X+1 boxes in WhatsApp / print output. */
-export const packagingSummaryName = (name: string, count: number, centerBar?: boolean) =>
-  centerBar ? `${name} (${count} pieces + message bar)` : name;
+export const packagingSummaryName = (name: string, count: number, centerBar?: boolean) => {
+  if (!centerBar) return name;
+  // Wedding favour box: the single favour bar IS the contents — there is no
+  // piece ring, so "(1 pieces + message bar)" would misdescribe it.
+  if (count <= 1) return `${name} (one favour bar)`;
+  return `${name} (${count} pieces + message bar)`;
+};
+
+/**
+ * The bar row's label in design summaries. The wedding favour box carries a
+ * favour bar, not a "message bar" — keeping the two named apart stops the
+ * quote from reading as three different bars at once.
+ */
+export const centerBarRowLabel = (packagingType: string | undefined): string =>
+  packagingType === 'wedding-favor' ? 'Wedding favour bar' : 'Message bar';
+
+/** What the wedding favour box customer actually receives, as the product line. */
+export const WEDDING_FAVOR_BAR_LINE = 'Wedding favour bar — 60 × 60 mm · ≈55g';
 
 /* ---------------------------------------------------------------------- */
 /* Center bar (X+1 boxes) & bar caption                                    */
@@ -371,8 +404,9 @@ const CENTER_BAR_SPECS: Record<string, string> = {
   '4+1': '120 × 60 mm · 50g',
   '9+1': '85 × 85 mm · 60g',
   '16+1': '85 × 85 mm · 60g',
-  // Weight unconfirmed for the wedding favour bar — omitted rather than guessed.
-  'wedding-favor': '60 × 60 mm',
+  // ≈55g matches CENTER_BAR_WEIGHTS_G's working estimate; still pending an
+  // owner-confirmed spec sheet, hence the ≈.
+  'wedding-favor': '60 × 60 mm · ≈55g',
 };
 
 export function centerBarSpec(packagingType: string | undefined): string | undefined {

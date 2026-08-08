@@ -83,6 +83,9 @@ function sanitizePrintedWrapper(value: unknown): PrintedWrapper | undefined {
   if (typeof raw.scale === 'number' && Number.isFinite(raw.scale)) {
     wrapper.scale = Math.min(WRAPPER_SCALE_MAX, Math.max(WRAPPER_SCALE_MIN, raw.scale));
   }
+  const isHex = (v: unknown): v is string => typeof v === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(v);
+  if (isHex(raw.bgColour)) wrapper.bgColour = raw.bgColour;
+  if (isHex(raw.textColour)) wrapper.textColour = raw.textColour;
   return wrapper;
 }
 
