@@ -10,6 +10,7 @@ import {
 } from '../copy';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
+import { resolveMessageMedium } from './messageMedium';
 import type { Design, Quote } from '../types';
 
 /**
@@ -83,7 +84,8 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
   if (wrapStatus) lines.push(`Pieces: ${wrapStatus}`);
 
   if (design.extras.insideMessage?.trim()) {
-    lines.push(`Butter-paper message: "${design.extras.insideMessage.trim()}"`);
+    const mediumName = STEP6_COPY.messageMediumNames[resolveMessageMedium(design.extras)];
+    lines.push(`${mediumName} message: "${design.extras.insideMessage.trim()}"`);
   }
 
   const wrapper = design.extras.printedWrapper;
@@ -97,7 +99,13 @@ export function buildStudioWaLink(design: Design, quote: Quote, shareUrl?: strin
     lines.push(`Printed wrapper: Yes${details ? ` (${details})` : ''}`);
   }
 
-  lines.push(`Quantity: ${design.quantity}`, `Quoted total: ${formatPrice(quote.total)}`);
+  const quotedUnits = Math.max(design.quantity, quote.moq);
+  lines.push(
+    quote.quantityUnit === 'boxes' && quote.pieces !== undefined
+      ? `Quantity: ${quotedUnits} ${quotedUnits === 1 ? 'box' : 'boxes'} (${quote.pieces} pieces)`
+      : `Quantity: ${quotedUnits} pieces`,
+    `Quoted total: ${formatPrice(quote.total)}`
+  );
 
   if (quote.estimatedWeightG !== undefined) {
     lines.push(`Est. weight: ${formatEstimatedWeight(quote.estimatedWeightG)}`);

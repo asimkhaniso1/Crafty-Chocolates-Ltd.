@@ -1,13 +1,17 @@
 import { createPortal } from 'react-dom';
 import {
   EMBOSS_NAMES,
+  ORDER_VISUALS_COPY,
   PRINT_SHEET_COPY,
+  STEP6_COPY,
   centerBarSpec,
   chocolateSummaryLabel,
   packagingSummaryName,
   productSpecLine,
   formatEstimatedWeight,
 } from '../copy';
+import { resolveMessageMedium } from '../lib/messageMedium';
+import OrderVisuals from './OrderVisuals';
 import { WHATSAPP_DISPLAY, PHONE_DISPLAY, formatPrice } from '../../constants';
 import { getPackagingOption } from '../data/packagingOptions';
 import { getStudioProduct } from '../data/studioProducts';
@@ -18,7 +22,6 @@ interface QuotePrintSheetProps {
   design: Design;
   quote: Quote;
   /** Data URL snapshot of the on-screen box/piece preview, captured by Step7Quote. */
-  arrangementImage?: string;
 }
 
 /**
@@ -26,7 +29,7 @@ interface QuotePrintSheetProps {
  * document.body so the app's animated/clipped containers can never affect it;
  * printing simply hides #root and shows the sheet (see the <style> block).
  */
-export default function QuotePrintSheet({ design, quote, arrangementImage }: QuotePrintSheetProps) {
+export default function QuotePrintSheet({ design, quote }: QuotePrintSheetProps) {
   const productName = design.product
     ? productSpecLine(getStudioProduct(design.product)) || design.product
     : 'Custom piece';
@@ -82,17 +85,12 @@ export default function QuotePrintSheet({ design, quote, arrangementImage }: Quo
       </header>
 
       <section className="mb-8">
-        {arrangementImage && (
-          <div className="mb-6">
-            <p className="text-xs uppercase tracking-wide text-clay mb-2">Your Design</p>
-            <img
-              src={arrangementImage}
-              alt="Your arrangement"
-              style={{ maxWidth: 280 }}
-              className="border border-choco/15 rounded-sm"
-            />
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-wide text-clay mb-2">{ORDER_VISUALS_COPY.title}</p>
+          <div style={{ maxWidth: 420 }}>
+            <OrderVisuals design={design} />
           </div>
-        )}
+        </div>
         <table className="w-full text-sm mb-4">
           <tbody>
             <tr>
@@ -133,7 +131,9 @@ export default function QuotePrintSheet({ design, quote, arrangementImage }: Quo
             )}
             {design.extras.insideMessage?.trim() && (
               <tr>
-                <td className="py-1 text-clay">Butter-paper message</td>
+                <td className="py-1 text-clay">
+                  {STEP6_COPY.messageMediumNames[resolveMessageMedium(design.extras)]} message
+                </td>
                 <td className="py-1 text-right font-semibold text-choco">
                   &ldquo;{design.extras.insideMessage.trim()}&rdquo;
                 </td>
@@ -147,7 +147,11 @@ export default function QuotePrintSheet({ design, quote, arrangementImage }: Quo
             )}
             <tr>
               <td className="py-1 text-clay">{PRINT_SHEET_COPY.quantityLabel}</td>
-              <td className="py-1 text-right font-semibold text-choco">{design.quantity}</td>
+              <td className="py-1 text-right font-semibold text-choco">
+                {quote.quantityUnit === 'boxes' && quote.pieces !== undefined
+                  ? `${Math.max(design.quantity, quote.moq)} boxes (${quote.pieces} pieces)`
+                  : `${Math.max(design.quantity, quote.moq)} pieces`}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -174,7 +178,7 @@ export default function QuotePrintSheet({ design, quote, arrangementImage }: Quo
         </table>
 
         <p className="mt-4 text-xs text-clay">
-          MOQ: {quote.moq} &middot; Lead time: {quote.leadDays} days &middot; Est. delivery:{' '}
+          MOQ: {quote.moq} {quote.quantityUnit ?? 'pieces'} &middot; Lead time: {quote.leadDays} days &middot; Est. delivery:{' '}
           {quote.deliveryDays} days
           {quote.estimatedWeightG !== undefined && (
             <> &middot; Est. weight: {formatEstimatedWeight(quote.estimatedWeightG)}</>

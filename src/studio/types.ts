@@ -60,10 +60,13 @@ export interface DesignExtras {
   foil?: 'silver' | 'gold';
   boxColour?: string;
   sleevePrint?: boolean;
-  /** Personal message, printed on butter paper placed inside the box. */
+  /** Personal message printed inside the box. */
   insideMessage?: string;
+  /** Where the personal message prints; resolved against what the design actually has (see lib/messageMedium.ts). */
+  insideMessageMedium?: 'butter-paper' | 'sleeve' | 'greeting-card';
   greetingCard?: boolean;
   qrUrl?: string;
+  /** Retired option (2026-08): kept only so old saved designs still parse; sanitizeDesign strips it. */
   waxSeal?: boolean;
   /** Printed paper wrapper around the piece (bars and loose packs). */
   printedWrapper?: PrintedWrapper;
@@ -144,6 +147,10 @@ export interface Quote {
   lines: QuoteLine[];
   /** Approximate total filled weight (pieces + center bar + empty box/tin), in grams. Always a placeholder-grade estimate. */
   estimatedWeightG?: number;
+  /** What the shopper's quantity input counts: boxes for boxed formats, pieces for loose. */
+  quantityUnit?: 'pieces' | 'boxes';
+  /** Total piece count the quote covers (boxes × per-box count for boxed formats). */
+  pieces?: number;
 }
 
 export interface StudioProduct {

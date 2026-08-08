@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { toPng } from 'html-to-image';
+import { useMemo, useState } from 'react';
 import { MessageCircle, Download, Save, Clock, Truck, Package, Check, Copy, Scale } from 'lucide-react';
 import {
   STEP_TITLES,
   STEP_SUBTITLES,
   QUOTE_COPY,
+  ORDER_VISUALS_COPY,
   SAVE_SHARE_COPY,
   productSpecLine,
   formatEstimatedWeight,
 } from '../copy';
+import OrderVisuals from '../output/OrderVisuals';
 import { formatPrice } from '../../constants';
 import { useStudio } from '../state/StudioContext';
 import { usePricingRules } from '../lib/usePricingRules';
@@ -19,6 +20,8 @@ import { getStudioProduct } from '../data/studioProducts';
 import QuotePrintSheet from '../output/QuotePrintSheet';
 
 const QUANTITY_PRESETS = [50, 100, 250, 500];
+/** Boxed formats count boxes, so presets sit an order of magnitude lower. */
+const BOX_QUANTITY_PRESETS = [10, 25, 50, 100];
 
 interface Step7QuoteProps {
   onSave?: () => void;
@@ -33,38 +36,12 @@ interface SaveState {
 }
 
 export default function Step7Quote({ onSave }: Step7QuoteProps) {
-  const { design, dispatch, previewRef } = useStudio();
+  const { design, dispatch } = useStudio();
   const { rules, source } = usePricingRules();
   const [saveState, setSaveState] = useState<SaveState>({ status: 'idle' });
-  const [arrangementImage, setArrangementImage] = useState<string | undefined>(undefined);
 
   const quote = useMemo(() => computeQuote(design, rules), [design, rules]);
-
-  // Capture a snapshot of the box/piece preview once, when the quote step is
-  // viewed — used as a small "Your arrangement" thumbnail on screen and in
-  // the printable quote. Not persisted to the Design; on-screen/PDF only.
-  useEffect(() => {
-    const node = previewRef.current;
-    if (!node || node.offsetWidth === 0 || node.offsetHeight === 0) return;
-    let cancelled = false;
-    // Race against a timeout: html-to-image can hang indefinitely in some
-    // environments (embedded/driven browsers), and the snapshot is a
-    // nice-to-have — never let it wedge state or leak work.
-    Promise.race([
-      toPng(node, { pixelRatio: 2 }),
-      new Promise<null>(resolve => setTimeout(() => resolve(null), 6000)),
-    ])
-      .then(dataUrl => {
-        if (!cancelled && dataUrl) setArrangementImage(dataUrl);
-      })
-      .catch(() => {
-        // Silently skip — e.g. an image asset couldn't be inlined.
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const quantityUnit = quote.quantityUnit === 'boxes' ? QUOTE_COPY.unitBoxes : QUOTE_COPY.unitPieces;
 
   const handleQuantityChange = (value: number) => {
     const next = Math.max(1, Math.floor(value || 0));
@@ -121,7 +98,7 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
       {/* Quantity selector */}
       <div className="mb-8 border border-choco/15 p-6">
         <label className="block text-xs font-black uppercase tracking-[0.2em] text-clay mb-3">
-          {QUOTE_COPY.quantityLabel}
+          {QUOTE_COPY.quantityLabel} ({quantityUnit})
         </label>
         <div className="flex items-center gap-4 mb-4">
           <input
@@ -132,15 +109,22 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
             className="w-32 border border-choco/20 bg-cream px-3 py-2 text-lg font-black text-choco focus:border-gold focus:outline-none"
           />
           {quote.moq > design.quantity && (
-            <p className="text-xs text-gold font-semibold">{QUOTE_COPY.moqClampNote(quote.moq)}</p>
+            <p className="text-xs text-gold font-semibold">
+              {QUOTE_COPY.moqClampNote(quote.moq, quantityUnit)}
+            </p>
           )}
         </div>
+        {quote.quantityUnit === 'boxes' && quote.pieces !== undefined && (
+          <p className="text-xs text-clay font-semibold mb-3">
+            {QUOTE_COPY.boxesPiecesNote(Math.max(design.quantity, quote.moq), quote.pieces)}
+          </p>
+        )}
         <div>
           <span className="text-[10px] uppercase tracking-[0.2em] text-clay mr-3">
             {QUOTE_COPY.quantityPresetsLabel}
           </span>
           <div className="inline-flex flex-wrap gap-2 mt-2">
-            {QUANTITY_PRESETS.map(preset => (
+            {(quote.quantityUnit === 'boxes' ? BOX_QUANTITY_PRESETS : QUANTITY_PRESETS).map(preset => (
               <button
                 key={preset}
                 onClick={() => handleQuantityChange(preset)}
@@ -160,19 +144,15 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
         </p>
       </div>
 
-      {/* Arrangement snapshot */}
-      {arrangementImage && (
-        <div className="mb-8 border border-choco/15 p-6">
-          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-clay mb-4">
-            Your arrangement
-          </h3>
-          <img
-            src={arrangementImage}
-            alt="Your arrangement"
-            className="max-w-[220px] rounded-sm border border-choco/10"
-          />
+      {/* How the order will look — live boxed/piece/wrapper visuals */}
+      <div className="mb-8 border border-choco/15 p-6">
+        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-clay mb-4">
+          {ORDER_VISUALS_COPY.title}
+        </h3>
+        <div className="max-w-md">
+          <OrderVisuals design={design} />
         </div>
-      )}
+      </div>
 
       {/* Breakdown */}
       <div className="mb-8 border border-choco/15 p-6">
@@ -208,7 +188,9 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
           <span className="text-[10px] uppercase tracking-[0.15em] text-clay">
             {QUOTE_COPY.moqChipLabel}
           </span>
-          <span className="text-sm font-black text-choco">{quote.moq}</span>
+          <span className="text-sm font-black text-choco">
+            {quote.moq} {quantityUnit}
+          </span>
         </div>
         <div className="flex flex-col items-center gap-1 border border-choco/15 py-4 px-2 text-center">
           <Clock size={18} className="text-gold" />
@@ -296,7 +278,7 @@ export default function Step7Quote({ onSave }: Step7QuoteProps) {
         </div>
       )}
 
-      <QuotePrintSheet design={design} quote={quote} arrangementImage={arrangementImage} />
+      <QuotePrintSheet design={design} quote={quote} />
     </div>
   );
 }

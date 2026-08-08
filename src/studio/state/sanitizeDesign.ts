@@ -133,6 +133,8 @@ export function sanitizeDesign(design: Design): Design {
       ...design.extras,
       printedWrapper: sanitizePrintedWrapper(design.extras?.printedWrapper),
       piecesWrapped: sanitizePiecesWrapped(design.extras?.piecesWrapped),
+      // Wax seal was retired from the studio (2026-08).
+      waxSeal: undefined,
     },
   };
 }

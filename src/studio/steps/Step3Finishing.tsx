@@ -6,6 +6,7 @@ import { useStudio } from '../state/StudioContext';
 import { getPackagingOption } from '../data/packagingOptions';
 import { isBarProduct } from '../data/studioProducts';
 import { processWrapperImage } from '../lib/logoProcessor';
+import { availableMessageMedia, resolveMessageMedium } from '../lib/messageMedium';
 import ChocolatePreview from '../preview/ChocolatePreview';
 import { cssCoverCrop, FOIL_BAR_PHOTO_CROP, FOIL_BITE_PHOTO_CROP } from '../preview/photoCrop';
 import type { Design } from '../types';
@@ -435,6 +436,8 @@ export default function Step3Finishing() {
 
   const piecesWrapped = design.extras.piecesWrapped === true;
   const insideMessageLength = design.extras.insideMessage?.length ?? 0;
+  const availableMedia = availableMessageMedia(design.extras);
+  const resolvedMedium = resolveMessageMedium(design.extras);
 
   function handleQrChange(value: string) {
     dispatch({ type: 'SET_EXTRAS', extras: { qrUrl: value } });
@@ -545,12 +548,6 @@ export default function Step3Finishing() {
                 dispatch({ type: 'SET_EXTRAS', extras: { greetingCard: !design.extras.greetingCard } })
               }
             />
-            <ToggleCard
-              label={STEP6_COPY.waxSealToggleLabel}
-              body={STEP6_COPY.waxSealToggleBody}
-              active={!!design.extras.waxSeal}
-              onToggle={() => dispatch({ type: 'SET_EXTRAS', extras: { waxSeal: !design.extras.waxSeal } })}
-            />
           </section>
 
           {/* Inside message — butter paper is the medium for bare pieces; when
@@ -577,6 +574,32 @@ export default function Step3Finishing() {
               rows={3}
               className="w-full border border-choco/15 bg-cream px-4 py-3 text-sm text-choco focus:border-gold outline-none resize-none"
             />
+            {Boolean(design.extras.insideMessage?.trim()) && availableMedia.length > 1 && (
+              <div className="mt-3">
+                <span className="block text-[10px] uppercase tracking-[0.15em] font-bold text-clay mb-2">
+                  {STEP6_COPY.messageMediumLabel}
+                </span>
+                <div className="flex flex-wrap gap-2 font-sans">
+                  {availableMedia.map(m => {
+                    const active = resolvedMedium === m;
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => dispatch({ type: 'SET_EXTRAS', extras: { insideMessageMedium: m } })}
+                        className={`px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-bold rounded-full border transition-all ${
+                          active
+                            ? 'bg-choco text-cream border-choco'
+                            : 'border-choco/20 text-choco hover:border-gold'
+                        }`}
+                      >
+                        {STEP6_COPY.messageMediumNames[m]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </section>
 
           {/* QR code — not offered on the wedding favour box (no sleeve to print it on) */}

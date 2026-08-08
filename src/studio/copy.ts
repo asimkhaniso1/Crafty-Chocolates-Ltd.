@@ -97,6 +97,15 @@ export const CUSTOM_BRIEF_COPY = {
   backCta: 'Back to products',
 };
 
+/** "How your order will look" visual tiles on the quote step and printable quote. */
+export const ORDER_VISUALS_COPY = {
+  title: 'How your order will look',
+  boxed: 'Boxed',
+  piece: 'Your piece',
+  printedWrapper: 'Printed wrapper',
+  foil: 'Foil-wrapped',
+};
+
 /** Embossed border ring controls — shared by Step 2 (Design it) and the custom-shape brief. */
 export const BORDER_COPY = {
   title: 'Embossed border',
@@ -237,10 +246,14 @@ export const STUDIO_COPY_STEP3 = {
 
 export const QUOTE_COPY = {
   quantityLabel: 'Quantity',
+  unitBoxes: 'boxes',
+  unitPieces: 'pieces',
   quantityPresetsLabel: 'Quick picks',
   moqNote: (moq: number) => `Minimum order quantity for this piece is ${moq}.`,
-  moqClampNote: (moq: number) =>
-    `Your quantity is below the minimum order of ${moq}. Your quote reflects ${moq} pieces.`,
+  moqClampNote: (moq: number, unit: string) =>
+    `Your quantity is below the minimum order of ${moq} ${unit}. Your quote reflects ${moq} ${unit}.`,
+  boxesPiecesNote: (boxes: number, pieces: number) =>
+    `${boxes} ${boxes === 1 ? 'box' : 'boxes'} = ${pieces} pieces.`,
   moqBulkNote:
     'The studio is built for bulk custom orders — every piece is quoted from a minimum of 50.',
   breakdownTitle: 'Your breakdown',
@@ -417,6 +430,12 @@ export const STEP6_COPY = {
   waxSealToggleLabel: 'Wax seal',
   waxSealToggleBody: 'A pressed wax seal finishing the ribbon.',
   insideMessageTitle: 'Personal message',
+  messageMediumLabel: 'Print it on',
+  messageMediumNames: {
+    'butter-paper': 'Butter paper',
+    sleeve: 'Printed sleeve',
+    'greeting-card': 'Greeting card',
+  } as Record<string, string>,
   // Butter paper is the medium for bare/unwrapped pieces; when pieces are
   // foil-wrapped, the message moves to the printed sleeve instead — the
   // field itself stays, only the helper copy changes to say where it lands.

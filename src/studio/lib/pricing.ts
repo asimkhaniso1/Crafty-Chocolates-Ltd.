@@ -61,13 +61,24 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
 
   const product = design.product ?? 'signature';
 
-  // --- MOQ ---
-  const moqRule = findRule(rules, `moq.${product}`);
-  const moq = (moqRule?.value as number | undefined) ?? MOQ_DEFAULTS[product] ?? 1;
+  // --- Quantity semantics ---
+  // Boxed formats sell by the box: the shopper's quantity means BOXES and
+  // pieces are derived (50 × Tin of 18 = 900 pieces). Loose/individual
+  // formats keep quantity = pieces.
+  const optionForQty = design.packaging ? getPackagingOption(design.packaging.type) : undefined;
+  const perBoxForQty = Math.max(1, optionForQty?.count ?? 1);
+  const quantityIsBoxes = Boolean(optionForQty && (perBoxForQty > 1 || optionForQty.boxDims));
 
-  const rawQuantity = Math.max(1, Math.floor(design.quantity || 0));
-  const quantity = Math.max(rawQuantity, moq);
-  const clampedToMoq = rawQuantity < moq;
+  // --- MOQ (rules state it in pieces; converted to boxes for boxed formats) ---
+  const moqRule = findRule(rules, `moq.${product}`);
+  const moqPieces = (moqRule?.value as number | undefined) ?? MOQ_DEFAULTS[product] ?? 1;
+  const moq = quantityIsBoxes ? Math.max(1, Math.ceil(moqPieces / perBoxForQty)) : moqPieces;
+
+  const rawUnits = Math.max(1, Math.floor(design.quantity || 0));
+  const units = Math.max(rawUnits, moq);
+  const clampedToMoq = rawUnits < moq;
+  /** Piece count — every rate below (tiers, subtotal, wrappers, weight) is per piece. */
+  const quantity = quantityIsBoxes ? units * perBoxForQty : units;
 
   // --- Base unit price ---
   const baseRule = findRule(rules, `base.${product}`);
@@ -186,7 +197,6 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     { key: 'ribbon', ruleKey: 'extra.ribbon', label: QUOTE_LINE_LABELS.extraRibbon },
     { key: 'sleevePrint', ruleKey: 'extra.sleevePrint', label: QUOTE_LINE_LABELS.extraSleevePrint },
     { key: 'greetingCard', ruleKey: 'extra.greetingCard', label: QUOTE_LINE_LABELS.extraGreetingCard },
-    { key: 'waxSeal', ruleKey: 'extra.waxSeal', label: QUOTE_LINE_LABELS.extraWaxSeal },
     { key: 'qrUrl', ruleKey: 'extra.qr', label: QUOTE_LINE_LABELS.extraQr },
     { key: 'insideMessage', ruleKey: 'extra.insideMessage', label: QUOTE_LINE_LABELS.extraInsideMessage },
   ];
@@ -239,7 +249,10 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
   const deliveryDays = leadDays + (deliveryRule?.value ?? 2);
 
   if (clampedToMoq) {
-    lines.push({ label: `Quoted at minimum order quantity (${moq})`, amount: 0 });
+    lines.push({
+      label: `Quoted at minimum order quantity (${moq} ${quantityIsBoxes ? 'boxes' : 'pieces'})`,
+      amount: 0,
+    });
   }
 
   const estimatedWeightG = computeEstimatedWeight(design, packagingOption, quantity);
@@ -254,5 +267,7 @@ export function computeQuote(design: Design, rules: PricingRule[]): Quote {
     deliveryDays,
     lines,
     estimatedWeightG,
+    quantityUnit: quantityIsBoxes ? 'boxes' : 'pieces',
+    pieces: quantity,
   };
 }
